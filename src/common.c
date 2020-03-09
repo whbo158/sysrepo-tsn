@@ -149,7 +149,7 @@ void print_config_iter(sr_session_ctx_t *session, const char *path)
 	if (!path || !session)
 		return;
 
-	rc = sr_get_items(session, path, &values, &count);
+	rc = sr_get_items(session, path, 0, &values, &count);
 	if (rc != SR_ERR_OK) {
 		printf("Error by sr_get_items: %s", sr_strerror(rc));
 		return;
@@ -160,16 +160,16 @@ void print_config_iter(sr_session_ctx_t *session, const char *path)
 	sr_free_values(values, count);
 }
 
-void print_ev_type(sr_notif_event_t event)
+void print_ev_type(sr_event_t event)
 {
 	switch (event) {
-	case SR_EV_VERIFY:
+	case SR_EV_CHANGE:
 		printf("\n--- verify mode ---\n");
 		break;
 	case SR_EV_ENABLED:
 		printf("\n--- enable mode ---\n");
 		break;
-	case SR_EV_APPLY:
+	case SR_EV_DONE:
 		printf("\n--- apply mode ---\n");
 		break;
 	case SR_EV_ABORT:

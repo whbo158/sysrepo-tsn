@@ -21,7 +21,7 @@
 #ifndef __COMMON_H_
 #define __COMMON_H_
 
-#define XPATH_MAX_LEN		200
+#define XPATH_MAX_LEN		300
 #define IF_NAME_MAX_LEN		20
 #define NODE_NAME_MAX_LEN	80
 #define MSG_MAX_LEN		100
@@ -29,11 +29,10 @@
 #include <sysrepo.h>
 #include <stdbool.h>
 #include <sysrepo/values.h>
-#include <sysrepo/plugins.h>
-#include <sysrepo/trees.h>
 #include "sysrepo/xpath.h"
 #include <tsn/genl_tsn.h> /* must ensure no stdbool.h was included before */
 #include <linux/tsn.h>
+#include <errno.h>
 
 enum apply_status {
 	APPLY_NONE = 0,
@@ -73,7 +72,7 @@ void close_tsn_socket(void);
 int errno2sp(int errtsn);
 uint64_t cal_base_time(struct base_time_s *basetime);
 uint64_t cal_cycle_time(struct cycle_time_s *cycletime);
-void print_ev_type(sr_notif_event_t event);
+void print_ev_type(sr_event_t event);
 void print_subtree_changes(sr_session_ctx_t *session, const char *path);
 int str_to_num(int type, char *str, uint64_t *num);
 void pri2num(char *pri_str, int8_t *pri_num);
