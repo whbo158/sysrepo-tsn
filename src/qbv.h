@@ -38,6 +38,6 @@ struct sr_qbv_conf {
 };
 
 int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_notif_event_t event, void *private_ctx);
+		sr_event_t event, void *private_ctx);
 
 #endif

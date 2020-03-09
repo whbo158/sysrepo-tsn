@@ -278,7 +278,7 @@ int parse_fm_per_port_per_id(sr_session_ctx_t *session, bool abort)
 			continue;
 		}
 
-		rc = sr_get_items(session, xpath, &values, &count);
+		rc = sr_get_items(session, xpath, 0, &values, &count);
 		if (rc == SR_ERR_NOT_FOUND) {
 			rc = SR_ERR_OK;
 			cur_node = cur_node->next;
@@ -390,7 +390,7 @@ out:
 }
 
 int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_notif_event_t event, void *private_ctx)
+		sr_event_t event, void *private_ctx)
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
@@ -398,13 +398,13 @@ int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 	snprintf(xpath, XPATH_MAX_LEN, "%s%s//*", BRIDGE_COMPONENT_XPATH,
 		 QCIFM_XPATH);
 	switch (event) {
-	case SR_EV_VERIFY:
+	case SR_EV_CHANGE:
 		rc = qci_fm_config(session, xpath, false);
 		break;
 	case SR_EV_ENABLED:
 		rc = qci_fm_config(session, xpath, false);
 		break;
-	case SR_EV_APPLY:
+	case SR_EV_DONE:
 		free_list(fm_list_head, QCI_T_FM);
 		fm_list_head = NULL;
 		break;

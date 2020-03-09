@@ -87,9 +87,9 @@ struct std_qci_list *is_node_in_list(struct std_qci_list *list,
 void add_node2list(struct std_qci_list *list, struct std_qci_list *node);
 
 int qci_sf_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_notif_event_t event, void *private_ctx);
+		sr_event_t event, void *private_ctx);
 int qci_sg_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_notif_event_t event, void *private_ctx);
+		sr_event_t event, void *private_ctx);
 int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_notif_event_t event, void *private_ctx);
+		sr_event_t event, void *private_ctx);
 #endif
