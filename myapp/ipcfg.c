@@ -84,6 +84,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 
 	if (req == SIOCSIFHWADDR) {
 		memcpy(&ifr.ifr_ifru.ifru_hwaddr.sa_data, buf, IFHWADDRLEN);
+		ifr.ifr_addr.sa_family = ARPHRD_ETHER;
 	} else {
 		sin = (struct sockaddr_in *)&ifr.ifr_addr;
 		sin->sin_family = AF_INET;
@@ -151,17 +152,19 @@ int test_inet_cfg(void)
 	get_inet_mac("vethmy0", mac);
 	PRINT("mac:%02X-%02X-%02X-%02X-%02X-%02X\n",
 		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
+#if 0
 	get_inet_mac("vethmy1", mac);
 	PRINT("mac:%02X-%02X-%02X-%02X-%02X-%02X\n",
 		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
+#endif
 	ip.s_addr = inet_addr("192.168.15.1");
 	set_inet_ip("vethmy0", &ip);
 
 	ip.s_addr = inet_addr("255.255.0.0");
 	set_inet_mask("vethmy0", &ip);
 
+	mac[5] += 1;
+	set_inet_mac("vethmy0", mac);
 
 	return 0;
 }
