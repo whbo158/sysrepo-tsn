@@ -30,6 +30,8 @@
 */
 
 #define PRINT printf
+#define ADDR_LEN (sizeof(struct in_addr))
+
 typedef unsigned char uint8;
 
 int test_inet_cfg(void);
