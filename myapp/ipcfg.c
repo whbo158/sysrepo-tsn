@@ -86,7 +86,6 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 		memcpy(&ifr.ifr_ifru.ifru_hwaddr.sa_data, buf, IFHWADDRLEN);
 	} else {
 		sin = (struct sockaddr_in *)&ifr.ifr_addr;
-		//memset(sin, 0, sizeof(struct sockaddr_in));
 		sin->sin_family = AF_INET;
 		memcpy(&sin->sin_addr, (struct in_addr *)buf, len);
 	}
@@ -117,6 +116,21 @@ int set_inet_mac(char *ifname, uint8 *buf)
 	return set_inet_cfg(ifname, SIOCSIFHWADDR, buf, IFHWADDRLEN);
 }
 
+bool is_valid_addr(uint8 *ip)
+{
+	int ret = 0;
+	struct in_addr ip_addr;
+
+	if (!ip)
+	      return false;
+
+	ret = inet_aton(ip, &ip_addr);
+	if (0 == ret)
+		return false;
+
+	return true;
+}
+
 int test_inet_cfg(void)
 {
 	struct in_addr ip;
@@ -142,8 +156,11 @@ int test_inet_cfg(void)
 	PRINT("mac:%02X-%02X-%02X-%02X-%02X-%02X\n",
 		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-	ip.s_addr = inet_addr("192.168.14.1");
+	ip.s_addr = inet_addr("192.168.15.1");
 	set_inet_ip("vethmy0", &ip);
+
+	ip.s_addr = inet_addr("255.255.0.0");
+	set_inet_mask("vethmy0", &ip);
 
 
 	return 0;
