@@ -11,11 +11,14 @@ static int get_inet_cfg(char *ifname, int req, void *buf, int len)
 	struct ifreq ifr = {0};
 	struct sockaddr_in *sin = NULL;
 
+	if (!ifname || !buf)
+		return -1;
+
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
 	{
 		PRINT("create socket failed! ret:%d\n", sockfd);
-		return -1;
+		return -2;
 	}
 
 	memset(&ifr, 0, sizeof(ifr));
@@ -25,15 +28,11 @@ static int get_inet_cfg(char *ifname, int req, void *buf, int len)
 	close(sockfd);
 	if (ret < 0) {
 		PRINT("ioctl error! ret:%d\n", ret);
-		return -2;
+		return -3;
 	}
 
 	if (req == SIOCGIFHWADDR) {
-		uint8 *mac = (uint8 *)buf;
-
-		memcpy(mac, &ifr.ifr_ifru.ifru_hwaddr.sa_data, IFHWADDRLEN);
-		PRINT("mac:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x\n", 
-			mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		memcpy(buf, &ifr.ifr_ifru.ifru_hwaddr.sa_data, IFHWADDRLEN);
 	} else {
 		sin = (struct sockaddr_in *)&ifr.ifr_addr;
 		memcpy((struct in_addr *)buf, &sin->sin_addr, len);
@@ -53,6 +52,11 @@ int get_inet_mask(char *ifname, struct in_addr *mask)
 	return get_inet_cfg(ifname, SIOCGIFNETMASK, mask, ADDR_LEN);
 }
 
+int get_inet_mac(char *ifname, uint8 *buf)
+{
+	return get_inet_cfg(ifname, SIOCGIFHWADDR, buf, IFHWADDRLEN);
+}
+
 int set_ip_buf(char *ip)
 {
 	printf("%s:%d ip:%s\n", __func__, __LINE__, ip);
@@ -62,6 +66,7 @@ int set_ip_buf(char *ip)
 int test_inet_cfg(void)
 {
 	struct in_addr ip;
+	uint8 mac[IFHWADDRLEN];
 
 	get_inet_ip("vethmy0", &ip);
 	PRINT("ip:%s\n", inet_ntoa(ip));
@@ -74,6 +79,14 @@ int test_inet_cfg(void)
 
 	get_inet_mask("vethmy1", &ip);
 	PRINT("mask:%s\n", inet_ntoa(ip));
+
+	get_inet_mac("vethmy0", mac);
+	PRINT("mac:%02X-%02X-%02X-%02X-%02X-%02X\n",
+		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+	get_inet_mac("vethmy1", mac);
+	PRINT("mac:%02X-%02X-%02X-%02X-%02X-%02X\n",
+		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
 	return 0;
 }
