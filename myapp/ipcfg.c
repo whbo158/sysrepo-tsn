@@ -96,7 +96,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 	if (ret < 0) {
 		PRINT("ioctl error! ret:%d, need root account!\n", ret);
 		PRINT("Note: this operation needs root permission!\n");
-		return -3;
+		return -4;
 	}
 
 	return 0;
@@ -115,6 +115,51 @@ int set_inet_mask(char *ifname, struct in_addr *mask)
 int set_inet_mac(char *ifname, uint8 *buf)
 {
 	return set_inet_cfg(ifname, SIOCSIFHWADDR, buf, IFHWADDRLEN);
+}
+
+static int set_inet_updown(char *ifname, bool upflag)
+{
+	int ret = 0;
+	int sockfd = 0;
+	struct ifreq ifr = {0};
+	struct sockaddr_in *sin = NULL;
+
+	if (!ifname)
+		return -1;
+
+	sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0)
+	{
+		PRINT("create socket failed! ret:%d\n", sockfd);
+		return -2;
+	}
+
+	memset(&ifr, 0, sizeof(ifr));
+	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name) - 1, "%s", ifname);
+
+	ret = ioctl(sockfd, SIOCGIFFLAGS, &ifr);
+	if (ret < 0) {
+		PRINT("get interface flag failed! ret:%d\n", ret);
+		return -3;
+	}
+
+	sin = (struct sockaddr_in *)&ifr.ifr_addr;
+	sin->sin_family = AF_INET;
+
+	if (upflag)
+		ifr.ifr_flags |= IFF_UP;
+	else
+		ifr.ifr_flags &= ~IFF_UP;
+
+	ret = ioctl(sockfd, SIOCSIFFLAGS, &ifr);
+	close(sockfd);
+	if (ret < 0) {
+		PRINT("ioctl error! ret:%d, need root account!\n", ret);
+		PRINT("Note: this operation needs root permission!\n");
+		return -4;
+	}
+
+	return 0;
 }
 
 bool is_valid_addr(uint8 *ip)
@@ -165,6 +210,8 @@ int test_inet_cfg(void)
 
 	mac[5] += 1;
 	set_inet_mac("vethmy0", mac);
+
+	set_inet_updown("vethmy0", true);
 
 	return 0;
 }
