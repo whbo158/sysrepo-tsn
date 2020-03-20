@@ -1,0 +1,19 @@
+<bridges xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge">
+	<bridge>
+		<name>switch</name>
+		<bridge-type>provider-edge-bridge</bridge-type>
+		<address>00-00-00-00-00-02</address>
+		<component>
+			<bridge-vlan>
+				<vlan>
+					<vid>3000</vid>
+					<name>deipce0</name>
+				</vlan>
+				<vlan>
+					<vid>3001</vid>
+					<name>deipce0</name>
+				</vlan>
+			</bridge-vlan>
+		</component>
+	</bridge>
+</bridges>
