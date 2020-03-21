@@ -208,8 +208,9 @@ int test_inet_cfg(void)
 	ip.s_addr = inet_addr("255.255.0.0");
 	set_inet_mask("vethmy0", &ip);
 
+	get_inet_mac("switch", mac);
 	mac[5] += 1;
-	set_inet_mac("vethmy0", mac);
+	set_inet_mac("switch", mac);
 
 	set_inet_updown("vethmy0", true);
 

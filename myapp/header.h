@@ -24,6 +24,8 @@
 #include <sys/time.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <linux/if_vlan.h>
+#include <linux/sockios.h>
 
 /**
 	author: hongbo.wang (hongbo.wang@nxp.com)
@@ -36,5 +38,6 @@ typedef unsigned char uint8;
 
 int test_inet_cfg(void);
 
+int test_vlan_cfg(void);
 
 #endif

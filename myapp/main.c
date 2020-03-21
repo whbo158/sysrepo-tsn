@@ -11,5 +11,7 @@ int main(int argc, char **argv)
 {
 	test_inet_cfg();
 
+	test_vlan_cfg();
+
 	return 0;
 }
