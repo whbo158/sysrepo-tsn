@@ -13,5 +13,7 @@ int main(int argc, char **argv)
 
 	test_vlan_cfg();
 
+	test_br_cfg();
+
 	return 0;
 }

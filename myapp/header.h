@@ -31,7 +31,7 @@
 	author: hongbo.wang (hongbo.wang@nxp.com)
 */
 
-#define PRINT printf
+#define PRINT printf("%s-%d: ", __func__, __LINE__);printf
 #define ADDR_LEN (sizeof(struct in_addr))
 
 typedef unsigned char uint8;
@@ -39,5 +39,7 @@ typedef unsigned char uint8;
 int test_inet_cfg(void);
 
 int test_vlan_cfg(void);
+
+int test_br_cfg(void);
 
 #endif

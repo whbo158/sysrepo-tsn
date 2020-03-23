@@ -46,7 +46,7 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 int test_vlan_cfg(void)
 {
 //	set_inet_vlan("vethmy0", 101, true);
-	set_inet_vlan("vethmy0", 100, false);
+	set_inet_vlan("vethmy0", 100, true);
 
 	return 0;
 }
