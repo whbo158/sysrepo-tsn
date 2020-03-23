@@ -4,7 +4,7 @@
 	author: hongbo.wang (hongbo.wang@nxp.com)
 */
 
-static int set_inet_vlan(char *ifname, int vid, bool addflag)
+int set_inet_vlan(char *ifname, int vid, bool addflag)
 {
 	int ret = 0;
 	int sockfd = 0;
@@ -22,7 +22,6 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 
 	memset(&ifr, 0, sizeof(ifr));
 	ifr.u.VID = vid;
-//	ifr.u.name_type = VLAN_NAME_TYPE_RAW_PLUS_VID_NO_PAD;
 
 	if (addflag) {
 		ifr.cmd = ADD_VLAN_CMD;
@@ -37,7 +36,7 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 	if (ret < 0) {
 		PRINT("ioctl error! ret:%d, need root account!\n", ret);
 		PRINT("Note: this operation needs root permission!\n");
-		return -4;
+		return -3;
 	}
 
 	return 0;
@@ -45,8 +44,10 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 
 int test_vlan_cfg(void)
 {
-//	set_inet_vlan("vethmy0", 101, true);
-	set_inet_vlan("vethmy0", 100, true);
-
+#ifdef TEST_ADD
+	//set_inet_vlan("vethmy0", 100, true);
+#else
+	//set_inet_vlan("vethmy0", 100, false);
+#endif
 	return 0;
 }

@@ -212,7 +212,11 @@ int test_inet_cfg(void)
 	mac[5] += 1;
 	set_inet_mac("switch", mac);
 
+#ifdef TEST_ADD
 	set_inet_updown("vethmy0", true);
+#else
+	set_inet_updown("vethmy0", false);
+#endif
 
 	return 0;
 }

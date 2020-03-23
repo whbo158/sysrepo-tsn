@@ -4,11 +4,10 @@
 	author: hongbo.wang (hongbo.wang@nxp.com)
 */
 
-static int set_inet_brctl(char *brname, bool addflag)
+int set_inet_brctl(char *brname, bool addflag)
 {
 	int ret = 0;
 	int sockfd = 0;
-	struct ifreq ifr;
 
 	if (!brname)
 		return -1;
@@ -20,9 +19,6 @@ static int set_inet_brctl(char *brname, bool addflag)
 		return -2;
 	}
 
-	memset(&ifr, 0, sizeof(ifr));
-	//prep_ifreq(&ifr, bridge);
-	//ifr.ifr_ifindex = if_nametoindex(iface);
 	if (addflag)
 		ret = ioctl(sockfd, SIOCBRADDBR, brname);
 	else	
@@ -31,13 +27,13 @@ static int set_inet_brctl(char *brname, bool addflag)
 	if (ret < 0) {
 		PRINT("ioctl error! ret:%d, need root account!\n", ret);
 		PRINT("Note: this operation needs root permission!\n");
-		return -4;
+		return -3;
 	}
 
 	return 0;
 }
 
-static int set_inet_brifctl(char *brname, char *ifname, bool addflag)
+int set_inet_brifctl(char *brname, char *ifname, bool addflag)
 {
 	int ret = 0;
 	int sockfd = 0;
@@ -54,14 +50,18 @@ static int set_inet_brifctl(char *brname, char *ifname, bool addflag)
 	}
 
 	memset(&ifr, 0, sizeof(ifr));
-	//prep_ifreq(&ifr, bridge);
-	//ifr.ifr_ifindex = if_nametoindex(iface);
-	ret = ioctl(sockfd, SIOCBRADDIF, &ifr);
+	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name) - 1, "%s", brname);
+	ifr.ifr_ifindex = if_nametoindex(ifname);
+
+	if (addflag)
+		ret = ioctl(sockfd, SIOCBRADDIF, &ifr);
+	else
+		ret = ioctl(sockfd, SIOCBRDELIF, &ifr);
 	close(sockfd);
 	if (ret < 0) {
 		PRINT("ioctl error! ret:%d, need root account!\n", ret);
 		PRINT("Note: this operation needs root permission!\n");
-		return -4;
+		return -3;
 	}
 
 	return 0;
@@ -69,8 +69,14 @@ static int set_inet_brifctl(char *brname, char *ifname, bool addflag)
 
 int test_br_cfg(void)
 {
-	set_inet_brctl("wmybr0", true);
-	//set_inet_brctl("wmybr0", false);
-
+#ifdef TEST_ADD
+	set_inet_vlan("vethmy0", 100, true);
+	set_inet_brctl("vmybr0", true);
+	set_inet_brifctl("vmybr0", "vethmy0.100", true);
+#else
+	set_inet_brifctl("vmybr0", "vethmy0.100", false);
+	set_inet_brctl("vmybr0", false);
+	set_inet_vlan("vethmy0", 100, false);
+#endif
 	return 0;
 }
