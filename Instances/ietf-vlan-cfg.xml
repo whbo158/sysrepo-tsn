@@ -4,14 +4,16 @@
 		<bridge-type>provider-edge-bridge</bridge-type>
 		<address>00-00-00-00-00-02</address>
 		<component>
+            <name>eno0</name>
+		    <type>edge-relay-component</type>
 			<bridge-vlan>
 				<vlan>
-					<vid>3000</vid>
-					<name>deipce0</name>
+					<vid>125</vid>
+					<name>vethmy0</name>
 				</vlan>
 				<vlan>
-					<vid>3001</vid>
-					<name>deipce0</name>
+					<vid>226</vid>
+					<name>vethmy1</name>
 				</vlan>
 			</bridge-vlan>
 		</component>
