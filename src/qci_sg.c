@@ -295,7 +295,7 @@ int get_sg_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if ((!sg_id) || !strncmp(sg_id, sgid_bak, IF_NAME_MAX_LEN))
 			continue;
 
-		snprintf(sgid_bak, IF_NAME_MAX_LEN, sg_id);
+		snprintf(sgid_bak, IF_NAME_MAX_LEN, "%s", sg_id);
 
 		sgid = strtoul(sg_id, NULL, 0);
 		cpname = sr_xpath_key_value(value->xpath, "component",

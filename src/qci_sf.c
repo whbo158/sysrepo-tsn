@@ -176,7 +176,7 @@ int get_sf_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if ((!sf_id) || !strncmp(sf_id, sfid_bak, IF_NAME_MAX_LEN))
 			continue;
 
-		snprintf(sfid_bak, IF_NAME_MAX_LEN, sf_id);
+		snprintf(sfid_bak, IF_NAME_MAX_LEN, "%s", sf_id);
 
 		sfid = strtoul(sf_id, NULL, 0);
 		cpname = sr_xpath_key_value(value->xpath, "component",
