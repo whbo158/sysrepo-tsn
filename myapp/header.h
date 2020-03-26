@@ -51,6 +51,7 @@
  */
 
 typedef unsigned char uint8;
+typedef unsigned int uint32;
 
 int set_inet_vlan(char *ifname, int vid, bool addflag);
 int set_inet_brctl(char *brname, bool addflag);

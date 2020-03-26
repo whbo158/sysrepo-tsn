@@ -177,10 +177,51 @@ bool is_valid_addr(uint8 *ip)
 	return true;
 }
 
+int convert_mac_address(char *str, uint8 *pbuf, int buflen)
+{
+	int i = 0;
+	int ret = 0;
+	int len = 0;
+	int cnt = 0;
+	uint32 data = 0;
+	char *pmac = NULL;
+	char buf[32] = {0};
+
+	if (!str || !pbuf)
+		return -1;
+
+	snprintf(buf, sizeof(buf), "%s", str);
+	pmac = buf;
+
+	len = strlen(buf);
+	for (i = 0; i < (len + 1); i++) {
+		if ((buf[i] == '-') || (buf[i] == ':') || (buf[i] == '\0')) {
+			buf[i] = '\0';
+			ret = sscanf(pmac, "%02X", &data);
+			if (ret != 1)
+			      return -2;
+
+			if (cnt < buflen)
+			      pbuf[cnt++] = data & 0xFF;
+
+			pmac = buf + i + 1;
+		}
+	}
+#if 1
+	for (i = 0; i < cnt; i++) {
+		printf("%d:%X\n", i, pbuf[i]);
+	}
+#endif
+	return 0;
+}
+
 int test_inet_cfg(void)
 {
 	struct in_addr ip;
 	uint8 mac[IFHWADDRLEN];
+
+	convert_mac_address("d6-ad-62-c1-60-f7", mac, sizeof(mac));
+	convert_mac_address("d6-AD-62-C1-60-f7", mac, sizeof(mac));
 
 	get_inet_ip("vethmy0", &ip);
 	PRINT("ip:%s\n", inet_ntoa(ip));
