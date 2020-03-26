@@ -51,9 +51,9 @@ int get_inet_mask(char *ifname, struct in_addr *mask)
 	return get_inet_cfg(ifname, SIOCGIFNETMASK, mask, ADDR_LEN);
 }
 
-int get_inet_mac(char *ifname, uint8 *buf)
+int get_inet_mac(char *ifname, uint8 *buf, int len)
 {
-	return get_inet_cfg(ifname, SIOCGIFHWADDR, buf, IFHWADDRLEN);
+	return get_inet_cfg(ifname, SIOCGIFHWADDR, buf, len);
 }
 
 static int set_inet_cfg(char *ifname, int req, void *buf, int len)
@@ -112,9 +112,9 @@ int set_inet_mask(char *ifname, struct in_addr *mask)
 	return set_inet_cfg(ifname, SIOCSIFNETMASK, mask, ADDR_LEN);
 }
 
-int set_inet_mac(char *ifname, uint8 *buf)
+int set_inet_mac(char *ifname, uint8 *buf, int len)
 {
-	return set_inet_cfg(ifname, SIOCSIFHWADDR, buf, IFHWADDRLEN);
+	return set_inet_cfg(ifname, SIOCSIFHWADDR, buf, len);
 }
 
 static int set_inet_updown(char *ifname, bool upflag)
@@ -235,11 +235,11 @@ int test_inet_cfg(void)
 	get_inet_mask("vethmy1", &ip);
 	PRINT("mask:%s\n", inet_ntoa(ip));
 
-	get_inet_mac("vethmy0", mac);
+	get_inet_mac("vethmy0", mac, sizeof(mac));
 	PRINT("mac:%02X-%02X-%02X-%02X-%02X-%02X\n",
 		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 #if 0
-	get_inet_mac("vethmy1", mac);
+	get_inet_mac("vethmy1", mac, sizeof(mac));
 	PRINT("mac:%02X-%02X-%02X-%02X-%02X-%02X\n",
 		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 #endif
@@ -249,9 +249,9 @@ int test_inet_cfg(void)
 	ip.s_addr = inet_addr("255.255.0.0");
 	set_inet_mask("vethmy0", &ip);
 
-	get_inet_mac("switch", mac);
+	get_inet_mac("switch", mac, sizeof(mac));
 	mac[5] += 1;
-	set_inet_mac("switch", mac);
+	set_inet_mac("switch", mac, sizeof(mac));
 
 #ifdef TEST_ADD
 	set_inet_updown("vethmy0", true);
