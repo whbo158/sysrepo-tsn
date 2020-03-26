@@ -32,7 +32,7 @@ static int get_inet_cfg(char *ifname, int req, void *buf, int len)
 	}
 
 	if (req == SIOCGIFHWADDR) {
-		memcpy(buf, &ifr.ifr_ifru.ifru_hwaddr.sa_data, IFHWADDRLEN);
+		memcpy(buf, &ifr.ifr_ifru.ifru_hwaddr.sa_data, len);
 	} else {
 		sin = (struct sockaddr_in *)&ifr.ifr_addr;
 		memcpy((struct in_addr *)buf, &sin->sin_addr, len);
@@ -83,7 +83,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 	}
 
 	if (req == SIOCSIFHWADDR) {
-		memcpy(&ifr.ifr_ifru.ifru_hwaddr.sa_data, buf, IFHWADDRLEN);
+		memcpy(&ifr.ifr_ifru.ifru_hwaddr.sa_data, buf, len);
 		ifr.ifr_addr.sa_family = ARPHRD_ETHER;
 	} else {
 		sin = (struct sockaddr_in *)&ifr.ifr_addr;
