@@ -1,0 +1,10 @@
+<interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"
+	    xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0"
+	    xmlns:ip="urn:ietf:params:xml:ns:yang:ietf-ip">
+	<interface>
+		<name>vethmy0</name>
+		<enabled>true</enabled>
+		<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
+		<phys-address>d6:ad:62:c1:60:f7</phys-address>
+	</interface>
+</interfaces-state>
