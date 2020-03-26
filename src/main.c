@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 
 	/* Subscribe to QBV subtree */
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
-	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
+	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
 	strncat(path, QBV_GATE_PARA_XPATH, XPATH_MAX_LEN);
 	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
 					qbv_subtree_change_cb, NULL, 0,
@@ -148,7 +148,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Subscribe to QBV subtree */
-	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
+	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
 	strncat(path, QBV_MAX_SDU_XPATH, XPATH_MAX_LEN);
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
@@ -161,7 +161,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Subscribe to QBU subtree */
-	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
+	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
 	strncat(path, QBU_XPATH, XPATH_MAX_LEN);
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Subscribe to CB-StreamID subtree */
-	snprintf(path, XPATH_MAX_LEN, BRIDGE_COMPONENT_XPATH);
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, CB_STREAMID_XPATH, XPATH_MAX_LEN);
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
@@ -182,7 +182,7 @@ int main(int argc, char **argv)
 					NULL, 0, opts, &bridge_subscription);
 
 	/* Subscribe to QCI-Stream-Filter subtree */
-	snprintf(path, XPATH_MAX_LEN, BRIDGE_COMPONENT_XPATH);
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCISF_XPATH, XPATH_MAX_LEN);
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
@@ -190,7 +190,7 @@ int main(int argc, char **argv)
 					NULL, 0, opts, &bridge_subscription);
 
 	/* Subscribe to QCI-Stream-Gate subtree */
-	snprintf(path, XPATH_MAX_LEN, BRIDGE_COMPONENT_XPATH);
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCISG_XPATH, XPATH_MAX_LEN);
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
 					NULL, 0, opts, &bridge_subscription);
 
 	/* Subscribe to QCI-Flow-Meter subtree */
-	snprintf(path, XPATH_MAX_LEN, BRIDGE_COMPONENT_XPATH);
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCIFM_XPATH, XPATH_MAX_LEN);
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
