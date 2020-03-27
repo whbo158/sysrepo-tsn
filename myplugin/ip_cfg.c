@@ -4,6 +4,14 @@
 	author: hongbo.wang (hongbo.wang@nxp.com)
 */
 
+struct item_cfg
+{
+	struct in_addr ip;
+	struct in_addr mask;
+	char ifname[IF_NAME_MAX_LEN];
+};
+static struct item_cfg sitem_conf;
+
 static int get_inet_cfg(char *ifname, int req, void *buf, int len)
 {
 	int ret = 0;
@@ -215,7 +223,7 @@ int convert_mac_address(char *str, uint8_t *pbuf, int buflen)
 	return 0;
 }
 
-int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct inet_cfg *conf)
+int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cfg *conf)
 {
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
@@ -254,21 +262,15 @@ out:
 	return rc;
 }
 
-static int config_per_node(sr_session_ctx_t *session, char *path,
-			bool abort, char *ifname)
+static int config_per_item(sr_session_ctx_t *session, char *path,
+			bool abort, struct item_cfg *conf)
 {
-	int rc = SR_ERR_OK;
-	sr_val_t *values;
-	size_t count;
 	size_t i;
+	size_t count;
 	int valid = 0;
+	int rc = SR_ERR_OK;
+	sr_val_t *values = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
-	struct inet_cfg *conf = &sinet_conf;
-
-printf("IFNAME00:%s--len:%d\n", ifname, strlen(ifname));
-	memset(conf, 0, sizeof(struct inet_cfg));
-	snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", ifname);
-printf("IFNAME11:%s--%s len:%d\n", ifname, conf->ifname, strlen(ifname));
 
 	rc = sr_get_items(session, path, 0, &values, &count);
 	if (rc == SR_ERR_NOT_FOUND) {
@@ -295,7 +297,7 @@ printf("IFNAME11:%s--%s len:%d\n", ifname, conf->ifname, strlen(ifname));
 		return rc;
 	}
 
-printf("CUR COUNT:%d\n", count);
+	PRINT("CUR COUNT:%d\n", count);
 	for (i = 0; i < count; i++) {
 		if (values[i].type == SR_LIST_T
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
@@ -309,7 +311,7 @@ printf("CUR COUNT:%d\n", count);
 		goto cleanup;
 
 cleanup:
-    sr_free_values(values, count);
+	sr_free_values(values, count);
 
 	return rc;
 }
@@ -326,9 +328,10 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 	sr_xpath_ctx_t xp_ctx = {0};
 	char xpath[XPATH_MAX_LEN] = {0};
 	char err_msg[MSG_MAX_LEN] = {0};
-	struct inet_cfg *conf = &sinet_conf;
+	char ifname_bak[IF_NAME_MAX_LEN] = {0};
+	struct item_cfg *conf = &sitem_conf;
 
-	memset(conf, 0, sizeof(struct inet_cfg));
+	memset(conf, 0, sizeof(struct item_cfg));
 
 	snprintf(xpath, XPATH_MAX_LEN, "%s//*", path);
 
@@ -358,22 +361,24 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 		sr_free_val(old_value);
 		sr_free_val(new_value);
 
-		continue;
-
 		if (!ifname)
 			continue;
 
+		if (!strcmp(ifname, ifname_bak))
+			continue;
+		snprintf(ifname_bak, IF_NAME_MAX_LEN, ifname);
+
+		snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", ifname);
 		snprintf(xpath, XPATH_MAX_LEN, "%s[name='%s']/%s:*//*",
 					IF_XPATH, ifname, IP_MODULE_NAME);
 
 		printf("SUBXPATH:%s ifname:%s len:%d\n", xpath, ifname, strlen(ifname));
-		rc = config_per_node(session, xpath, abort, ifname);
+		rc = config_per_item(session, xpath, abort, conf);
 		if (rc != SR_ERR_OK)
-		      break;
+			break;
 	}
-	if (rc == SR_ERR_NOT_FOUND)
-		rc = SR_ERR_OK;
 
+	/* config ip and netmask */
 	if (conf->ip.s_addr) {
 		set_inet_ip(conf->ifname, &conf->ip);
 	}
@@ -381,6 +386,9 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 	if (conf->mask.s_addr) {
 		set_inet_mask(conf->ifname, &conf->mask);
 	}
+
+	if (rc == SR_ERR_NOT_FOUND)
+		rc = SR_ERR_OK;
 
 cleanup:
 	return rc;
@@ -416,7 +424,7 @@ out:
 	return rc;
 }
 
-int test_inet_cfg(void)
+int test_item_cfg(void)
 {
 	struct in_addr ip;
 	uint8_t mac[IFHWADDRLEN];
