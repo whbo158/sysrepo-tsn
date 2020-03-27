@@ -45,10 +45,6 @@
 #define NODE_NAME_MAX_LEN	80
 #define MSG_MAX_LEN		100
 
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
-
 #define IF_XPATH "/ietf-interfaces:interfaces/interface"
 #define BRIDGE_XPATH "/ieee802-dot1q-bridge:bridges/bridge"
 
@@ -74,11 +70,11 @@ int set_inet_brifctl(char *brname, char *ifname, bool addflag);
 
 int get_inet_ip(char *ifname, struct in_addr *ip);
 int get_inet_mask(char *ifname, struct in_addr *mask);
-int get_inet_mac(char *ifname, uint8 *buf, int len);
+int get_inet_mac(char *ifname, uint8_t *buf, int len);
 
 int set_inet_ip(char *ifname, struct in_addr *ip);
 int set_inet_mask(char *ifname, struct in_addr *mask);
-int set_inet_mac(char *ifname, uint8 *buf, int len);
+int set_inet_mac(char *ifname, uint8_t *buf, int len);
 
 int test_inet_cfg(void);
 int test_vlan_cfg(void);

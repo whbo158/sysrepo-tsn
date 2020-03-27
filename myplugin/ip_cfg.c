@@ -51,7 +51,7 @@ int get_inet_mask(char *ifname, struct in_addr *mask)
 	return get_inet_cfg(ifname, SIOCGIFNETMASK, mask, ADDR_LEN);
 }
 
-int get_inet_mac(char *ifname, uint8 *buf, int len)
+int get_inet_mac(char *ifname, uint8_t *buf, int len)
 {
 	return get_inet_cfg(ifname, SIOCGIFHWADDR, buf, len);
 }
@@ -112,7 +112,7 @@ int set_inet_mask(char *ifname, struct in_addr *mask)
 	return set_inet_cfg(ifname, SIOCSIFNETMASK, mask, ADDR_LEN);
 }
 
-int set_inet_mac(char *ifname, uint8 *buf, int len)
+int set_inet_mac(char *ifname, uint8_t *buf, int len)
 {
 	return set_inet_cfg(ifname, SIOCSIFHWADDR, buf, len);
 }
@@ -162,7 +162,7 @@ static int set_inet_updown(char *ifname, bool upflag)
 	return 0;
 }
 
-bool is_valid_addr(uint8 *ip)
+bool is_valid_addr(uint8_t *ip)
 {
 	int ret = 0;
 	struct in_addr ip_addr;
@@ -177,13 +177,13 @@ bool is_valid_addr(uint8 *ip)
 	return true;
 }
 
-int convert_mac_address(char *str, uint8 *pbuf, int buflen)
+int convert_mac_address(char *str, uint8_t *pbuf, int buflen)
 {
 	int i = 0;
 	int ret = 0;
 	int len = 0;
 	int cnt = 0;
-	uint32 data = 0;
+	uint32_t data = 0;
 	char *pmac = NULL;
 	char buf[32] = {0};
 
@@ -386,7 +386,7 @@ cleanup:
 }
 
 int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
-		const char *path, sr_event_t event, void *private_ctx)
+	const char *path, sr_event_t event, uint32_t id, void *private_ctx)
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0};
@@ -419,7 +419,7 @@ out:
 int test_inet_cfg(void)
 {
 	struct in_addr ip;
-	uint8 mac[IFHWADDRLEN];
+	uint8_t mac[IFHWADDRLEN];
 
 	convert_mac_address("d6-ad-62-c1-60-f7", mac, sizeof(mac));
 	convert_mac_address("d6-AD-62-C1-60-f7", mac, sizeof(mac));
