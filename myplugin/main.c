@@ -18,11 +18,11 @@ static void sigint_handler(int signum)
 int main(int argc, char **argv)
 {
 	int rc = SR_ERR_OK;
-	sr_conn_ctx_t *connection;
-	sr_session_ctx_t *session;
 	char path[XPATH_MAX_LEN];
 	sr_subscr_options_t opts;
-	sr_subscription_ctx_t *ip_subscription;
+	sr_conn_ctx_t *connection = NULL;
+	sr_session_ctx_t *session = NULL;
+	sr_subscription_ctx_t *ip_subscription = NULL;
 
 	exit_application = 0;
 
@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Start session */
-	rc = sr_session_start(connection, SR_DS_STARTUP, &session);
+	rc = sr_session_start(connection, SR_DS_RUNNING, &session);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_session_start: %s\n",
 			sr_strerror(rc));

@@ -394,7 +394,7 @@ int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	printf("INET mod:%s path:%s event:%d\n", module_name, path, event);
 
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
-
+return rc;
 	switch (event) {
 	case SR_EV_CHANGE:
 		if (rc)
