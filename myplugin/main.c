@@ -59,8 +59,8 @@ int main(int argc, char **argv)
 	/* Subscribe to VLAN_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, BR_VLAN_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
-	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
-					ip_subtree_change_cb, NULL, 0,
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					vlan_subtree_change_cb, NULL, 0,
 					opts, &ip_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",

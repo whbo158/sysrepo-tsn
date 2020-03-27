@@ -13,7 +13,6 @@ struct item_cfg
 };
 static struct item_cfg sitem_conf;
 
-
 static int set_inet_vlan(char *ifname, int vid, bool addflag)
 {
 	int ret = 0;
@@ -158,7 +157,7 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 	sr_xpath_ctx_t xp_ctx = {0};
 	char xpath[XPATH_MAX_LEN] = {0};
 	char err_msg[MSG_MAX_LEN] = {0};
-	char vid_bak[IF_NAME_MAX_LEN] = {0};
+	char vid_bak[MAX_VLAN_LEN] = {0};
 	struct item_cfg *conf = &sitem_conf;
 
 	memset(conf, 0, sizeof(struct item_cfg));
@@ -196,7 +195,7 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 
 		if (!strcmp(vid, vid_bak))
 			continue;
-		snprintf(vid_bak, IF_NAME_MAX_LEN, "%s", vid);
+		snprintf(vid_bak, MAX_VLAN_LEN, "%s", vid);
 
 		PRINT("SUBXPATH:%s vid:%s len:%ld\n", xpath, vid, strlen(vid));
 		rc = config_per_item(session, xpath, abort, conf);
