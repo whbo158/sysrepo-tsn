@@ -5,6 +5,6 @@
 		<name>vethmy0</name>
 		<enabled>true</enabled>
 		<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
-		<phys-address>d6:ad:62:c1:60:f7</phys-address>
+		<phys-address>d6:ad:62:c1:60:f8</phys-address>
 	</interface>
 </interfaces-state>
