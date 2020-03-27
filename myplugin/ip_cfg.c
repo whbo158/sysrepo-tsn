@@ -1,4 +1,4 @@
-#include "ip_cfg.h" 
+#include "ip_cfg.h"
 
 /**
 	author: hongbo.wang (hongbo.wang@nxp.com)
@@ -223,7 +223,7 @@ int convert_mac_address(char *str, uint8_t *pbuf, int buflen)
 	return 0;
 }
 
-int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cfg *conf)
+static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cfg *conf)
 {
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
@@ -244,7 +244,8 @@ int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cfg *conf
 	nodename = sr_xpath_node_name(value->xpath);
 	if (!nodename)
 		goto out;
-printf("WHB nodename:%s type:%d\n", nodename, value->type);
+
+	PRINT("nodename:%s type:%d\n", nodename, value->type);
 
 	if (!strcmp(nodename, "ip")) {
 		if (is_valid_addr(strval)) {
@@ -297,7 +298,7 @@ static int config_per_item(sr_session_ctx_t *session, char *path,
 		return rc;
 	}
 
-	PRINT("CUR COUNT:%d\n", count);
+	PRINT("CUR COUNT:%ld\n", count);
 	for (i = 0; i < count; i++) {
 		if (values[i].type == SR_LIST_T
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
@@ -366,13 +367,13 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 
 		if (!strcmp(ifname, ifname_bak))
 			continue;
-		snprintf(ifname_bak, IF_NAME_MAX_LEN, ifname);
+		snprintf(ifname_bak, IF_NAME_MAX_LEN, "%s", ifname);
 
 		snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", ifname);
 		snprintf(xpath, XPATH_MAX_LEN, "%s[name='%s']/%s:*//*",
 					IF_XPATH, ifname, IP_MODULE_NAME);
 
-		printf("SUBXPATH:%s ifname:%s len:%d\n", xpath, ifname, strlen(ifname));
+		PRINT("SUBXPATH:%s ifname:%s len:%ld\n", xpath, ifname, strlen(ifname));
 		rc = config_per_item(session, xpath, abort, conf);
 		if (rc != SR_ERR_OK)
 			break;
@@ -381,6 +382,7 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 	/* config ip and netmask */
 	if (conf->ip.s_addr) {
 		set_inet_ip(conf->ifname, &conf->ip);
+		PRINT("set_inet_ip ifname:%s\n", conf->ifname);
 	}
 
 	if (conf->mask.s_addr) {
@@ -422,51 +424,4 @@ int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	}
 out:
 	return rc;
-}
-
-int test_item_cfg(void)
-{
-	struct in_addr ip;
-	uint8_t mac[IFHWADDRLEN];
-
-	convert_mac_address("d6-ad-62-c1-60-f7", mac, sizeof(mac));
-	convert_mac_address("d6-AD-62-C1-60-f7", mac, sizeof(mac));
-
-	get_inet_ip("vethmy0", &ip);
-	PRINT("ip:%s\n", inet_ntoa(ip));
-
-	get_inet_ip("vethmy1", &ip);
-	PRINT("ip:%s\n", inet_ntoa(ip));
-
-	get_inet_mask("vethmy0", &ip);
-	PRINT("mask:%s\n", inet_ntoa(ip));
-
-	get_inet_mask("vethmy1", &ip);
-	PRINT("mask:%s\n", inet_ntoa(ip));
-
-	get_inet_mac("vethmy0", mac, sizeof(mac));
-	PRINT("mac:%02X-%02X-%02X-%02X-%02X-%02X\n",
-		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-#if 0
-	get_inet_mac("vethmy1", mac, sizeof(mac));
-	PRINT("mac:%02X-%02X-%02X-%02X-%02X-%02X\n",
-		mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-#endif
-	ip.s_addr = inet_addr("192.168.15.1");
-	set_inet_ip("vethmy0", &ip);
-
-	ip.s_addr = inet_addr("255.255.0.0");
-	set_inet_mask("vethmy0", &ip);
-
-	get_inet_mac("switch", mac, sizeof(mac));
-	mac[5] += 1;
-	set_inet_mac("switch", mac, sizeof(mac));
-
-#ifdef TEST_ADD
-	set_inet_updown("vethmy0", true);
-#else
-	set_inet_updown("vethmy0", false);
-#endif
-
-	return 0;
 }

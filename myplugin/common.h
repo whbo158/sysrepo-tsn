@@ -47,6 +47,7 @@
 
 #define IF_XPATH "/ietf-interfaces:interfaces/interface"
 #define BRIDGE_XPATH "/ieee802-dot1q-bridge:bridges/bridge"
+#define BRIDGE_COMPONENT_XPATH (BRIDGE_XPATH "/component")
 
 /*
  sudo ip link add name vethmy0 type veth peer name vethmy1
@@ -63,21 +64,5 @@
  */
 
 bool is_del_oper(sr_session_ctx_t *session, char *path);
-
-int set_inet_vlan(char *ifname, int vid, bool addflag);
-int set_inet_brctl(char *brname, bool addflag);
-int set_inet_brifctl(char *brname, char *ifname, bool addflag);
-
-int get_inet_ip(char *ifname, struct in_addr *ip);
-int get_inet_mask(char *ifname, struct in_addr *mask);
-int get_inet_mac(char *ifname, uint8_t *buf, int len);
-
-int set_inet_ip(char *ifname, struct in_addr *ip);
-int set_inet_mask(char *ifname, struct in_addr *mask);
-int set_inet_mac(char *ifname, uint8_t *buf, int len);
-
-int test_inet_cfg(void);
-int test_vlan_cfg(void);
-int test_br_cfg(void);
 
 #endif

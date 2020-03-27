@@ -3,6 +3,7 @@
 #include "sysrepo/xpath.h"
 
 #include "ip_cfg.h"
+#include "vlan_cfg.h"
 
 /**
 	author: hongbo.wang (hongbo.wang@nxp.com)
@@ -55,6 +56,18 @@ int main(int argc, char **argv)
 		goto cleanup;
 	}
 
+	/* Subscribe to VLAN_CFG subtree */
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
+	strncat(path, BR_VLAN_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
+	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
+					ip_subtree_change_cb, NULL, 0,
+					opts, &ip_subscription);
+	if (rc != SR_ERR_OK) {
+		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
+			sr_strerror(rc));
+		goto cleanup;
+	}
+
 	/* Loop until ctrl-c is pressed / SIGINT is received */
 	signal(SIGINT, sigint_handler);
 	signal(SIGPIPE, SIG_IGN);
@@ -69,12 +82,6 @@ cleanup:
 		sr_session_stop(session);
 	if (connection)
 		sr_disconnect(connection);
-
-	return 0;
-
-	test_inet_cfg();
-	test_vlan_cfg();
-	test_br_cfg();
 
 	return 0;
 }
