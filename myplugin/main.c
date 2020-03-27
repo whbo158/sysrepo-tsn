@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 		goto cleanup;
 	}
 
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE;
 
 	/* Subscribe to IP_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);

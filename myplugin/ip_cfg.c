@@ -317,14 +317,13 @@ cleanup:
 static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 {
 	int rc = SR_ERR_OK;
-	sr_xpath_ctx_t xp_ctx = {0};
-	sr_change_iter_t *it;
-	sr_val_t *old_value;
-	sr_val_t *new_value;
-	sr_val_t *value;
 	sr_change_oper_t oper;
-	char *ifname;
-	char ifname_bak[IF_NAME_MAX_LEN] = {0,};
+	char *ifname = NULL;
+	sr_val_t *value = NULL;
+	sr_val_t *old_value = NULL;
+	sr_val_t *new_value = NULL;
+	sr_change_iter_t *it = NULL;
+	sr_xpath_ctx_t xp_ctx = {0};
 	char xpath[XPATH_MAX_LEN] = {0};
 	char err_msg[MSG_MAX_LEN] = {0};
 	struct inet_cfg *conf = &sinet_conf;
@@ -332,43 +331,45 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 	memset(conf, 0, sizeof(struct inet_cfg));
 
 	snprintf(xpath, XPATH_MAX_LEN, "%s//*", path);
+
 	rc = sr_get_changes_iter(session, xpath, &it);
 	if (rc != SR_ERR_OK) {
 		snprintf(err_msg, MSG_MAX_LEN,
-			 "Get changes from %s failed", path);
-		sr_set_error(session, err_msg, path);
+			 "Get changes from %s failed", xpath);
+		sr_set_error(session, err_msg, xpath);
 
 		printf("ERROR: %s sr_get_changes_iter: %s\n", __func__,
 		       sr_strerror(rc));
 		goto cleanup;
 	}
-printf("XPATH:%s\n", xpath);
+
 	while (SR_ERR_OK == (rc = sr_get_change_next(session, it,
 					&oper, &old_value, &new_value))) {
 
-		//print_change(oper, old_value, new_value);
-
 		value = new_value ? new_value : old_value;
+		if (!value)
+			continue;
+
 		ifname = sr_xpath_key_value(value->xpath, "interface",
 					    "name", &xp_ctx);
-printf("IFNAME:%s\n", ifname);
+		PRINT("IFNAME:%s xpath:%s new:%p old:%p\n", ifname,
+				value->xpath, new_value, old_value);
 
 		sr_free_val(old_value);
 		sr_free_val(new_value);
 
+		continue;
+
 		if (!ifname)
 			continue;
 
-		if (strcmp(ifname, ifname_bak)) {
-			snprintf(ifname_bak, IF_NAME_MAX_LEN, "%s", ifname);
-			snprintf(xpath, XPATH_MAX_LEN, "%s[name='%s']/%s:*//*",
+		snprintf(xpath, XPATH_MAX_LEN, "%s[name='%s']/%s:*//*",
 					IF_XPATH, ifname, IP_MODULE_NAME);
 
-			printf("SUBXPATH:%s ifname:%s len:%d\n", xpath, ifname, strlen(ifname));
-			rc = config_per_node(session, xpath, abort, ifname);
-			if (rc != SR_ERR_OK)
-				break;
-		}
+		printf("SUBXPATH:%s ifname:%s len:%d\n", xpath, ifname, strlen(ifname));
+		rc = config_per_node(session, xpath, abort, ifname);
+		if (rc != SR_ERR_OK)
+		      break;
 	}
 	if (rc == SR_ERR_NOT_FOUND)
 		rc = SR_ERR_OK;
@@ -391,8 +392,7 @@ int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0};
 
-	printf("INET mod:%s path:%s event:%d\n", module_name, path, event);
-
+	PRINT("mod:%s path:%s event:%d\n", module_name, path, event);
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
 
 	switch (event) {
