@@ -5,13 +5,7 @@
 		<name>vethmy0</name>
 		<enabled>true</enabled>
 		<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
-		<ip:ipv4>
-			<ip:enabled>true</ip:enabled>
-			<ip:forwarding>false</ip:forwarding>
-			<ip:address>
-				<ip:ip>192.168.44.119</ip:ip>
-				<ip:netmask>255.255.255.0</ip:netmask>
-			</ip:address>
+		<ip:ipv4 nc:operation="delete">
 		</ip:ipv4>
 	</interface>
 </interfaces>
