@@ -4,12 +4,18 @@
 	author: hongbo.wang (hongbo.wang@nxp.com)
 */
 
+struct sub_item_cfg
+{
+	struct in_addr ip;
+	struct in_addr mask;
+};
+
 struct item_cfg
 {
 	bool enabled;
-	struct in_addr ip;
-	struct in_addr mask;
 	char ifname[IF_NAME_MAX_LEN];
+	int ipv4_cnt;
+	struct sub_item_cfg ipv4[MAX_IP_NUM];
 };
 static struct item_cfg sitem_conf;
 
@@ -187,6 +193,7 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	char *nodename = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
 	char *strval = NULL;
+	struct sub_item_cfg *ipv4 = NULL;
 
 	if (!session || !value || !conf)
 		return rc;
@@ -201,13 +208,16 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	PRINT("nodename:%s type:%d\n", nodename, value->type);
 
 	if (!strcmp(nodename, "ip")) {
-		if (is_valid_addr(strval)) {
-			conf->ip.s_addr = inet_addr(strval);
+		if (is_valid_addr(strval) && (conf->ipv4_cnt < MAX_IP_NUM)) {
+			conf->ipv4_cnt = 0;  /* only support one address now */
+			ipv4 = &conf->ipv4[conf->ipv4_cnt++];
+			ipv4->ip.s_addr = inet_addr(strval);
 			printf("\nVALID ip= %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "netmask")) {
-		if (is_valid_addr(strval)) {
-			conf->mask.s_addr = inet_addr(strval);
+		if (is_valid_addr(strval) && (conf->ipv4_cnt > 0)) {
+			ipv4 = &conf->ipv4[conf->ipv4_cnt - 1];
+			ipv4->mask.s_addr = inet_addr(strval);
 			printf("\nVALID netmask = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "enabled")) {
@@ -274,6 +284,7 @@ cleanup:
 
 static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 {
+	int i = 0;
 	int rc = SR_ERR_OK;
 	sr_change_oper_t oper;
 	char *ifname = NULL;
@@ -334,30 +345,36 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 			break;
 	}
 
-	if (!conf->ifname)
+	if (!conf->ifname || (strlen(conf->ifname) == 0))
 		goto cleanup;
 
 	/* config ip and netmask */
-	PRINT("enabled:%s\n", conf->enabled ? "true" : "false");
+	PRINT("ifname:%s-%ld enabled:%s\n", conf->ifname,strlen(conf->ifname), conf->enabled ? "true" : "false");
 	if (conf->enabled) {
-		if (conf->ip.s_addr) {
-			set_inet_ip(conf->ifname, &conf->ip);
-			PRINT("set_inet_ip ifname:%s\n", conf->ifname);
-		}
+		struct sub_item_cfg *ipv4 = NULL;
 
-		if (conf->mask.s_addr) {
-			set_inet_mask(conf->ifname, &conf->mask);
-			PRINT("set_inet_mask ifname:%s\n", conf->ifname);
+		for (i = 0; i < conf->ipv4_cnt; i++) {
+			ipv4 = &conf->ipv4[i];
+
+			if (ipv4->ip.s_addr) {
+				set_inet_ip(conf->ifname, &ipv4->ip);
+				PRINT("set_inet_ip ifname:%s-%s\n", conf->ifname, inet_ntoa(ipv4->ip));
+			}
+
+			if (ipv4->mask.s_addr) {
+				set_inet_mask(conf->ifname, &ipv4->mask);
+				PRINT("set_inet_mask ifname:%s-%s\n", conf->ifname, inet_ntoa(ipv4->mask));
+			}
 		}
 		set_inet_updown(conf->ifname, true);
 	} else {
 		set_inet_updown(conf->ifname, false);
 	}
 
+cleanup:
 	if (rc == SR_ERR_NOT_FOUND)
 		rc = SR_ERR_OK;
 
-cleanup:
 	return rc;
 }
 
