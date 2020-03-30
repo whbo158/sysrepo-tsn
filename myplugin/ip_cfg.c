@@ -210,6 +210,8 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 			conf->mask.s_addr = inet_addr(strval);
 			printf("\nVALID netmask = %s\n", strval);
 		}
+	} else if (!strcmp(nodename, "enabled")) {
+		conf->enabled = value->data.bool_val;
 	}
 
 out:
@@ -332,14 +334,24 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 			break;
 	}
 
-	/* config ip and netmask */
-	if (conf->ip.s_addr) {
-		set_inet_ip(conf->ifname, &conf->ip);
-		PRINT("set_inet_ip ifname:%s\n", conf->ifname);
-	}
+	if (!conf->ifname)
+		goto cleanup;
 
-	if (conf->mask.s_addr) {
-		set_inet_mask(conf->ifname, &conf->mask);
+	/* config ip and netmask */
+	PRINT("enabled:%s\n", conf->enabled ? "true" : "false");
+	if (conf->enabled) {
+		if (conf->ip.s_addr) {
+			set_inet_ip(conf->ifname, &conf->ip);
+			PRINT("set_inet_ip ifname:%s\n", conf->ifname);
+		}
+
+		if (conf->mask.s_addr) {
+			set_inet_mask(conf->ifname, &conf->mask);
+			PRINT("set_inet_mask ifname:%s\n", conf->ifname);
+		}
+		set_inet_updown(conf->ifname, true);
+	} else {
+		set_inet_updown(conf->ifname, false);
 	}
 
 	if (rc == SR_ERR_NOT_FOUND)

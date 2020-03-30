@@ -6,4 +6,4 @@ all:
 
 clean:
 	rm -fr *.o
-	rm myplugin 
+	rm myplugin
