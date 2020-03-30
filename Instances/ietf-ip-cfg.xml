@@ -6,7 +6,7 @@
 		<enabled>true</enabled>
 		<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
 		<ip:ipv4>
-			<ip:enabled>false</ip:enabled>
+			<ip:enabled>true</ip:enabled>
 			<ip:forwarding>false</ip:forwarding>
 			<ip:address>
 				<ip:ip>192.168.46.119</ip:ip>
