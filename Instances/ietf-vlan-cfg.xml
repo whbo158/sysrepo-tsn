@@ -2,18 +2,14 @@
 	<bridge>
 		<name>switch</name>
 		<bridge-type>provider-edge-bridge</bridge-type>
-		<address>d6-ad-62-c1-68-fa</address>
+		<address>d6-ad-62-c1-68-ad</address>
 		<component>
 		<name>eno0</name>
 		    <type>edge-relay-component</type>
 			<bridge-vlan>
 				<vlan>
-					<vid>140</vid>
+					<vid>149</vid>
 					<name>vethmy0</name>
-				</vlan>
-				<vlan>
-					<vid>230</vid>
-					<name>vethmy1</name>
 				</vlan>
 			</bridge-vlan>
 		</component>

@@ -4,6 +4,7 @@
 
 #include "ip_cfg.h"
 #include "vlan_cfg.h"
+#include "mac_cfg.h"
 
 /**
 	author: hongbo.wang (hongbo.wang@nxp.com)
@@ -61,6 +62,17 @@ int main(int argc, char **argv)
 	strncat(path, BR_VLAN_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					vlan_subtree_change_cb, NULL, 0,
+					opts, &ip_subscription);
+	if (rc != SR_ERR_OK) {
+		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
+			sr_strerror(rc));
+		goto cleanup;
+	}
+
+	/* Subscribe to MAC_CFG subtree */
+	snprintf(path, XPATH_MAX_LEN, "%s", BR_ADDRESS_XPATH);
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					mac_subtree_change_cb, NULL, 0,
 					opts, &ip_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",

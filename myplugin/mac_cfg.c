@@ -1,4 +1,4 @@
-#include "ip_cfg.h"
+#include "mac_cfg.h"
 
 /**
 	author: hongbo.wang (hongbo.wang@nxp.com)
@@ -6,10 +6,10 @@
 
 struct item_cfg
 {
-	bool enabled;
-	struct in_addr ip;
-	struct in_addr mask;
+	int flag;
+	int valid;
 	char ifname[IF_NAME_MAX_LEN];
+	char mac_addr[MAC_ADDR_MAX_LEN];
 };
 static struct item_cfg sitem_conf;
 
@@ -31,7 +31,7 @@ static int get_inet_cfg(char *ifname, int req, void *buf, int len)
 	}
 
 	memset(&ifr, 0, sizeof(ifr));
-	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifname);
+	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name) - 1, "%s", ifname);
 
 	ret = ioctl(sockfd, req, &ifr);
 	close(sockfd);
@@ -50,14 +50,9 @@ static int get_inet_cfg(char *ifname, int req, void *buf, int len)
 	return 0;
 }
 
-int get_inet_ip(char *ifname, struct in_addr *ip)
+int get_inet_mac(char *ifname, uint8_t *buf, int len)
 {
-	return get_inet_cfg(ifname, SIOCGIFADDR, ip, ADDR_LEN);
-}
-
-int get_inet_mask(char *ifname, struct in_addr *mask)
-{
-	return get_inet_cfg(ifname, SIOCGIFNETMASK, mask, ADDR_LEN);
+	return get_inet_cfg(ifname, SIOCGIFHWADDR, buf, len);
 }
 
 static int set_inet_cfg(char *ifname, int req, void *buf, int len)
@@ -106,14 +101,9 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 	return 0;
 }
 
-int set_inet_ip(char *ifname, struct in_addr *ip)
+int set_inet_mac(char *ifname, uint8_t *buf, int len)
 {
-	return set_inet_cfg(ifname, SIOCSIFADDR, ip, ADDR_LEN);
-}
-
-int set_inet_mask(char *ifname, struct in_addr *mask)
-{
-	return set_inet_cfg(ifname, SIOCSIFNETMASK, mask, ADDR_LEN);
+	return set_inet_cfg(ifname, SIOCSIFHWADDR, buf, len);
 }
 
 static int set_inet_updown(char *ifname, bool upflag)
@@ -134,7 +124,7 @@ static int set_inet_updown(char *ifname, bool upflag)
 	}
 
 	memset(&ifr, 0, sizeof(ifr));
-	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifname);
+	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name) - 1, "%s", ifname);
 
 	ret = ioctl(sockfd, SIOCGIFFLAGS, &ifr);
 	if (ret < 0) {
@@ -161,19 +151,42 @@ static int set_inet_updown(char *ifname, bool upflag)
 	return 0;
 }
 
-bool is_valid_addr(uint8_t *ip)
+int convert_mac_address(char *str, uint8_t *pbuf, int buflen)
 {
+	int i = 0;
 	int ret = 0;
-	struct in_addr ip_addr;
+	int len = 0;
+	int cnt = 0;
+	uint32_t data = 0;
+	char *pmac = NULL;
+	char buf[32] = {0};
 
-	if (!ip)
-	      return false;
+	if (!str || !pbuf)
+		return -1;
 
-	ret = inet_aton(ip, &ip_addr);
-	if (0 == ret)
-		return false;
+	snprintf(buf, sizeof(buf), "%s", str);
+	pmac = buf;
 
-	return true;
+	len = strlen(buf);
+	for (i = 0; i < (len + 1); i++) {
+		if ((buf[i] == '-') || (buf[i] == ':') || (buf[i] == '\0')) {
+			buf[i] = '\0';
+			ret = sscanf(pmac, "%02X", &data);
+			if (ret != 1)
+			      return -2;
+
+			if (cnt < buflen)
+			      pbuf[cnt++] = data & 0xFF;
+
+			pmac = buf + i + 1;
+		}
+	}
+#if 1
+	for (i = 0; i < cnt; i++) {
+		printf("%d:%X\n", i, pbuf[i]);
+	}
+#endif
+	return 0;
 }
 
 static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cfg *conf)
@@ -186,12 +199,9 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	uint64_t u64_val = 0;
 	char *nodename = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
-	char *strval = NULL;
 
 	if (!session || !value || !conf)
 		return rc;
-
-	strval = value->data.string_val;
 
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
@@ -200,15 +210,17 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 
 	PRINT("nodename:%s type:%d\n", nodename, value->type);
 
-	if (!strcmp(nodename, "ip")) {
-		if (is_valid_addr(strval)) {
-			conf->ip.s_addr = inet_addr(strval);
-			printf("\nVALID ip= %s\n", strval);
+	if (!strcmp(nodename, "address")) {
+		if (!conf->valid) {
+			snprintf(conf->mac_addr, MAC_ADDR_MAX_LEN, "%s",
+				value->data.string_val);
+			printf("\nVALID mac_addr = %s\n", conf->mac_addr);
+			conf->valid = 1;
 		}
-	} else if (!strcmp(nodename, "netmask")) {
-		if (is_valid_addr(strval)) {
-			conf->mask.s_addr = inet_addr(strval);
-			printf("\nVALID netmask = %s\n", strval);
+	} else if (!strcmp(nodename, "name")) {
+		if (!conf->valid) {
+			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", value->data.string_val);
+			printf("\nVALID ifname = %s\n", conf->ifname);
 		}
 	}
 
@@ -287,7 +299,7 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 
 	memset(conf, 0, sizeof(struct item_cfg));
 
-	snprintf(xpath, XPATH_MAX_LEN, "%s//*", path);
+	snprintf(xpath, XPATH_MAX_LEN, "%s//*", BRIDGE_XPATH);
 
 	rc = sr_get_changes_iter(session, xpath, &it);
 	if (rc != SR_ERR_OK) {
@@ -307,9 +319,9 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 		if (!value)
 			continue;
 
-		ifname = sr_xpath_key_value(value->xpath, "interface",
+		ifname = sr_xpath_key_value(value->xpath, "bridge",
 					    "name", &xp_ctx);
-		PRINT("IFNAME:%s xpath:%s new:%p old:%p\n", ifname,
+		PRINT("BRNAME:%s xpath:%s new:%p old:%p\n", ifname,
 				value->xpath, new_value, old_value);
 
 		sr_free_val(old_value);
@@ -323,8 +335,6 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 		snprintf(ifname_bak, IF_NAME_MAX_LEN, "%s", ifname);
 
 		snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", ifname);
-		snprintf(xpath, XPATH_MAX_LEN, "%s[name='%s']/%s:*//*",
-					IF_XPATH, ifname, IP_MODULE_NAME);
 
 		PRINT("SUBXPATH:%s ifname:%s len:%ld\n", xpath, ifname, strlen(ifname));
 		rc = config_per_item(session, xpath, abort, conf);
@@ -332,14 +342,13 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 			break;
 	}
 
-	/* config ip and netmask */
-	if (conf->ip.s_addr) {
-		set_inet_ip(conf->ifname, &conf->ip);
-		PRINT("set_inet_ip ifname:%s\n", conf->ifname);
-	}
+	/* config mac address */
+	if (conf->valid) {
+		uint8_t mac[IFHWADDRLEN];
 
-	if (conf->mask.s_addr) {
-		set_inet_mask(conf->ifname, &conf->mask);
+		printf("--------name:%s mac:%s\n", conf->ifname, conf->mac_addr);
+		convert_mac_address(conf->mac_addr, mac, sizeof(mac));
+		set_inet_mac(conf->ifname, mac, sizeof(mac));
 	}
 
 	if (rc == SR_ERR_NOT_FOUND)
@@ -349,7 +358,7 @@ cleanup:
 	return rc;
 }
 
-int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
+int mac_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	const char *path, sr_event_t event, uint32_t id, void *private_ctx)
 {
 	int rc = SR_ERR_OK;
