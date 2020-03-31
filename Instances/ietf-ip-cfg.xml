@@ -9,8 +9,8 @@
 			<ip:enabled>true</ip:enabled>
 			<ip:forwarding>false</ip:forwarding>
 			<ip:address>
-				<ip:ip>192.168.48.119</ip:ip>
-				<ip:netmask>255.255.0.0</ip:netmask>
+				<ip:ip>192.168.50.119</ip:ip>
+				<ip:netmask>255.255.255.0</ip:netmask>
 			</ip:address>
 		</ip:ipv4>
 	</interface>
