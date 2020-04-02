@@ -37,16 +37,19 @@
 //#define TEST_ADD (1)
 
 /*
+pre-condition:
  sudo ip link add name vethmy0 type veth peer name vethmy1
+ ip link add name switch type bridge
 
+test:
  * add:
  sudo vconfig add vethmy0 100
- sudo brctl addbr vmybr0
+ sudo brctl addbr vmybr0 or ip link add name vmybr0 type bridge
  sudo brctl addif vmybr0 vethmy0.100
 
  * del:
  sudo brctl delif vmybr0 vethmy0.100
- sudo brctl delbr vmybr0
+ sudo brctl delbr vmybr0 or ip link del dev vmybr0
  sudo vconfig rem vethmy0.100
  */
 
