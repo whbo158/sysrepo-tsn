@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
+#if 1
 	/* Subscribe to BR_TC_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, BR_TC_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
+#endif
 	/* Loop until ctrl-c is pressed / SIGINT is received */
 	signal(SIGINT, sigint_handler);
 	signal(SIGPIPE, SIG_IGN);

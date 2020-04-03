@@ -9,7 +9,7 @@
 	  	    <type>edge-relay-component</type>
 		    <brtc:traffic-control>
 	    		<brtc:tc-flower-table>
-	    	    	<brtc:tc-flower-id>2</brtc:tc-flower-id>
+	    	    	<brtc:tc-flower-id>1</brtc:tc-flower-id>
 	    		    <brtc:qdisc>
 	    	    	    <brtc:action>add</brtc:action>
 	    	    	    <brtc:interface>swp0</brtc:interface>
@@ -21,7 +21,7 @@
 	    	    		<brtc:protocol>802.1Q</brtc:protocol>
 	    	    		<brtc:parent>ffff:</brtc:parent>
 	    	    		<brtc:filtertype>flower</brtc:filtertype>
-	    	    		<brtc:vlanid>102</brtc:vlanid>
+	    	    		<brtc:vlanid>103</brtc:vlanid>
 	    	    		<brtc:priority>6</brtc:priority>
 	    	    		<brtc:srcip>192.168.50.119</brtc:srcip>
 	    	    		<brtc:dstip>192.168.50.139</brtc:dstip>
