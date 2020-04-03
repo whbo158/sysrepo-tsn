@@ -1,19 +1,18 @@
-module ieee802-dot1q-stream-filters-gates {
+module nxp-bridge-vlan-tc-flower {
   namespace
     urn:nxp:dn:storage:yang:nxp-bridge-vlan-tc-flower;
   prefix brvlan;
- 
   import ieee802-dot1q-bridge {
-	  prefix dot1q;
+    prefix dot1q;
   }
   import ietf-interfaces {
-	  prefix if;
+    prefix if;
   }
   import ietf-inet-types {
-	  prefix inet;
+    prefix inet;
   }
   import ietf-yang-types {
-	  prefix yang;
+    prefix yang;
   }
   import ieee802-dot1q-types {
     prefix dot1qtypes;
@@ -25,10 +24,12 @@ module ieee802-dot1q-stream-filters-gates {
     "URL: http://www.nxp.com
     EMail: hongbo.wang@nxp.com 
     Contact: NXP Semiconductors
-    Postal: 
+    Postal: ";
     
   description
-    "This module provides management of NXP bridge vlan filter using tc flower";
+    "This module provides management of NXP bridge vlan filter using
+	tc flower";
+
   revision 2020-04-02 {
     description
       "Initial module for bridge vlan filter.";
@@ -144,13 +145,13 @@ module ieee802-dot1q-stream-filters-gates {
         value 10;
       }
   }
-
   augment "/dot1q:bridges/dot1q:bridge/dot1q:component" {
     description
       "Augment the Bridge and ports traffic control with tc flower.";
     container traffic-control {
       description
-        "This container encapsulates all nodes related to traffic control.";
+        "This container encapsulates all nodes related to traffic
+		control.";
       reference
         "";
       list tc-flower-table {
@@ -171,94 +172,93 @@ module ieee802-dot1q-stream-filters-gates {
         container qdisc {
           description
             "";
-		  reference
-			  "";
+          reference
+            "";
 
-		  leaf action {
-			  type qdisc-action-type;
-			  description
-				  "";
-		  }
-		  leaf interface {
-			  type string;
-			  mandatory true;
-			  description
-				  "";
-		  }
-		  leaf block {
-			  type qdisc-block-type;
-			  description
-				  "";
-		  }
+          leaf action {
+            type qdisc-action-type;
+            description
+              "";
+          }
+          leaf interface {
+            type string;
+            mandatory true;
+              "";
+          }
+          leaf block {
+            type qdisc-block-type;
+            description
+              "";
+          }
         }
 
         container filter {
           description
             "";
-		  reference
-			  "";
+          reference
+            "";
 
-		  leaf action {
-			  type filter-action-type;
-			  description
-				  "";
-		  }
-		  leaf interface {
-			  type string;
-			  mandatory true;
-			  description
-				  "";
-		  }
-		  leaf protocol {
-			  type string;
-			  description
-				  "";
-		  }
-		  leaf parent {
-			  type string;
-			  description
-				  "";
-		  }
-		  leaf filtertype {
-			  type filter-type;
-			  description
-				  "";
-		  }
-		  leaf vlanid {
-              type dot1qtypes:vlan-index-type;
-			  description
-				  "";
-		  }
-		  leaf priority {
-			  type dot1qtypes:priority-type;
-			  description
-				  "";
-		  }
-		  leaf srcip {
-			  type inet:ipv4-address-no-zone;
-			  description
-				  "The source IPv4 address.";
-		  }
-		  leaf dstip {
-			  type inet:ipv4-address-no-zone;
-			  description
-				  "The destination IPv4 address.";
-		  }
-		  leaf srcport {
-			  type port-number-type;
-			  description
-				  "The source port number.";
-		  }
-		  leaf dstport {
-			  type port-number-type;
-			  description
-				  "The destination port number.";
-		  }
-		  leaf actionspec {
-			  type string;
-			  description
-				  "";
-		  }
+          leaf action {
+            type filter-action-type;
+            description
+              "";
+          }
+          leaf interface {
+            type string;
+            mandatory true;
+            description
+              "";
+          }
+          leaf protocol {
+            type string;
+            description
+              "";
+          }
+          leaf parent {
+            type string;
+            description
+              "";
+          }
+          leaf filtertype {
+            type filter-type;
+            description
+              "";
+          }
+          leaf vlanid {
+            type dot1qtypes:vlan-index-type;
+            description
+              "";
+          }
+          leaf priority {
+            type dot1qtypes:priority-type;
+            description
+              "";
+          }
+          leaf srcip {
+            type inet:ipv4-address-no-zone;
+            description
+              "The source IPv4 address.";
+          }
+          leaf dstip {
+            type inet:ipv4-address-no-zone;
+            description
+              "The destination IPv4 address.";
+          }
+          leaf srcport {
+            type port-number-type;
+            description
+              "The source port number.";
+          }
+          leaf dstport {
+            type port-number-type;
+            description
+              "The destination port number.";
+          }
+          leaf actionspec {
+            type string;
+            description
+              "";
+          }
         }
       }
     }
