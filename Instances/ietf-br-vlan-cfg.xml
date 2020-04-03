@@ -1,35 +1,36 @@
-<bridges xmlns="urn:nxp:dn:storage:yang:nxp-bridge-vlan-tc-flower">
+<bridges xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge"
+	xmlns:brtc="nxp:dn:storage:yang:nxp-bridge-vlan-tc-flower">
 	<bridge>
 		<name>switch</name>
 		<bridge-type>provider-edge-bridge</bridge-type>
 		<address>d6-ad-62-c1-68-ad</address>
 		<component>
-		<name>eno0</name>
-		<type>edge-relay-component</type>
-		    <brvlan:traffic-control>
-	    		<brvlan:tc-flower-table>
-	    	    	<brvlan:tc-flower-id>1</brvlan:tc-flower-id>
-	    		    <brvlan:qdisc>
-	    	    	    <brvlan:action>add</brvlan:action>
-	    	    	    <brvlan:interface>swp0</brvlan:interface>
-	    	    	    <brvlan:block>ingress</brvlan:block>
-	    	        </brvlan:qdisc>
-	    		    <brvlan:filter>
-	    	    	    <brvlan:action>add</brvlan:action>
-	    	    	    <brvlan:interface>swp0</brvlan:interface>
-	    	    		<brvlan:protocol>802.1Q</brvlan:protocol>
-	    	    		<brvlan:parent>ffff:</brvlan:parent>
-	    	    		<brvlan:filtertype>flower</brvlan:filtertype>
-	    	    		<brvlan:vlanid>102</brvlan:vlanid>
-	    	    		<brvlan:priority>6</brvlan:priority>
-	    	    		<brvlan:srcip>192.168.50.119</brvlan:srcip>
-	    	    		<brvlan:dstip>192.168.50.139</brvlan:dstip>
-	    	    		<brvlan:srcport>5102</brvlan:srcport>
-	    	    		<brvlan:dstport>5102</brvlan:dstport>
-	    	    		<brvlan:actionspec>vlan modify id 0 priority 5</brvlan:actionspec>
-	    	        </brvlan:filter>
-	    		</brvlan:tc-flower-table>
-		    </brvlan:traffic-control>
+	        <name>eno0</name>
+	  	    <type>edge-relay-component</type>
+		    <brtc:traffic-control>
+	    		<brtc:tc-flower-table>
+	    	    	<brtc:tc-flower-id>1</brtc:tc-flower-id>
+	    		    <brtc:qdisc>
+	    	    	    <brtc:action>add</brtc:action>
+	    	    	    <brtc:interface>swp0</brtc:interface>
+	    	    	    <brtc:block>ingress</brtc:block>
+	    	        </brtc:qdisc>
+	    		    <brtc:filter>
+	    	    	    <brtc:action>add</brtc:action>
+	    	    	    <brtc:interface>swp0</brtc:interface>
+	    	    		<brtc:protocol>802.1Q</brtc:protocol>
+	    	    		<brtc:parent>ffff:</brtc:parent>
+	    	    		<brtc:filtertype>flower</brtc:filtertype>
+	    	    		<brtc:vlanid>102</brtc:vlanid>
+	    	    		<brtc:priority>6</brtc:priority>
+	    	    		<brtc:srcip>192.168.50.119</brtc:srcip>
+	    	    		<brtc:dstip>192.168.50.139</brtc:dstip>
+	    	    		<brtc:srcport>5102</brtc:srcport>
+	    	    		<brtc:dstport>5102</brtc:dstport>
+	    	    		<brtc:actionspec>vlan modify id 0 priority 5</brtc:actionspec>
+	    	        </brtc:filter>
+	    		</brtc:tc-flower-table>
+		    </brtc:traffic-control>
 			<bridge-vlan>
 				<vlan>
 					<vid>149</vid>

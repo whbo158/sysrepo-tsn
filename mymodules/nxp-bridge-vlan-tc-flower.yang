@@ -1,7 +1,7 @@
 module nxp-bridge-vlan-tc-flower {
   namespace
     urn:nxp:dn:storage:yang:nxp-bridge-vlan-tc-flower;
-  prefix brvlan;
+  prefix brtc;
   import ieee802-dot1q-bridge {
     prefix dot1q;
   }
