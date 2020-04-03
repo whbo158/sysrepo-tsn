@@ -4,6 +4,30 @@
 	author: hongbo.wang (hongbo.wang@nxp.com)
 */
 
+struct item_qdisc
+{
+	char action[MAX_PARA_LEN];
+	char block[MAX_PARA_LEN];
+	char ifname[IF_NAME_MAX_LEN];
+};
+
+struct item_filter
+{
+	uint8_t vid;
+	uint8_t priority;
+	struct in_addr src_ip;
+	struct in_addr dst_ip;
+	uint8_t src_port;
+	uint8_t dst_port;
+
+	char action[MAX_PARA_LEN];
+	char protocol[MAX_PARA_LEN];
+	char parent[MAX_PARA_LEN];
+	char filter_type[MAX_PARA_LEN];
+	char ifname[IF_NAME_MAX_LEN];
+	char action_spec[MAX_ACTION_LEN];
+};
+
 struct item_cfg
 {
 	bool valid;
@@ -59,9 +83,9 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	uint8_t u8_val = 0;
 	uint32_t u32_val = 0;
 	uint64_t u64_val = 0;
+	char *strval = NULL;
 	char *nodename = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
-	char *strval = NULL;
 
 	if (!session || !value || !conf)
 		return rc;
@@ -73,18 +97,59 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 
 	PRINT("nodename:%s type:%d\n", nodename, value->type);
 
+	strval = value->data.string_val;
+
+	conf->vidflag = true;
 	if (!strcmp(nodename, "vid")) {
 		if (true) {
 			conf->vid = value->data.uint32_val;
 			conf->vidflag = true;
 			printf("\nVALID vid= %d\n", conf->vid);
 		}
-	} else if (!strcmp(nodename, "name")) {
+	} else if (!strcmp(nodename, "protocol")) {
 		if (conf->vidflag) {
-			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", value->data.string_val);
+			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
 			conf->valid = true;
-			printf("\nVALID ifname = %s\n", conf->ifname);
+			printf("\nVALID protocol = %s\n", strval);
 		}
+	} else if (!strcmp(nodename, "parent")) {
+		if (conf->vidflag) {
+			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
+			conf->valid = true;
+			printf("\nVALID parent = %s\n", strval);
+		}
+	} else if (!strcmp(nodename, "filtertype")) {
+		if (conf->vidflag) {
+			//snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
+			conf->valid = true;
+			printf("\nVALID filtertype = %d\n", value->data.uint32_val);
+		}
+#if 0
+	} else if (!strcmp(nodename, "srcip")) {
+		if (conf->vidflag) {
+			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
+			conf->valid = true;
+			printf("\nVALID srcip = %s\n", strval);
+		}
+	} else if (!strcmp(nodename, "dstip")) {
+		if (conf->vidflag) {
+			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
+			conf->valid = true;
+			printf("\nVALID dstip = %s\n", strval);
+		}
+	} else if (!strcmp(nodename, "srcport")) {
+		if (conf->vidflag) {
+			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
+			conf->valid = true;
+			printf("\nVALID srcport = %s\n", strval);
+		}
+	} else if (!strcmp(nodename, "dstport")) {
+		if (conf->vidflag) {
+			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
+			conf->valid = true;
+			printf("\nVALID dstport = %s\n", strval);
+		}
+#endif
 	}
 
 out:
@@ -188,7 +253,6 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 
 		sr_free_val(old_value);
 		sr_free_val(new_value);
-		continue;
 
 		if (!ifname)
 			continue;
@@ -223,7 +287,7 @@ int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 
 	PRINT("mod:%s path:%s event:%d\n", module_name, path, event);
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
-return rc;
+
 	switch (event) {
 	case SR_EV_CHANGE:
 		if (rc)
