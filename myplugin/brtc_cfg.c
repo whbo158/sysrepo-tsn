@@ -17,13 +17,13 @@ struct item_filter
 	uint8_t priority;
 	struct in_addr src_ip;
 	struct in_addr dst_ip;
-	uint8_t src_port;
-	uint8_t dst_port;
+	uint16_t src_port;
+	uint16_t dst_port;
 
 	char action[MAX_PARA_LEN];
 	char protocol[MAX_PARA_LEN];
 	char parent[MAX_PARA_LEN];
-	char filter_type[MAX_PARA_LEN];
+	char type[MAX_PARA_LEN];
 	char ifname[IF_NAME_MAX_LEN];
 	char action_spec[MAX_ACTION_LEN];
 };
@@ -33,6 +33,8 @@ struct item_cfg
 	bool valid;
 	bool vidflag;
 	uint32_t vid;
+	struct item_qdisc qidsc;
+	struct item_filter filter;
 	char ifname[IF_NAME_MAX_LEN];
 };
 static struct item_cfg sitem_conf;
@@ -108,48 +110,40 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 		}
 	} else if (!strcmp(nodename, "protocol")) {
 		if (conf->vidflag) {
-			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
-			conf->valid = true;
+			snprintf(conf->filter.protocol, MAX_PARA_LEN, "%s", strval);
 			printf("\nVALID protocol = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "parent")) {
 		if (conf->vidflag) {
-			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
-			conf->valid = true;
+			snprintf(conf->filter.parent, MAX_PARA_LEN, "%s", strval);
 			printf("\nVALID parent = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "filtertype")) {
 		if (conf->vidflag) {
-			//snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
-			conf->valid = true;
-			printf("\nVALID filtertype = %d\n", value->data.uint32_val);
+			snprintf(conf->filter.type, MAX_PARA_LEN, "%s", strval);
+			printf("\nVALID filtertype = %d-%d-%d-%s\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val, value->data.string_val);
 		}
-#if 0
 	} else if (!strcmp(nodename, "srcip")) {
 		if (conf->vidflag) {
-			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
-			conf->valid = true;
+			conf->filter.src_ip.s_addr = inet_addr(strval);
 			printf("\nVALID srcip = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "dstip")) {
 		if (conf->vidflag) {
-			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
-			conf->valid = true;
+			conf->filter.dst_ip.s_addr = inet_addr(strval);
 			printf("\nVALID dstip = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "srcport")) {
 		if (conf->vidflag) {
-			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
-			conf->valid = true;
-			printf("\nVALID srcport = %s\n", strval);
+			conf->filter.src_port = value->data.uint16_val;
+			printf("\nVALID srcport = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
 		}
 	} else if (!strcmp(nodename, "dstport")) {
 		if (conf->vidflag) {
-			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
 			conf->valid = true;
-			printf("\nVALID dstport = %s\n", strval);
+			conf->filter.dst_port = value->data.uint16_val;
+			printf("\nVALID dstport = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
 		}
-#endif
 	}
 
 out:
