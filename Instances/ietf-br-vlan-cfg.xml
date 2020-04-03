@@ -1,5 +1,5 @@
 <bridges xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge"
-	xmlns:brtc="nxp:dn:storage:yang:nxp-bridge-vlan-tc-flower">
+	xmlns:brtc="urn:nxp:dn:storage:yang:nxp-bridge-vlan-tc-flower">
 	<bridge>
 		<name>switch</name>
 		<bridge-type>provider-edge-bridge</bridge-type>
