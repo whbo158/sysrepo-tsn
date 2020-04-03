@@ -64,8 +64,8 @@ module nxp-bridge-vlan-tc-flower {
         description
           "delete qdisc";
       }
+    }
   }
-
   typedef qdisc-block-type {
     type enumeration {
       enum ingress {
@@ -78,8 +78,8 @@ module nxp-bridge-vlan-tc-flower {
         description
           "egress block operation";
       }
+    }
   }
-
   typedef filter-action-type {
     type enumeration {
       enum add {
@@ -107,6 +107,7 @@ module nxp-bridge-vlan-tc-flower {
         description
           "delete qdisc";
       }
+    }
   }
 
   typedef filter-type {
@@ -144,6 +145,7 @@ module nxp-bridge-vlan-tc-flower {
       enum matchall {
         value 10;
       }
+    }
   }
   augment "/dot1q:bridges/dot1q:bridge/dot1q:component" {
     description
@@ -155,7 +157,7 @@ module nxp-bridge-vlan-tc-flower {
       reference
         "";
       list tc-flower-table {
-        key "tc-flower-vlan-id";
+        key "tc-flower-id";
         description
           "";
         reference
@@ -183,6 +185,7 @@ module nxp-bridge-vlan-tc-flower {
           leaf interface {
             type string;
             mandatory true;
+            description
               "";
           }
           leaf block {
@@ -245,12 +248,12 @@ module nxp-bridge-vlan-tc-flower {
               "The destination IPv4 address.";
           }
           leaf srcport {
-            type port-number-type;
+            type dot1qtypes:port-number-type;
             description
               "The source port number.";
           }
           leaf dstport {
-            type port-number-type;
+            type dot1qtypes:port-number-type;
             description
               "The destination port number.";
           }
