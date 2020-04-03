@@ -8,13 +8,13 @@ struct item_qdisc
 {
 	char action[MAX_PARA_LEN];
 	char block[MAX_PARA_LEN];
-	char ifname[IF_NAME_MAX_LEN];
+	char ifname[MAX_PARA_LEN];
 };
 
 struct item_filter
 {
-	uint8_t vid;
-	uint8_t priority;
+	uint16_t vlanid;
+	uint16_t priority;
 	struct in_addr src_ip;
 	struct in_addr dst_ip;
 	uint16_t src_port;
@@ -24,7 +24,7 @@ struct item_filter
 	char protocol[MAX_PARA_LEN];
 	char parent[MAX_PARA_LEN];
 	char type[MAX_PARA_LEN];
-	char ifname[IF_NAME_MAX_LEN];
+	char ifname[MAX_PARA_LEN];
 	char action_spec[MAX_ACTION_LEN];
 };
 
@@ -33,9 +33,9 @@ struct item_cfg
 	bool valid;
 	bool vidflag;
 	uint32_t vid;
-	struct item_qdisc qidsc;
+	uint8_t sub_flag;
+	struct item_qdisc qdisc;
 	struct item_filter filter;
-	char ifname[IF_NAME_MAX_LEN];
 };
 static struct item_cfg sitem_conf;
 
@@ -106,43 +106,84 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 		if (true) {
 			conf->vid = value->data.uint32_val;
 			conf->vidflag = true;
-			printf("\nVALID vid= %d\n", conf->vid);
+			printf("\n vid= %d\n", conf->vid);
+		}
+	} else if (!strcmp(nodename, "qdisc")) {
+		conf->sub_flag = SUB_ITEM_QDISC;
+		printf("\n----------------------------qdisc = %s\n", strval);
+	} else if (!strcmp(nodename, "filter")) {
+		conf->sub_flag = SUB_ITEM_FILTER;
+		printf("\n****************************filter = %s\n", strval);
+	} else if (!strcmp(nodename, "action")) {
+		if (conf->sub_flag == SUB_ITEM_QDISC) {
+			snprintf(conf->qdisc.action, MAX_PARA_LEN, "%s", strval);
+			printf("\n qdisc-action = %s\n", strval);
+		} else if (conf->sub_flag == SUB_ITEM_FILTER) {
+			snprintf(conf->filter.action, MAX_PARA_LEN, "%s", strval);
+			printf("\n filter-action = %s\n", strval);
+		}
+	} else if (!strcmp(nodename, "interface")) {
+		if (conf->sub_flag == SUB_ITEM_QDISC) {
+			snprintf(conf->qdisc.ifname, MAX_PARA_LEN, "%s", strval);
+			printf("\n qdisc-interface = %s\n", strval);
+		} else if (conf->sub_flag == SUB_ITEM_FILTER) {
+			snprintf(conf->filter.ifname, MAX_PARA_LEN, "%s", strval);
+			printf("\n filter-interface = %s\n", strval);
+		}
+	} else if (!strcmp(nodename, "block")) {
+		if (conf->vidflag) {
+			snprintf(conf->qdisc.block, MAX_PARA_LEN, "%s", strval);
+			printf("\n block = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "protocol")) {
 		if (conf->vidflag) {
 			snprintf(conf->filter.protocol, MAX_PARA_LEN, "%s", strval);
-			printf("\nVALID protocol = %s\n", strval);
+			printf("\n protocol = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "parent")) {
 		if (conf->vidflag) {
 			snprintf(conf->filter.parent, MAX_PARA_LEN, "%s", strval);
-			printf("\nVALID parent = %s\n", strval);
+			printf("\n parent = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "filtertype")) {
 		if (conf->vidflag) {
 			snprintf(conf->filter.type, MAX_PARA_LEN, "%s", strval);
-			printf("\nVALID filtertype = %d-%d-%d-%s\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val, value->data.string_val);
+			printf("\n filtertype = %d-%d-%d-%s\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val, value->data.string_val);
+		}
+	} else if (!strcmp(nodename, "vlanid")) {
+		if (conf->vidflag) {
+			conf->filter.vlanid = value->data.uint16_val;
+			printf("\n vlanid = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
+		}
+	} else if (!strcmp(nodename, "priority")) {
+		if (conf->vidflag) {
+			conf->filter.priority = value->data.uint16_val;
+			printf("\n priority = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
 		}
 	} else if (!strcmp(nodename, "srcip")) {
 		if (conf->vidflag) {
 			conf->filter.src_ip.s_addr = inet_addr(strval);
-			printf("\nVALID srcip = %s\n", strval);
+			printf("\n srcip = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "dstip")) {
 		if (conf->vidflag) {
 			conf->filter.dst_ip.s_addr = inet_addr(strval);
-			printf("\nVALID dstip = %s\n", strval);
+			printf("\n dstip = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "srcport")) {
 		if (conf->vidflag) {
 			conf->filter.src_port = value->data.uint16_val;
-			printf("\nVALID srcport = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
+			printf("\n srcport = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
 		}
 	} else if (!strcmp(nodename, "dstport")) {
 		if (conf->vidflag) {
-			conf->valid = true;
 			conf->filter.dst_port = value->data.uint16_val;
-			printf("\nVALID dstport = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
+			printf("\n dstport = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
+		}
+	} else if (!strcmp(nodename, "actionspec")) {
+		if (conf->vidflag) {
+			snprintf(conf->filter.action_spec, MAX_ACTION_LEN, "%s", strval);
+			printf("\n actionspec = %s\n", strval);
 		}
 	}
 
@@ -263,7 +304,7 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 
 	if (conf->valid) {
 	//	set_inet_vlan(conf->ifname, conf->vid, true);
-		PRINT("set_inet_vlan ifname:%s vid:%d\n", conf->ifname, conf->vid);
+		//PRINT("set_inet_vlan ifname:%s vid:%d\n", conf->ifname, conf->vid);
 	}
 
 	if (rc == SR_ERR_NOT_FOUND)
