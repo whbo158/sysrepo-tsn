@@ -149,7 +149,7 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 {
 	int rc = SR_ERR_OK;
 	sr_change_oper_t oper;
-	char *vid = NULL;
+	char *ifname = NULL;
 	sr_val_t *value = NULL;
 	sr_val_t *old_value = NULL;
 	sr_val_t *new_value = NULL;
@@ -157,7 +157,7 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 	sr_xpath_ctx_t xp_ctx = {0};
 	char xpath[XPATH_MAX_LEN] = {0};
 	char err_msg[MSG_MAX_LEN] = {0};
-	char vid_bak[MAX_VLAN_LEN] = {0};
+	char ifname_bak[MAX_VLAN_LEN] = {0};
 	struct item_cfg *conf = &sitem_conf;
 
 	memset(conf, 0, sizeof(struct item_cfg));
@@ -182,29 +182,29 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 		if (!value)
 			continue;
 
-		vid = sr_xpath_key_value(value->xpath, "vlan",
-					    "vid", &xp_ctx);
-		PRINT("VID:%s xpath:%s new:%p old:%p\n", vid,
-				value->xpath, new_value, old_value);
+		ifname = sr_xpath_key_value(value->xpath, "bridge",
+					    "name", &xp_ctx);
+		PRINT("IFNAME:%s\n", ifname);
 
 		sr_free_val(old_value);
 		sr_free_val(new_value);
+		continue;
 
-		if (!vid)
+		if (!ifname)
 			continue;
 
-		if (!strcmp(vid, vid_bak))
+		if (!strcmp(ifname, ifname_bak))
 			continue;
-		snprintf(vid_bak, MAX_VLAN_LEN, "%s", vid);
+		snprintf(ifname_bak, MAX_VLAN_LEN, "%s", ifname);
 
-		PRINT("SUBXPATH:%s vid:%s len:%ld\n", xpath, vid, strlen(vid));
+		PRINT("SUBXPATH:%s ifname:%s len:%ld\n", xpath, ifname, strlen(ifname));
 		rc = config_per_item(session, xpath, abort, conf);
 		if (rc != SR_ERR_OK)
 			break;
 	}
 
 	if (conf->valid) {
-		set_inet_vlan(conf->ifname, conf->vid, true);
+	//	set_inet_vlan(conf->ifname, conf->vid, true);
 		PRINT("set_inet_vlan ifname:%s vid:%d\n", conf->ifname, conf->vid);
 	}
 
@@ -223,7 +223,7 @@ int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 
 	PRINT("mod:%s path:%s event:%d\n", module_name, path, event);
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
-
+return rc;
 	switch (event) {
 	case SR_EV_CHANGE:
 		if (rc)
