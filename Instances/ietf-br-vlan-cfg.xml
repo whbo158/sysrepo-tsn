@@ -9,7 +9,7 @@
 	  	    <type>edge-relay-component</type>
 		    <brtc:traffic-control>
 	    		<brtc:tc-flower-table>
-	    	    	<brtc:tc-flower-id>4</brtc:tc-flower-id>
+	    	    	<brtc:tc-flower-id>7</brtc:tc-flower-id>
 	    		    <brtc:qdisc>
 	    	    	    <brtc:action>add</brtc:action>
 	    	    	    <brtc:interface>swp0</brtc:interface>

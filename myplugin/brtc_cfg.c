@@ -31,7 +31,6 @@ struct item_filter
 struct item_cfg
 {
 	bool valid;
-	bool vidflag;
 	uint32_t vid;
 	uint8_t sub_flag;
 	struct item_qdisc qdisc;
@@ -95,17 +94,15 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
 	if (!nodename)
-		goto out;
+		goto ret_tag;
 
 	PRINT("nodename:%s type:%d\n", nodename, value->type);
 
 	strval = value->data.string_val;
 
-	conf->vidflag = true;
 	if (!strcmp(nodename, "vid")) {
 		if (true) {
 			conf->vid = value->data.uint32_val;
-			conf->vidflag = true;
 			printf("\n vid= %d\n", conf->vid);
 		}
 	} else if (!strcmp(nodename, "qdisc")) {
@@ -182,17 +179,18 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 		}
 	} else if (!strcmp(nodename, "actionspec")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
+			conf->valid = true;
 			snprintf(conf->filter.action_spec, MAX_ACTION_LEN, "%s", strval);
 			printf("\n actionspec = %s\n", strval);
 		}
 	}
 
-out:
+ret_tag:
 	return rc;
 }
 
 static int config_per_item(sr_session_ctx_t *session, char *path,
-			bool abort, struct item_cfg *conf)
+			struct item_cfg *conf)
 {
 	size_t i;
 	size_t count;
@@ -245,7 +243,7 @@ cleanup:
 	return rc;
 }
 
-static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
+static int parse_config(sr_session_ctx_t *session, const char *path)
 {
 	int rc = SR_ERR_OK;
 	sr_change_oper_t oper;
@@ -297,20 +295,49 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 		snprintf(ifname_bak, MAX_VLAN_LEN, "%s", ifname);
 
 		PRINT("SUBXPATH:%s ifname:%s len:%ld\n", xpath, ifname, strlen(ifname));
-		rc = config_per_item(session, xpath, abort, conf);
+		rc = config_per_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
-	}
-
-	if (conf->valid) {
-	//	set_inet_vlan(conf->ifname, conf->vid, true);
-		//PRINT("set_inet_vlan ifname:%s vid:%d\n", conf->ifname, conf->vid);
 	}
 
 	if (rc == SR_ERR_NOT_FOUND)
 		rc = SR_ERR_OK;
 
 cleanup:
+	return rc;
+}
+
+static int set_config(sr_session_ctx_t *session, bool abort)
+{
+	int rc = SR_ERR_OK;
+	struct item_cfg *conf = &sitem_conf;
+
+	printf("disc-action00 = %s\n", conf->qdisc.action);
+	if (abort) {
+		memset(conf, 0, sizeof(struct item_cfg));
+		return rc;
+	}
+
+	printf("disc-action11 = %s\n", conf->qdisc.action);
+	if (!conf->valid)
+		return rc;
+
+	printf("disc-action = %s\n", conf->qdisc.action);
+	printf("qdisc-interface = %s\n", conf->qdisc.ifname);
+	printf("disc-block = %s\n", conf->qdisc.block);
+	printf("filter-action = %s\n", conf->filter.action);
+	printf("filter-interface = %s\n", conf->filter.ifname);
+	printf("filter-protocol = %s\n", conf->filter.protocol);
+	printf("filter-type = %s\n", conf->filter.type);
+	printf("filter-vlanid = %d\n", conf->filter.vlanid);
+	printf("filter-priority = %d\n", conf->filter.priority);
+	printf("filter-src_ip = %s\n", inet_ntoa(conf->filter.src_ip));
+	printf("filter-dst_ip = %s\n", inet_ntoa(conf->filter.dst_ip));
+	printf("filter-src_port = %d\n", conf->filter.src_port);
+	printf("filter-dst_port = %d\n", conf->filter.dst_port);
+	printf("filter-action_spec = %s\n", conf->filter.action_spec);
+
+
 	return rc;
 }
 
@@ -325,21 +352,19 @@ int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 
 	switch (event) {
 	case SR_EV_CHANGE:
-		if (rc)
-			goto out;
-		rc = sub_config(session, xpath, false);
+		rc = parse_config(session, xpath);
 		break;
 	case SR_EV_ENABLED:
-		rc = sub_config(session, xpath, false);
 		break;
 	case SR_EV_DONE:
+		rc = set_config(session, false);
 		break;
 	case SR_EV_ABORT:
-		rc = sub_config(session, xpath, true);
+		rc = set_config(session, true);
 		break;
 	default:
 		break;
 	}
-out:
+
 	return rc;
 }
