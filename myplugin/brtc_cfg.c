@@ -96,92 +96,74 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	if (!nodename)
 		goto ret_tag;
 
-	PRINT("nodename:%s type:%d\n", nodename, value->type);
+	//PRINT("nodename:%s type:%d\n", nodename, value->type);
 
 	strval = value->data.string_val;
 
 	if (!strcmp(nodename, "vid")) {
 		if (true) {
 			conf->vid = value->data.uint32_val;
-			printf("\n vid= %d\n", conf->vid);
 		}
 	} else if (!strcmp(nodename, "qdisc")) {
 		conf->sub_flag = SUB_ITEM_QDISC;
-		printf("\n----------------------------qdisc\n");
 	} else if (!strcmp(nodename, "filter")) {
 		conf->sub_flag = SUB_ITEM_FILTER;
-		printf("\n****************************filter\n");
 	} else if (!strcmp(nodename, "action")) {
 		if (conf->sub_flag == SUB_ITEM_QDISC) {
 			snprintf(conf->qdisc.action, MAX_PARA_LEN, "%s", strval);
-			printf("\n qdisc-action = %s\n", strval);
 		} else if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.action, MAX_PARA_LEN, "%s", strval);
-			printf("\n filter-action = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "interface")) {
 		if (conf->sub_flag == SUB_ITEM_QDISC) {
 			snprintf(conf->qdisc.ifname, MAX_PARA_LEN, "%s", strval);
-			printf("\n qdisc-interface = %s\n", strval);
 		} else if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.ifname, MAX_PARA_LEN, "%s", strval);
-			printf("\n filter-interface = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "block")) {
 		if (conf->sub_flag == SUB_ITEM_QDISC) {
 			snprintf(conf->qdisc.block, MAX_PARA_LEN, "%s", strval);
-			printf("\n block = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "protocol")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.protocol, MAX_PARA_LEN, "%s", strval);
-			printf("\n protocol = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "parent")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.parent, MAX_PARA_LEN, "%s", strval);
-			printf("\n parent = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "filtertype")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.type, MAX_PARA_LEN, "%s", strval);
-			printf("\n filtertype = %d-%d-%d-%s\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val, value->data.string_val);
 		}
 	} else if (!strcmp(nodename, "vlanid")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->filter.vlanid = value->data.uint16_val;
-			printf("\n vlanid = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
 		}
 	} else if (!strcmp(nodename, "priority")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->filter.priority = value->data.uint16_val;
-			printf("\n priority = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
 		}
 	} else if (!strcmp(nodename, "srcip")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->filter.src_ip.s_addr = inet_addr(strval);
-			printf("\n srcip = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "dstip")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->filter.dst_ip.s_addr = inet_addr(strval);
-			printf("\n dstip = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "srcport")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->filter.src_port = value->data.uint16_val;
-			printf("\n srcport = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
 		}
 	} else if (!strcmp(nodename, "dstport")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->filter.dst_port = value->data.uint16_val;
-			printf("\n dstport = %d-%d-%d\n", value->data.uint32_val, value->data.uint16_val, value->data.uint8_val);
 		}
 	} else if (!strcmp(nodename, "actionspec")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->valid = true;
 			snprintf(conf->filter.action_spec, MAX_ACTION_LEN, "%s", strval);
-			printf("\n actionspec = %s\n", strval);
 		}
 	}
 
@@ -312,13 +294,11 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	int rc = SR_ERR_OK;
 	struct item_cfg *conf = &sitem_conf;
 
-	printf("disc-action00 = %s\n", conf->qdisc.action);
 	if (abort) {
 		memset(conf, 0, sizeof(struct item_cfg));
 		return rc;
 	}
 
-	printf("disc-action11 = %s\n", conf->qdisc.action);
 	if (!conf->valid)
 		return rc;
 
