@@ -99,14 +99,12 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	if (!nodename)
 		goto ret_tag;
 
-	//PRINT("nodename:%s type:%d\n", nodename, value->type);
+	PRINT("nodename:%s type:%d\n", nodename, value->type);
 
 	strval = value->data.string_val;
 
-	if (!strcmp(nodename, "vid")) {
-		if (true) {
-			conf->vid = value->data.uint32_val;
-		}
+	if (!strcmp(nodename, "tc-flower-id")) {
+		memset(conf, 0, sizeof(struct item_cfg));
 	} else if (!strcmp(nodename, "qdisc")) {
 		conf->sub_flag = SUB_ITEM_QDISC;
 	} else if (!strcmp(nodename, "filter")) {
