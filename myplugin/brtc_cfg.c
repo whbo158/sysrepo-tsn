@@ -81,6 +81,21 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 	return 0;
 }
 
+static int change_mac_format(char *pbuf)
+{
+	int i = 0;
+
+	if (!pbuf)
+		return -1;
+
+	for (i = 0; i < strlen(pbuf); i++) {
+		if (pbuf[i] == '-')
+			pbuf[i] = ':';
+	}
+
+	return 0;
+}
+
 static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cfg *conf)
 {
 	int rc = SR_ERR_OK;
@@ -166,10 +181,12 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	} else if (!strcmp(nodename, "src_mac")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.src_mac, MAX_PARA_LEN, "%s", strval);
+			change_mac_format(conf->filter.src_mac);
 		}
 	} else if (!strcmp(nodename, "dst_mac")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.dst_mac, MAX_PARA_LEN, "%s", strval);
+			change_mac_format(conf->filter.dst_mac);
 		}
 	} else if (!strcmp(nodename, "action_spec")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
@@ -388,6 +405,14 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	}
 	if (conf->filter.dst_port > 0) {
 		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_port %d ", conf->filter.dst_port);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (strlen(conf->filter.src_mac) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "src_mac %s ", conf->filter.src_mac);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (strlen(conf->filter.dst_mac) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_mac %s ", conf->filter.dst_mac);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.action_spec) > 0) {
