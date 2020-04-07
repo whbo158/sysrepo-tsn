@@ -1,16 +1,32 @@
 #include "vlan_cfg.h"
 
 /**
-	author: hongbo.wang (hongbo.wang@nxp.com)
-*/
+ * @file vlan_cfg.c
+ * @author hongbo wang (hongbo.wang@nxp.com)
+ * @brief Application to configure VLAN function based on sysrepo datastore.
+ *
+ * Copyright 2019-2020 NXP
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-struct item_cfg
-{
+struct item_cfg {
 	bool valid;
 	bool vidflag;
 	uint32_t vid;
 	char ifname[IF_NAME_MAX_LEN];
 };
+
 static struct item_cfg sitem_conf;
 
 static int set_inet_vlan(char *ifname, int vid, bool addflag)
@@ -18,13 +34,13 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 	int ret = 0;
 	int sockfd = 0;
 	struct vlan_ioctl_args ifr;
+	size_t max_len = sizeof(ifr.device1);
 
 	if (!ifname)
 		return -1;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
-	{
+	if (sockfd < 0) {
 		PRINT("create socket failed! ret:%d\n", sockfd);
 		return -2;
 	}
@@ -34,10 +50,10 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 
 	if (addflag) {
 		ifr.cmd = ADD_VLAN_CMD;
-		snprintf(ifr.device1, sizeof(ifr.device1), "%s", ifname);
+		snprintf(ifr.device1, max_len, "%s", ifname);
 	} else {
 		ifr.cmd = DEL_VLAN_CMD;
-		snprintf(ifr.device1, sizeof(ifr.device1), "%s.%d", ifname, vid);
+		snprintf(ifr.device1, max_len, "%s.%d", ifname, vid);
 	}
 
 	ret = ioctl(sockfd, SIOCSIFVLAN, &ifr);
@@ -51,7 +67,8 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 	return 0;
 }
 
-static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cfg *conf)
+static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
+			struct item_cfg *conf)
 {
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
@@ -81,7 +98,8 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 		}
 	} else if (!strcmp(nodename, "name")) {
 		if (conf->vidflag) {
-			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", value->data.string_val);
+			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s",
+						value->data.string_val);
 			conf->valid = true;
 			printf("\nVALID ifname = %s\n", conf->ifname);
 		}
