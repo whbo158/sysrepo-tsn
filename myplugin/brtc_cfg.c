@@ -20,6 +20,8 @@ struct item_filter
 
 	char src_ip[MAX_PARA_LEN];
 	char dst_ip[MAX_PARA_LEN];
+	char src_mac[MAX_PARA_LEN];
+	char dst_mac[MAX_PARA_LEN];
 	char action[MAX_PARA_LEN];
 	char protocol[MAX_PARA_LEN];
 	char parent[MAX_PARA_LEN];
@@ -145,23 +147,31 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->filter.priority = value->data.uint16_val;
 		}
-	} else if (!strcmp(nodename, "srcip")) {
+	} else if (!strcmp(nodename, "src_ip")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.src_ip, MAX_PARA_LEN, "%s", strval);
 		}
-	} else if (!strcmp(nodename, "dstip")) {
+	} else if (!strcmp(nodename, "dst_ip")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.dst_ip, MAX_PARA_LEN, "%s", strval);
 		}
-	} else if (!strcmp(nodename, "srcport")) {
+	} else if (!strcmp(nodename, "src_port")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->filter.src_port = value->data.uint16_val;
 		}
-	} else if (!strcmp(nodename, "dstport")) {
+	} else if (!strcmp(nodename, "dst_port")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->filter.dst_port = value->data.uint16_val;
 		}
-	} else if (!strcmp(nodename, "actionspec")) {
+	} else if (!strcmp(nodename, "src_mac")) {
+		if (conf->sub_flag == SUB_ITEM_FILTER) {
+			snprintf(conf->filter.src_mac, MAX_PARA_LEN, "%s", strval);
+		}
+	} else if (!strcmp(nodename, "dst_mac")) {
+		if (conf->sub_flag == SUB_ITEM_FILTER) {
+			snprintf(conf->filter.dst_mac, MAX_PARA_LEN, "%s", strval);
+		}
+	} else if (!strcmp(nodename, "action_spec")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->valid = true;
 			snprintf(conf->filter.action_spec, MAX_ACTION_LEN, "%s", strval);
@@ -309,6 +319,8 @@ static int show_config(struct item_cfg *conf)
 	printf("filter-dst_ip = %s\n", conf->filter.dst_ip);
 	printf("filter-src_port = %d\n", conf->filter.src_port);
 	printf("filter-dst_port = %d\n", conf->filter.dst_port);
+	printf("filter-src_mac = %s\n", conf->filter.src_mac);
+	printf("filter-dst_mac = %s\n", conf->filter.dst_mac);
 	printf("filter-action_spec = %s\n", conf->filter.action_spec);
 
 	return 0;

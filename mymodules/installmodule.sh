@@ -1,5 +1,6 @@
 #!/bin/bash
 
+sudo sysrepoctl -i ieee802-types.yang
 sudo sysrepoctl -i ieee802-dot1q-types.yang
 sudo sysrepoctl -i ietf-interfaces@2014-05-08.yang
 sudo sysrepoctl -i ietf-inet-types@2013-07-15.yang
