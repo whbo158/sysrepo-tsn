@@ -8,6 +8,7 @@
 #define MAX_VLAN_LEN (16)
 #define MAX_PARA_LEN (32)
 #define MAX_ACTION_LEN (128)
+#define MAX_CMD_LEN (512)
 
 #define SUB_ITEM_NONE		(0)
 #define SUB_ITEM_QDISC		(1)

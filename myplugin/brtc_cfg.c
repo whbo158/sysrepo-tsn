@@ -15,11 +15,11 @@ struct item_filter
 {
 	uint16_t vlanid;
 	uint16_t priority;
-	struct in_addr src_ip;
-	struct in_addr dst_ip;
 	uint16_t src_port;
 	uint16_t dst_port;
 
+	char src_ip[MAX_PARA_LEN];
+	char dst_ip[MAX_PARA_LEN];
 	char action[MAX_PARA_LEN];
 	char protocol[MAX_PARA_LEN];
 	char parent[MAX_PARA_LEN];
@@ -37,6 +37,9 @@ struct item_cfg
 	struct item_filter filter;
 };
 static struct item_cfg sitem_conf;
+
+static char stc_cmd[MAX_CMD_LEN];
+static char stc_subcmd[MAX_CMD_LEN];
 
 static int set_inet_vlan(char *ifname, int vid, bool addflag)
 {
@@ -146,11 +149,11 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 		}
 	} else if (!strcmp(nodename, "srcip")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			conf->filter.src_ip.s_addr = inet_addr(strval);
+			snprintf(conf->filter.src_ip, MAX_PARA_LEN, "%s", strval);
 		}
 	} else if (!strcmp(nodename, "dstip")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			conf->filter.dst_ip.s_addr = inet_addr(strval);
+			snprintf(conf->filter.dst_ip, MAX_PARA_LEN, "%s", strval);
 		}
 	} else if (!strcmp(nodename, "srcport")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
@@ -289,6 +292,30 @@ cleanup:
 	return rc;
 }
 
+static int show_config(struct item_cfg *conf)
+{
+	if (!conf)
+		return -1;
+
+	printf("disc-action = %s\n", conf->qdisc.action);
+	printf("qdisc-interface = %s\n", conf->qdisc.ifname);
+	printf("disc-block = %s\n", conf->qdisc.block);
+	printf("filter-action = %s\n", conf->filter.action);
+	printf("filter-interface = %s\n", conf->filter.ifname);
+	printf("filter-protocol = %s\n", conf->filter.protocol);
+	printf("filter-parent = %s\n", conf->filter.parent);
+	printf("filter-type = %s\n", conf->filter.type);
+	printf("filter-vlanid = %d\n", conf->filter.vlanid);
+	printf("filter-priority = %d\n", conf->filter.priority);
+	printf("filter-src_ip = %s\n", conf->filter.src_ip);
+	printf("filter-dst_ip = %s\n", conf->filter.dst_ip);
+	printf("filter-src_port = %d\n", conf->filter.src_port);
+	printf("filter-dst_port = %d\n", conf->filter.dst_port);
+	printf("filter-action_spec = %s\n", conf->filter.action_spec);
+
+	return 0;
+}
+
 static int set_config(sr_session_ctx_t *session, bool abort)
 {
 	int rc = SR_ERR_OK;
@@ -302,21 +329,62 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	if (!conf->valid)
 		return rc;
 
-	printf("disc-action = %s\n", conf->qdisc.action);
-	printf("qdisc-interface = %s\n", conf->qdisc.ifname);
-	printf("disc-block = %s\n", conf->qdisc.block);
-	printf("filter-action = %s\n", conf->filter.action);
-	printf("filter-interface = %s\n", conf->filter.ifname);
-	printf("filter-protocol = %s\n", conf->filter.protocol);
-	printf("filter-type = %s\n", conf->filter.type);
-	printf("filter-vlanid = %d\n", conf->filter.vlanid);
-	printf("filter-priority = %d\n", conf->filter.priority);
-	printf("filter-src_ip = %s\n", inet_ntoa(conf->filter.src_ip));
-	printf("filter-dst_ip = %s\n", inet_ntoa(conf->filter.dst_ip));
-	printf("filter-src_port = %d\n", conf->filter.src_port);
-	printf("filter-dst_port = %d\n", conf->filter.dst_port);
-	printf("filter-action_spec = %s\n", conf->filter.action_spec);
+	show_config(conf);
 
+	if ((strlen(conf->qdisc.action) == 0) && (strlen(conf->qdisc.ifname) > 0))
+		return rc;
+
+	if ((strlen(conf->filter.action) == 0) || (strlen(conf->filter.ifname) == 0))
+		return rc;
+
+	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc %s dev %s %s\n",
+		conf->qdisc.action, conf->qdisc.ifname, conf->qdisc.block);
+	printf("qdisc: %s\n", stc_cmd);
+
+	snprintf(stc_cmd, MAX_CMD_LEN, "tc filter %s dev %s skip_sw ",
+		conf->filter.action, conf->filter.ifname);
+
+	if (strlen(conf->filter.protocol) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "protocol %s ", conf->filter.protocol);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (strlen(conf->filter.parent) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "parent %s ", conf->filter.parent);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (strlen(conf->filter.type) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "%s ", conf->filter.type);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (conf->filter.vlanid > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "vlan_id %d ", conf->filter.vlanid);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (conf->filter.priority > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "vlan_prio %d ", conf->filter.priority);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (strlen(conf->filter.src_ip) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "src_ip %s ", conf->filter.src_ip);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (strlen(conf->filter.dst_ip) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_ip %s ", conf->filter.dst_ip);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (conf->filter.src_port > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "src_port %d ", conf->filter.src_port);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (conf->filter.dst_port > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_port %d ", conf->filter.dst_port);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (strlen(conf->filter.action_spec) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "action %s ", conf->filter.action_spec);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	printf("filter: %s\n", stc_cmd);
 
 	return rc;
 }
