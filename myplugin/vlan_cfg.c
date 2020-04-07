@@ -59,9 +59,9 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	uint8_t u8_val = 0;
 	uint32_t u32_val = 0;
 	uint64_t u64_val = 0;
+	char *strval = NULL;
 	char *nodename = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
-	char *strval = NULL;
 
 	if (!session || !value || !conf)
 		return rc;
@@ -69,12 +69,12 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
 	if (!nodename)
-		goto out;
+		goto ret_tag;
 
 	PRINT("nodename:%s type:%d\n", nodename, value->type);
 
 	if (!strcmp(nodename, "vid")) {
-		if (true) {
+		if (value->data.uint32_val > 0) {
 			conf->vid = value->data.uint32_val;
 			conf->vidflag = true;
 			printf("\nVALID vid= %d\n", conf->vid);
@@ -87,12 +87,12 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 		}
 	}
 
-out:
+ret_tag:
 	return rc;
 }
 
 static int config_per_item(sr_session_ctx_t *session, char *path,
-			bool abort, struct item_cfg *conf)
+			struct item_cfg *conf)
 {
 	size_t i;
 	size_t count;
@@ -145,7 +145,7 @@ cleanup:
 	return rc;
 }
 
-static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
+static int parse_config(sr_session_ctx_t *session, const char *path)
 {
 	int rc = SR_ERR_OK;
 	sr_change_oper_t oper;
@@ -184,8 +184,6 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 
 		vid = sr_xpath_key_value(value->xpath, "vlan",
 					    "vid", &xp_ctx);
-		PRINT("VID:%s xpath:%s new:%p old:%p\n", vid,
-				value->xpath, new_value, old_value);
 
 		sr_free_val(old_value);
 		sr_free_val(new_value);
@@ -198,20 +196,34 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 		snprintf(vid_bak, MAX_VLAN_LEN, "%s", vid);
 
 		PRINT("SUBXPATH:%s vid:%s len:%ld\n", xpath, vid, strlen(vid));
-		rc = config_per_item(session, xpath, abort, conf);
+		rc = config_per_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
-	}
-
-	if (conf->valid) {
-		set_inet_vlan(conf->ifname, conf->vid, true);
-		PRINT("set_inet_vlan ifname:%s vid:%d\n", conf->ifname, conf->vid);
 	}
 
 	if (rc == SR_ERR_NOT_FOUND)
 		rc = SR_ERR_OK;
 
 cleanup:
+	return rc;
+}
+
+static int set_config(sr_session_ctx_t *session, bool abort)
+{
+	int rc = SR_ERR_OK;
+	struct item_cfg *conf = &sitem_conf;
+
+	if (abort) {
+		memset(conf, 0, sizeof(struct item_cfg));
+		return rc;
+	}
+
+	if (!conf->valid)
+		return rc;
+
+	set_inet_vlan(conf->ifname, conf->vid, true);
+	PRINT("set_inet_vlan ifname:%s vid:%d\n", conf->ifname, conf->vid);
+
 	return rc;
 }
 
@@ -226,21 +238,19 @@ int vlan_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 
 	switch (event) {
 	case SR_EV_CHANGE:
-		if (rc)
-			goto out;
-		rc = sub_config(session, xpath, false);
+		rc = parse_config(session, xpath);
 		break;
 	case SR_EV_ENABLED:
-		rc = sub_config(session, xpath, false);
 		break;
 	case SR_EV_DONE:
+		rc = set_config(session, false);
 		break;
 	case SR_EV_ABORT:
-		rc = sub_config(session, xpath, true);
+		rc = set_config(session, true);
 		break;
 	default:
 		break;
 	}
-out:
+
 	return rc;
 }
