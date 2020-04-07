@@ -225,12 +225,17 @@ module nxp-bridge-vlan-tc-flower {
             description
               "";
           }
-          leaf filtertype {
+          leaf filter_type {
             type filter-type;
             description
               "";
           }
-          leaf vlanid {
+          leaf skip_type {
+            type string;
+            description
+              "";
+          }
+          leaf vlan_id {
             type dot1qtypes:vlan-index-type;
             description
               "";

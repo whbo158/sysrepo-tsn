@@ -13,7 +13,7 @@ struct item_qdisc
 
 struct item_filter
 {
-	uint16_t vlanid;
+	uint16_t vlan_id;
 	uint16_t priority;
 	uint16_t src_port;
 	uint16_t dst_port;
@@ -26,6 +26,7 @@ struct item_filter
 	char protocol[MAX_PARA_LEN];
 	char parent[MAX_PARA_LEN];
 	char type[MAX_PARA_LEN];
+	char skip_type[MAX_PARA_LEN];
 	char ifname[MAX_PARA_LEN];
 	char action_spec[MAX_ACTION_LEN];
 };
@@ -150,13 +151,17 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.parent, MAX_PARA_LEN, "%s", strval);
 		}
-	} else if (!strcmp(nodename, "filtertype")) {
+	} else if (!strcmp(nodename, "filter_type")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			snprintf(conf->filter.type, MAX_PARA_LEN, "%s", strval);
 		}
-	} else if (!strcmp(nodename, "vlanid")) {
+	} else if (!strcmp(nodename, "skip_type")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			conf->filter.vlanid = value->data.uint16_val;
+			snprintf(conf->filter.skip_type, MAX_PARA_LEN, "%s", strval);
+		}
+	} else if (!strcmp(nodename, "vlan_id")) {
+		if (conf->sub_flag == SUB_ITEM_FILTER) {
+			conf->filter.vlan_id = value->data.uint16_val;
 		}
 	} else if (!strcmp(nodename, "priority")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
@@ -330,7 +335,8 @@ static int show_config(struct item_cfg *conf)
 	printf("filter-protocol = %s\n", conf->filter.protocol);
 	printf("filter-parent = %s\n", conf->filter.parent);
 	printf("filter-type = %s\n", conf->filter.type);
-	printf("filter-vlanid = %d\n", conf->filter.vlanid);
+	printf("filter-skip_type = %s\n", conf->filter.skip_type);
+	printf("filter-vlan_id = %d\n", conf->filter.vlan_id);
 	printf("filter-priority = %d\n", conf->filter.priority);
 	printf("filter-src_ip = %s\n", conf->filter.src_ip);
 	printf("filter-dst_ip = %s\n", conf->filter.dst_ip);
@@ -367,8 +373,9 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc %s dev %s %s\n",
 		conf->qdisc.action, conf->qdisc.ifname, conf->qdisc.block);
 	printf("qdisc: %s\n", stc_cmd);
+	system(stc_cmd);
 
-	snprintf(stc_cmd, MAX_CMD_LEN, "tc filter %s dev %s skip_sw ",
+	snprintf(stc_cmd, MAX_CMD_LEN, "tc filter %s dev %s ",
 		conf->filter.action, conf->filter.ifname);
 
 	if (strlen(conf->filter.protocol) > 0) {
@@ -383,8 +390,12 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 		snprintf(stc_subcmd, MAX_CMD_LEN, "%s ", conf->filter.type);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
-	if (conf->filter.vlanid > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "vlan_id %d ", conf->filter.vlanid);
+	if (strlen(conf->filter.skip_type) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "%s ", conf->filter.skip_type);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (conf->filter.vlan_id > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "vlan_id %d ", conf->filter.vlan_id);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (conf->filter.priority > 0) {
@@ -420,6 +431,7 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	printf("filter: %s\n", stc_cmd);
+	system(stc_cmd);
 
 	return rc;
 }
