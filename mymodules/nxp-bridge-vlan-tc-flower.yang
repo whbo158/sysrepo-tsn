@@ -2,6 +2,9 @@ module nxp-bridge-vlan-tc-flower {
   namespace
     urn:nxp:dn:storage:yang:nxp-bridge-vlan-tc-flower;
   prefix brtc;
+  import ieee802-types {
+    prefix ieee;
+  }
   import ieee802-dot1q-bridge {
     prefix dot1q;
   }
@@ -237,27 +240,37 @@ module nxp-bridge-vlan-tc-flower {
             description
               "";
           }
-          leaf srcip {
+          leaf src_ip {
             type inet:ipv4-address-no-zone;
             description
               "The source IPv4 address.";
           }
-          leaf dstip {
+          leaf dst_ip {
             type inet:ipv4-address-no-zone;
             description
               "The destination IPv4 address.";
           }
-          leaf srcport {
+          leaf src_port {
             type dot1qtypes:port-number-type;
             description
               "The source port number.";
           }
-          leaf dstport {
+          leaf dst_port {
             type dot1qtypes:port-number-type;
             description
               "The destination port number.";
           }
-          leaf actionspec {
+          leaf src_mac {
+            type ieee:mac-address;
+            description
+              "The source mac address.";
+          }
+          leaf dst_mac {
+            type ieee:mac-address;
+            description
+              "The destination mac address.";
+          }
+          leaf action_spec {
             type string;
             description
               "";
