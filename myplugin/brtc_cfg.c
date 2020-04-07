@@ -378,12 +378,12 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	snprintf(stc_cmd, MAX_CMD_LEN, "tc filter %s dev %s ",
 		conf->filter.action, conf->filter.ifname);
 
-	if (strlen(conf->filter.protocol) > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "protocol %s ", conf->filter.protocol);
-		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
-	}
 	if (strlen(conf->filter.parent) > 0) {
 		snprintf(stc_subcmd, MAX_CMD_LEN, "parent %s ", conf->filter.parent);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+	if (strlen(conf->filter.protocol) > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "protocol %s ", conf->filter.protocol);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.type) > 0) {
