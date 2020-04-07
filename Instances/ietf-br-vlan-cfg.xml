@@ -9,7 +9,7 @@
 	  	    <type>edge-relay-component</type>
 		    <brtc:traffic-control>
 	    		<brtc:tc-flower-table>
-	    	    	<brtc:tc-flower-id>6</brtc:tc-flower-id>
+	    	    	<brtc:tc-flower-id>14</brtc:tc-flower-id>
 	    		    <brtc:qdisc>
 	    	    	    <brtc:action>add</brtc:action>
 	    	    	    <brtc:interface>swp10</brtc:interface>
@@ -24,12 +24,6 @@
 	    	    		<brtc:skip_type>skip_sw</brtc:skip_type>
 	    	    		<brtc:vlan_id>103</brtc:vlan_id>
 	    	    		<brtc:priority>6</brtc:priority>
-	    	    		<brtc:src_ip>192.168.50.119</brtc:src_ip>
-	    	    		<brtc:dst_ip>192.168.50.139</brtc:dst_ip>
-	    	    		<brtc:src_port>5102</brtc:src_port>
-	    	    		<brtc:dst_port>5102</brtc:dst_port>
-	    	    		<brtc:src_mac>d6-ad-62-c1-68-ad</brtc:src_mac>
-	    	    		<brtc:dst_mac>d6-ad-62-c1-88-ad</brtc:dst_mac>
 	    	    		<brtc:action_spec>vlan modify id 0 priority 5</brtc:action_spec>
 	    	        </brtc:filter>
 	    		</brtc:tc-flower-table>
