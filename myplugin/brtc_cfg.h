@@ -34,6 +34,8 @@
 #define SUB_ITEM_QDISC		(1)
 #define SUB_ITEM_FILTER		(2)
 
+#define _PARA(a, l, v) snprintf((a), (l), "%s", (v))
+
 int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	const char *path, sr_event_t event, uint32_t id, void *private_ctx);
 
