@@ -9,15 +9,15 @@
 	  	    <type>edge-relay-component</type>
 		    <brtc:traffic-control>
 	    		<brtc:tc-flower-table>
-	    	    	<brtc:tc-flower-id>12</brtc:tc-flower-id>
+	    	    	<brtc:tc-flower-id>17</brtc:tc-flower-id>
 	    		    <brtc:qdisc>
 	    	    	    <brtc:action>add</brtc:action>
-	    	    	    <brtc:interface>swp10</brtc:interface>
+	    	    	    <brtc:interface>swp11</brtc:interface>
 	    	    	    <brtc:block>ingress</brtc:block>
 	    	        </brtc:qdisc>
 	    		    <brtc:filter>
 	    	    	    <brtc:action>add</brtc:action>
-	    	    	    <brtc:interface>swp10</brtc:interface>
+	    	    	    <brtc:interface>swp11</brtc:interface>
 	    	    		<brtc:protocol>ip</brtc:protocol>
 	    	    		<brtc:parent>ffff:</brtc:parent>
 	    	    		<brtc:filter_type>flower</brtc:filter_type>

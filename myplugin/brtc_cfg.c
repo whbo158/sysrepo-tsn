@@ -131,8 +131,6 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 	if (!nodename)
 		goto ret_tag;
 
-	PRINT("nodename:%s type:%d\n", nodename, value->type);
-
 	strval = value->data.string_val;
 
 	if (!strcmp(nodename, "tc-flower-id")) {
@@ -239,7 +237,6 @@ static int parse_item(sr_session_ctx_t *session, char *path,
 		return rc;
 	}
 
-	PRINT("CUR COUNT:%ld\n", count);
 	for (i = 0; i < count; i++) {
 		if (values[i].type == SR_LIST_T
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
@@ -293,7 +290,6 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 
 		ifname = sr_xpath_key_value(value->xpath, "bridge",
 					    "name", &xp_ctx);
-		PRINT("IFNAME:%s\n", ifname);
 
 		sr_free_val(old_value);
 		sr_free_val(new_value);
@@ -357,7 +353,7 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	if (!conf->valid)
 		return rc;
 
-	show_config(conf);
+//	show_config(conf);
 
 	if ((strlen(conf->qdisc.action) == 0)
 			|| (strlen(conf->qdisc.ifname) == 0))
@@ -451,7 +447,6 @@ int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0};
 
-	PRINT("mod:%s path:%s event:%d\n", module_name, path, event);
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
 
 	switch (event) {
