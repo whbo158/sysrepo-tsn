@@ -88,20 +88,16 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 	if (!nodename)
 		goto ret_tag;
 
-	PRINT("nodename:%s type:%d\n", nodename, value->type);
-
 	if (!strcmp(nodename, "vid")) {
 		if (value->data.uint32_val > 0) {
 			conf->vid = value->data.uint32_val;
 			conf->vidflag = true;
-			printf("\nVALID vid= %d\n", conf->vid);
 		}
 	} else if (!strcmp(nodename, "name")) {
 		if (conf->vidflag) {
 			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s",
 						value->data.string_val);
 			conf->valid = true;
-			printf("\nVALID ifname = %s\n", conf->ifname);
 		}
 	}
 
@@ -144,7 +140,6 @@ static int config_per_item(sr_session_ctx_t *session, char *path,
 		return rc;
 	}
 
-	PRINT("CUR COUNT:%ld\n", count);
 	for (i = 0; i < count; i++) {
 		if (values[i].type == SR_LIST_T
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
@@ -213,7 +208,6 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 			continue;
 		snprintf(vid_bak, MAX_VLAN_LEN, "%s", vid);
 
-		PRINT("SUBXPATH:%s vid:%s len:%ld\n", xpath, vid, strlen(vid));
 		rc = config_per_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
@@ -251,7 +245,6 @@ int vlan_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0};
 
-	PRINT("mod:%s path:%s event:%d\n", module_name, path, event);
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
 
 	switch (event) {
