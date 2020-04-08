@@ -3,7 +3,7 @@
 /**
  * @file ip_cfg.c
  * @author hongbo wang (hongbo.wang@nxp.com)
- * @brief Application to configure VLAN function based on sysrepo datastore.
+ * @brief Application to configure IP address function based on sysrepo datastore.
  *
  * Copyright 2019-2020 NXP
  *
