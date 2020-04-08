@@ -3,7 +3,7 @@
 /**
  * @file mac_cfg.c
  * @author hongbo wang (hongbo.wang@nxp.com)
- * @brief Application to configure mac address function based on sysrepo datastore.
+ * @brief Application to configure mac address based on sysrepo datastore.
  *
  * Copyright 2019-2020 NXP
  *
@@ -23,7 +23,7 @@
 struct item_cfg {
 	bool valid;
 	char ifname[IF_NAME_MAX_LEN];
-	char mac_addr[MAC_ADDR_MAX_LEN];
+	char mac_addr[MAC_ADDR_LEN];
 };
 static struct item_cfg sitem_conf;
 
@@ -184,19 +184,15 @@ int convert_mac_address(char *str, uint8_t *pbuf, int buflen)
 			buf[i] = '\0';
 			ret = sscanf(pmac, "%02X", &data);
 			if (ret != 1)
-			      return -2;
+				return -2;
 
 			if (cnt < buflen)
-			      pbuf[cnt++] = data & 0xFF;
+				pbuf[cnt++] = data & 0xFF;
 
 			pmac = buf + i + 1;
 		}
 	}
-#if 0
-	for (i = 0; i < cnt; i++) {
-		printf("%d:%X\n", i, pbuf[i]);
-	}
-#endif
+
 	return 0;
 }
 
@@ -209,11 +205,13 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 	uint8_t u8_val = 0;
 	uint32_t u32_val = 0;
 	uint64_t u64_val = 0;
+	char *strval = NULL;
 	char *nodename = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
 
 	if (!session || !value || !conf)
 		return rc;
+
 
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
@@ -222,16 +220,17 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 
 	PRINT("nodename:%s type:%d\n", nodename, value->type);
 
+	strval = value->data.string_val;
+
 	if (!strcmp(nodename, "address")) {
 		if (!conf->valid) {
-			snprintf(conf->mac_addr, MAC_ADDR_MAX_LEN, "%s",
-					value->data.string_val);
+			snprintf(conf->mac_addr, MAC_ADDR_LEN, "%s", strval);
 			conf->valid = true;
 			printf("\nVALID mac_addr = %s\n", conf->mac_addr);
 		}
 	} else if (!strcmp(nodename, "name")) {
 		if (!conf->valid) {
-			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", value->data.string_val);
+			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
 			printf("\nVALID ifname = %s\n", conf->ifname);
 		}
 	}
@@ -240,7 +239,7 @@ ret_tag:
 	return rc;
 }
 
-static int config_per_item(sr_session_ctx_t *session, char *path,
+static int parse_item(sr_session_ctx_t *session, char *path,
 			struct item_cfg *conf)
 {
 	size_t i;
@@ -345,11 +344,9 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 		if (!strcmp(ifname, ifname_bak))
 			continue;
 		snprintf(ifname_bak, IF_NAME_MAX_LEN, "%s", ifname);
-
 		snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", ifname);
 
-		PRINT("SUBXPATH:%s ifname:%s len:%ld\n", xpath, ifname, strlen(ifname));
-		rc = config_per_item(session, xpath, conf);
+		rc = parse_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
 	}
@@ -381,7 +378,7 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	/* config mac address */
 	convert_mac_address(conf->mac_addr, mac, sizeof(mac));
 	set_inet_mac(conf->ifname, mac, sizeof(mac));
-	printf("set_inet_mac ifname:%s mac:%s\n", conf->ifname, conf->mac_addr);
+	PRINT("set_inet_mac ifname:%s mac:%s\n", conf->ifname, conf->mac_addr);
 
 	return rc;
 }

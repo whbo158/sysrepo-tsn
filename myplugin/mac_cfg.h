@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-#define MAC_ADDR_MAX_LEN	(32)
+#define MAC_ADDR_LEN	(32)
 #define BR_ADDRESS_XPATH (BRIDGE_XPATH "/address")
 
 int mac_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,

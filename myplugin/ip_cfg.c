@@ -3,7 +3,7 @@
 /**
  * @file ip_cfg.c
  * @author hongbo wang (hongbo.wang@nxp.com)
- * @brief Application to configure IP address function based on sysrepo datastore.
+ * @brief Application to configure IP address based on sysrepo datastore.
  *
  * Copyright 2019-2020 NXP
  *
@@ -211,12 +211,12 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 	if (!session || !value || !conf)
 		return rc;
 
-	strval = value->data.string_val;
-
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
 	if (!nodename)
 		goto ret_tag;
+
+	strval = value->data.string_val;
 
 	if (!strcmp(nodename, "ip")) {
 		if (is_valid_addr(strval) && (conf->ipv4_cnt < MAX_IP_NUM)) {
@@ -238,7 +238,7 @@ ret_tag:
 	return rc;
 }
 
-static int config_per_item(sr_session_ctx_t *session, char *path,
+static int parse_item(sr_session_ctx_t *session, char *path,
 			struct item_cfg *conf)
 {
 	size_t i;
@@ -346,7 +346,7 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 		snprintf(xpath, XPATH_MAX_LEN, "%s[name='%s']/%s:*//*",
 					IF_XPATH, ifname, IP_MODULE_NAME);
 
-		rc = config_per_item(session, xpath, conf);
+		rc = parse_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
 	}
