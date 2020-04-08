@@ -21,7 +21,7 @@
 #ifndef __CB_STREAMID_H_
 #define __CB_STREAMID_H_
 
-#include <tsn/genl_tsn.h>
+//#include <tsn/genl_tsn.h>
 #include "common.h"
 
 #define CB_STREAMID_XPATH "/ieee802-dot1q-cb-stream-identification:streams"

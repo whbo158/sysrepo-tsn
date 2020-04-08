@@ -21,7 +21,7 @@
 #ifndef __QBV_H_
 #define __QBV_H_
 
-#include <tsn/genl_tsn.h>
+//#include <tsn/genl_tsn.h>
 #include "common.h"
 
 #define QBV_GATE_PARA_XPATH "/ieee802-dot1q-sched:gate-parameters"

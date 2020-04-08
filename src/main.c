@@ -31,11 +31,16 @@
 
 #include "common.h"
 #include "main.h"
-#include "qbv.h"
-#include "qbu.h"
-#include "file_mon.h"
-#include "cb_streamid.h"
-#include "qci.h"
+//#include "qbv.h"
+//#include "qbu.h"
+//#include "file_mon.h"
+//#include "cb_streamid.h"
+//#include "qci.h"
+
+#include "ip_cfg.h"
+#include "vlan_cfg.h"
+#include "mac_cfg.h"
+#include "brtc_cfg.h"
 
 static uint8_t exit_application;
 
@@ -43,7 +48,7 @@ static void sigint_handler(int signum)
 {
 	exit_application = 1;
 }
-
+#if 0
 /* tsn_operation_monitor_cb()
  * file callback
  */
@@ -97,7 +102,7 @@ void check_pid_file(void)
 		exit(1);
 	}
 }
-
+#endif
 int main(int argc, char **argv)
 {
 	int rc = SR_ERR_OK;
@@ -105,11 +110,15 @@ int main(int argc, char **argv)
 	sr_session_ctx_t *session;
 	sr_subscription_ctx_t *if_subscription;
 	sr_subscription_ctx_t *bridge_subscription;
+	sr_subscription_ctx_t *ip_subscription = NULL;
+	sr_subscription_ctx_t *vlan_subscription = NULL;
+	sr_subscription_ctx_t *mac_subscription = NULL;
+	sr_subscription_ctx_t *brtc_subscription = NULL;
 	char path[XPATH_MAX_LEN];
 	sr_subscr_options_t opts;
 
 	exit_application = 0;
-
+#if 0
 	/* Check pid file */
 	check_pid_file();
 
@@ -125,7 +134,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Error by sr_connect: %s\n", sr_strerror(rc));
 		goto cleanup;
 	}
-
+#endif
 	/* Start session */
 	rc = sr_session_start(connection, SR_DS_STARTUP, &session);
 	if (rc != SR_ERR_OK) {
@@ -133,7 +142,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
+#if 0
 	/* Subscribe to QBV subtree */
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
@@ -204,6 +213,54 @@ int main(int argc, char **argv)
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					 qci_fm_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
+#endif
+
+	/* Subscribe to IP_CFG subtree */
+	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
+	strncat(path, IPV4_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
+	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
+					ip_subtree_change_cb, NULL, 0,
+					opts, &ip_subscription);
+	if (rc != SR_ERR_OK) {
+		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
+			sr_strerror(rc));
+		goto cleanup;
+	}
+
+	/* Subscribe to VLAN_CFG subtree */
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
+	strncat(path, BR_VLAN_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					vlan_subtree_change_cb, NULL, 0,
+					opts, &ip_subscription);
+	if (rc != SR_ERR_OK) {
+		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
+			sr_strerror(rc));
+		goto cleanup;
+	}
+
+	/* Subscribe to MAC_CFG subtree */
+	snprintf(path, XPATH_MAX_LEN, "%s", BR_ADDRESS_XPATH);
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					mac_subtree_change_cb, NULL, 0,
+					opts, &ip_subscription);
+	if (rc != SR_ERR_OK) {
+		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
+			sr_strerror(rc));
+		goto cleanup;
+	}
+
+	/* Subscribe to BR_TC_CFG subtree */
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
+	strncat(path, BR_TC_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					brtc_subtree_change_cb, NULL, 0,
+					opts, &ip_subscription);
+	if (rc != SR_ERR_OK) {
+		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
+			sr_strerror(rc));
+		goto cleanup;
+	}
 
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
@@ -224,6 +281,14 @@ cleanup:
 		sr_unsubscribe(if_subscription);
 	if (bridge_subscription)
 		sr_unsubscribe(bridge_subscription);
+	if (ip_subscription)
+		sr_unsubscribe(ip_subscription);
+	if (vlan_subscription)
+		sr_unsubscribe(vlan_subscription);
+	if (mac_subscription)
+		sr_unsubscribe(mac_subscription);
+	if (brtc_subscription)
+		sr_unsubscribe(brtc_subscription);
 	if (session)
 		sr_session_stop(session);
 	if (connection)

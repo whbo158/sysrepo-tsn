@@ -26,6 +26,9 @@ int main(int argc, char **argv)
 	sr_conn_ctx_t *connection = NULL;
 	sr_session_ctx_t *session = NULL;
 	sr_subscription_ctx_t *ip_subscription = NULL;
+	sr_subscription_ctx_t *vlan_subscription = NULL;
+	sr_subscription_ctx_t *mac_subscription = NULL;
+	sr_subscription_ctx_t *brtc_subscription = NULL;
 
 	exit_application = 0;
 
@@ -63,7 +66,7 @@ int main(int argc, char **argv)
 	strncat(path, BR_VLAN_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					vlan_subtree_change_cb, NULL, 0,
-					opts, &ip_subscription);
+					opts, &vlan_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -74,25 +77,25 @@ int main(int argc, char **argv)
 	snprintf(path, XPATH_MAX_LEN, "%s", BR_ADDRESS_XPATH);
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					mac_subtree_change_cb, NULL, 0,
-					opts, &ip_subscription);
+					opts, &mac_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
 		goto cleanup;
 	}
-#if 1
+
 	/* Subscribe to BR_TC_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, BR_TC_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					brtc_subtree_change_cb, NULL, 0,
-					opts, &ip_subscription);
-	if (rc != SR_ERR_OK) {
+					opts, &brtc_subscription);
+	if (rc != SR_ERR_OK){
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
 		goto cleanup;
 	}
-#endif
+
 	/* Loop until ctrl-c is pressed / SIGINT is received */
 	signal(SIGINT, sigint_handler);
 	signal(SIGPIPE, SIG_IGN);
@@ -102,6 +105,12 @@ int main(int argc, char **argv)
 cleanup:
 	if (ip_subscription)
 		sr_unsubscribe(ip_subscription);
+	if (vlan_subscription)
+		sr_unsubscribe(vlan_subscription);
+	if (mac_subscription)
+		sr_unsubscribe(mac_subscription);
+	if (brtc_subscription)
+		sr_unsubscribe(brtc_subscription);
 
 	if (session)
 		sr_session_stop(session);

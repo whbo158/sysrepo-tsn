@@ -44,12 +44,12 @@ void destroy_tsn_mutex(void)
 void init_tsn_socket(void)
 {
 	pthread_mutex_lock(&tsn_mutex);
-	genl_tsn_init();
+	//genl_tsn_init();
 }
 
 void close_tsn_socket(void)
 {
-	genl_tsn_close();
+	//genl_tsn_close();
 	pthread_mutex_unlock(&tsn_mutex);
 }
 
