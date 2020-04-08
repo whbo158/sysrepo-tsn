@@ -20,15 +20,13 @@
 
 #include "brtc_cfg.h"
 
-struct item_qdisc
-{
+struct item_qdisc {
 	char action[MAX_PARA_LEN];
 	char block[MAX_PARA_LEN];
 	char ifname[MAX_PARA_LEN];
 };
 
-struct item_filter
-{
+struct item_filter {
 	uint16_t vlan_id;
 	uint16_t priority;
 	uint16_t src_port;
@@ -47,8 +45,7 @@ struct item_filter
 	char action_spec[MAX_ACTION_LEN];
 };
 
-struct item_cfg
-{
+struct item_cfg {
 	bool valid;
 	uint32_t vid;
 	uint8_t sub_flag;
@@ -65,13 +62,13 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 	int ret = 0;
 	int sockfd = 0;
 	struct vlan_ioctl_args ifr;
+	size_t max_len = sizeof(ifr.device1);
 
 	if (!ifname)
 		return -1;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
-	{
+	if (sockfd < 0) {
 		PRINT("create socket failed! ret:%d\n", sockfd);
 		return -2;
 	}
@@ -81,10 +78,10 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 
 	if (addflag) {
 		ifr.cmd = ADD_VLAN_CMD;
-		snprintf(ifr.device1, sizeof(ifr.device1), "%s", ifname);
+		snprintf(ifr.device1, max_len, "%s", ifname);
 	} else {
 		ifr.cmd = DEL_VLAN_CMD;
-		snprintf(ifr.device1, sizeof(ifr.device1), "%s.%d", ifname, vid);
+		snprintf(ifr.device1, max_len, "%s.%d", ifname, vid);
 	}
 
 	ret = ioctl(sockfd, SIOCSIFVLAN, &ifr);
@@ -113,7 +110,8 @@ static int change_mac_format(char *pbuf)
 	return 0;
 }
 
-static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cfg *conf)
+static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
+			struct item_cfg *conf)
 {
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
@@ -144,75 +142,62 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	} else if (!strcmp(nodename, "filter")) {
 		conf->sub_flag = SUB_ITEM_FILTER;
 	} else if (!strcmp(nodename, "action")) {
-		if (conf->sub_flag == SUB_ITEM_QDISC) {
-			snprintf(conf->qdisc.action, MAX_PARA_LEN, "%s", strval);
-		} else if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.action, MAX_PARA_LEN, "%s", strval);
-		}
+		if (conf->sub_flag == SUB_ITEM_QDISC)
+			_PARA(conf->qdisc.action, MAX_PARA_LEN, strval);
+		else if (conf->sub_flag == SUB_ITEM_FILTER)
+			_PARA(conf->filter.action, MAX_PARA_LEN, strval);
 	} else if (!strcmp(nodename, "interface")) {
-		if (conf->sub_flag == SUB_ITEM_QDISC) {
-			snprintf(conf->qdisc.ifname, MAX_PARA_LEN, "%s", strval);
-		} else if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.ifname, MAX_PARA_LEN, "%s", strval);
-		}
+		if (conf->sub_flag == SUB_ITEM_QDISC)
+			_PARA(conf->qdisc.ifname, MAX_PARA_LEN, strval);
+		else if (conf->sub_flag == SUB_ITEM_FILTER)
+			_PARA(conf->filter.ifname, MAX_PARA_LEN, strval);
 	} else if (!strcmp(nodename, "block")) {
-		if (conf->sub_flag == SUB_ITEM_QDISC) {
-			snprintf(conf->qdisc.block, MAX_PARA_LEN, "%s", strval);
-		}
+		if (conf->sub_flag == SUB_ITEM_QDISC)
+			_PARA(conf->qdisc.block, MAX_PARA_LEN, strval);
 	} else if (!strcmp(nodename, "protocol")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.protocol, MAX_PARA_LEN, "%s", strval);
-		}
+		if (conf->sub_flag == SUB_ITEM_FILTER)
+			_PARA(conf->filter.protocol, MAX_PARA_LEN, strval);
 	} else if (!strcmp(nodename, "parent")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.parent, MAX_PARA_LEN, "%s", strval);
-		}
+		if (conf->sub_flag == SUB_ITEM_FILTER)
+			_PARA(conf->filter.parent, MAX_PARA_LEN, strval);
 	} else if (!strcmp(nodename, "filter_type")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.type, MAX_PARA_LEN, "%s", strval);
-		}
+		if (conf->sub_flag == SUB_ITEM_FILTER)
+			_PARA(conf->filter.type, MAX_PARA_LEN, strval);
 	} else if (!strcmp(nodename, "skip_type")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.skip_type, MAX_PARA_LEN, "%s", strval);
-		}
+		if (conf->sub_flag == SUB_ITEM_FILTER)
+			_PARA(conf->filter.skip_type, MAX_PARA_LEN, strval);
 	} else if (!strcmp(nodename, "vlan_id")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
+		if (conf->sub_flag == SUB_ITEM_FILTER)
 			conf->filter.vlan_id = value->data.uint16_val;
-		}
 	} else if (!strcmp(nodename, "priority")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
+		if (conf->sub_flag == SUB_ITEM_FILTER)
 			conf->filter.priority = value->data.uint16_val;
-		}
 	} else if (!strcmp(nodename, "src_ip")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.src_ip, MAX_PARA_LEN, "%s", strval);
-		}
+		if (conf->sub_flag == SUB_ITEM_FILTER)
+			_PARA(conf->filter.src_ip, MAX_PARA_LEN, strval);
 	} else if (!strcmp(nodename, "dst_ip")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.dst_ip, MAX_PARA_LEN, "%s", strval);
-		}
+		if (conf->sub_flag == SUB_ITEM_FILTER)
+			_PARA(conf->filter.dst_ip, MAX_PARA_LEN, strval);
 	} else if (!strcmp(nodename, "src_port")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
+		if (conf->sub_flag == SUB_ITEM_FILTER)
 			conf->filter.src_port = value->data.uint16_val;
-		}
 	} else if (!strcmp(nodename, "dst_port")) {
-		if (conf->sub_flag == SUB_ITEM_FILTER) {
+		if (conf->sub_flag == SUB_ITEM_FILTER)
 			conf->filter.dst_port = value->data.uint16_val;
-		}
 	} else if (!strcmp(nodename, "src_mac")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.src_mac, MAX_PARA_LEN, "%s", strval);
+			_PARA(conf->filter.src_mac, MAX_PARA_LEN, strval);
 			change_mac_format(conf->filter.src_mac);
 		}
 	} else if (!strcmp(nodename, "dst_mac")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
-			snprintf(conf->filter.dst_mac, MAX_PARA_LEN, "%s", strval);
+			_PARA(conf->filter.dst_mac, MAX_PARA_LEN, strval);
 			change_mac_format(conf->filter.dst_mac);
 		}
 	} else if (!strcmp(nodename, "action_spec")) {
 		if (conf->sub_flag == SUB_ITEM_FILTER) {
 			conf->valid = true;
-			snprintf(conf->filter.action_spec, MAX_ACTION_LEN, "%s", strval);
+			_PARA(conf->filter.action_spec, MAX_ACTION_LEN, strval);
 		}
 	}
 
@@ -320,7 +305,6 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 			continue;
 		snprintf(ifname_bak, MAX_VLAN_LEN, "%s", ifname);
 
-		PRINT("SUBXPATH:%s ifname:%s len:%ld\n", xpath, ifname, strlen(ifname));
 		rc = parse_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
@@ -375,10 +359,12 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 
 	show_config(conf);
 
-	if ((strlen(conf->qdisc.action) == 0) && (strlen(conf->qdisc.ifname) > 0))
+	if ((strlen(conf->qdisc.action) == 0)
+			|| (strlen(conf->qdisc.ifname) == 0))
 		return rc;
 
-	if ((strlen(conf->filter.action) == 0) || (strlen(conf->filter.ifname) == 0))
+	if ((strlen(conf->filter.action) == 0)
+			|| (strlen(conf->filter.ifname) == 0))
 		return rc;
 
 	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc %s dev %s %s\n",
@@ -390,11 +376,13 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 		conf->filter.action, conf->filter.ifname);
 
 	if (strlen(conf->filter.parent) > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "parent %s ", conf->filter.parent);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "parent %s ",
+				conf->filter.parent);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.protocol) > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "protocol %s ", conf->filter.protocol);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "protocol %s ",
+				conf->filter.protocol);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.type) > 0) {
@@ -402,43 +390,53 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.skip_type) > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "%s ", conf->filter.skip_type);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "%s ",
+				conf->filter.skip_type);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (conf->filter.vlan_id > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "vlan_id %d ", conf->filter.vlan_id);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "vlan_id %d ",
+				conf->filter.vlan_id);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (conf->filter.priority > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "vlan_prio %d ", conf->filter.priority);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "vlan_prio %d ",
+				conf->filter.priority);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.src_ip) > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "src_ip %s ", conf->filter.src_ip);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "src_ip %s ",
+				conf->filter.src_ip);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.dst_ip) > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_ip %s ", conf->filter.dst_ip);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_ip %s ",
+				conf->filter.dst_ip);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (conf->filter.src_port > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "src_port %d ", conf->filter.src_port);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "src_port %d ",
+				conf->filter.src_port);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (conf->filter.dst_port > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_port %d ", conf->filter.dst_port);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_port %d ",
+				conf->filter.dst_port);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.src_mac) > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "src_mac %s ", conf->filter.src_mac);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "src_mac %s ",
+				conf->filter.src_mac);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.dst_mac) > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_mac %s ", conf->filter.dst_mac);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "dst_mac %s ",
+				conf->filter.dst_mac);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	if (strlen(conf->filter.action_spec) > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "action %s ", conf->filter.action_spec);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "action %s ",
+				conf->filter.action_spec);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 	printf("filter: %s\n", stc_cmd);
