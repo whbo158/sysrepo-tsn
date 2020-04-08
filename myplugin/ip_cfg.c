@@ -243,7 +243,6 @@ static int parse_item(sr_session_ctx_t *session, char *path,
 {
 	size_t i;
 	size_t count;
-	int valid = 0;
 	int rc = SR_ERR_OK;
 	sr_val_t *values = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
@@ -278,12 +277,8 @@ static int parse_item(sr_session_ctx_t *session, char *path,
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
 			continue;
 
-		if (!parse_node(session, &values[i], conf))
-			valid++;
+		rc = parse_node(session, &values[i], conf);
 	}
-
-	if (!valid)
-		goto cleanup;
 
 cleanup:
 	sr_free_values(values, count);
@@ -352,6 +347,11 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 	}
 
 cleanup:
+
+	if (conf->valid)
+		if (!conf->ifname || (strlen(conf->ifname) == 0))
+			return SR_ERR_INVAL_ARG;
+
 	if (rc == SR_ERR_NOT_FOUND)
 		rc = SR_ERR_OK;
 
