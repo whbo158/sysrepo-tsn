@@ -226,9 +226,8 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 			conf->valid = true;
 		}
 	} else if (!strcmp(nodename, "name")) {
-		if (!conf->valid) {
+		if (!conf->valid)
 			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
-		}
 	}
 
 ret_tag:
@@ -240,7 +239,6 @@ static int parse_item(sr_session_ctx_t *session, char *path,
 {
 	size_t i;
 	size_t count;
-	int valid = 0;
 	int rc = SR_ERR_OK;
 	sr_val_t *values = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
@@ -275,12 +273,8 @@ static int parse_item(sr_session_ctx_t *session, char *path,
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
 			continue;
 
-		if (!parse_node(session, &values[i], conf))
-			valid++;
+		rc = parse_node(session, &values[i], conf);
 	}
-
-	if (!valid)
-		goto cleanup;
 
 cleanup:
 	sr_free_values(values, count);
