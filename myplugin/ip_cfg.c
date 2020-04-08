@@ -218,21 +218,17 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 	if (!nodename)
 		goto ret_tag;
 
-	PRINT("nodename:%s type:%d\n", nodename, value->type);
-
 	if (!strcmp(nodename, "ip")) {
 		if (is_valid_addr(strval) && (conf->ipv4_cnt < MAX_IP_NUM)) {
 			conf->ipv4_cnt = 0;  /* only support one address now */
 			ipv4 = &conf->ipv4[conf->ipv4_cnt++];
 			ipv4->ip.s_addr = inet_addr(strval);
 			conf->valid = true;
-			printf("\nVALID ip= %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "netmask")) {
 		if (is_valid_addr(strval) && (conf->ipv4_cnt > 0)) {
 			ipv4 = &conf->ipv4[conf->ipv4_cnt - 1];
 			ipv4->mask.s_addr = inet_addr(strval);
-			printf("\nVALID netmask = %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "enabled")) {
 		conf->enabled = value->data.bool_val;
@@ -277,7 +273,6 @@ static int config_per_item(sr_session_ctx_t *session, char *path,
 		return rc;
 	}
 
-	PRINT("CUR COUNT:%ld\n", count);
 	for (i = 0; i < count; i++) {
 		if (values[i].type == SR_LIST_T
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
@@ -336,8 +331,6 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 
 		ifname = sr_xpath_key_value(value->xpath, "interface",
 					    "name", &xp_ctx);
-		PRINT("IFNAME:%s xpath:%s new:%p old:%p\n", ifname,
-				value->xpath, new_value, old_value);
 
 		sr_free_val(old_value);
 		sr_free_val(new_value);
@@ -353,7 +346,6 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 		snprintf(xpath, XPATH_MAX_LEN, "%s[name='%s']/%s:*//*",
 					IF_XPATH, ifname, IP_MODULE_NAME);
 
-		PRINT("SUBXPATH:%s ifname:%s len:%ld\n", xpath, ifname, strlen(ifname));
 		rc = config_per_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
@@ -384,7 +376,6 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 		return rc;
 
 	/* config ip and netmask */
-	PRINT("ifname:%s-%ld enabled:%s\n", conf->ifname, strlen(conf->ifname), conf->enabled ? "true" : "false");
 	if (conf->enabled) {
 		struct sub_item_cfg *ipv4 = NULL;
 
@@ -415,7 +406,6 @@ int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0};
 
-	PRINT("mod:%s path:%s event:%d\n", module_name, path, event);
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
 
 	switch (event) {
