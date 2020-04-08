@@ -45,8 +45,7 @@ static int get_inet_cfg(char *ifname, int req, void *buf, int len)
 		return -1;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
-	{
+	if (sockfd < 0) {
 		PRINT("create socket failed! ret:%d\n", sockfd);
 		return -2;
 	}
@@ -92,8 +91,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 		return -1;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
-	{
+	if (sockfd < 0) {
 		PRINT("create socket failed! ret:%d\n", sockfd);
 		return -2;
 	}
@@ -148,8 +146,7 @@ static int set_inet_updown(char *ifname, bool upflag)
 		return -1;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)
-	{
+	if (sockfd < 0)	{
 		PRINT("create socket failed! ret:%d\n", sockfd);
 		return -2;
 	}
@@ -188,10 +185,10 @@ bool is_valid_addr(uint8_t *ip)
 	struct in_addr ip_addr;
 
 	if (!ip)
-	      return false;
+		return false;
 
 	ret = inet_aton(ip, &ip_addr);
-	if (0 == ret)
+	if (ret == 0)
 		return false;
 
 	return true;
@@ -387,7 +384,7 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 		return rc;
 
 	/* config ip and netmask */
-	PRINT("ifname:%s-%ld enabled:%s\n", conf->ifname,strlen(conf->ifname), conf->enabled ? "true" : "false");
+	PRINT("ifname:%s-%ld enabled:%s\n", conf->ifname, strlen(conf->ifname), conf->enabled ? "true" : "false");
 	if (conf->enabled) {
 		struct sub_item_cfg *ipv4 = NULL;
 
