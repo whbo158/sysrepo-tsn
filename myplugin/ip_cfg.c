@@ -362,6 +362,8 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 {
 	int i = 0;
 	int rc = SR_ERR_OK;
+	char *ifname = NULL;
+	struct sub_item_cfg *ipv4 = NULL;
 	struct item_cfg *conf = &sitem_conf;
 
 	if (abort) {
@@ -375,27 +377,27 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	if (!conf->ifname || (strlen(conf->ifname) == 0))
 		return rc;
 
-	/* config ip and netmask */
-	if (conf->enabled) {
-		struct sub_item_cfg *ipv4 = NULL;
-
-		for (i = 0; i < conf->ipv4_cnt; i++) {
-			ipv4 = &conf->ipv4[i];
-
-			if (ipv4->ip.s_addr) {
-				set_inet_ip(conf->ifname, &ipv4->ip);
-				PRINT("set_inet_ip ifname:%s-%s\n", conf->ifname, inet_ntoa(ipv4->ip));
-			}
-
-			if (ipv4->mask.s_addr) {
-				set_inet_mask(conf->ifname, &ipv4->mask);
-				PRINT("set_inet_mask ifname:%s-%s\n", conf->ifname, inet_ntoa(ipv4->mask));
-			}
-		}
-		set_inet_updown(conf->ifname, true);
-	} else {
+	if (!conf->enabled) {
 		set_inet_updown(conf->ifname, false);
+		return rc;
 	}
+
+	/* config ip and netmask */
+	for (i = 0; i < conf->ipv4_cnt; i++) {
+		ipv4 = &conf->ipv4[i];
+		ifname = conf->ifname;
+
+		if (ipv4->ip.s_addr) {
+			set_inet_ip(conf->ifname, &ipv4->ip);
+			PRINT("ip %s-%s\n", ifname, inet_ntoa(ipv4->ip));
+		}
+
+		if (ipv4->mask.s_addr) {
+			set_inet_mask(conf->ifname, &ipv4->mask);
+			PRINT("mask %s-%s\n", ifname, inet_ntoa(ipv4->mask));
+		}
+	}
+	set_inet_updown(conf->ifname, true);
 
 	return rc;
 }
