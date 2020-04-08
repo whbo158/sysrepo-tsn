@@ -213,10 +213,10 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 			break;
 	}
 
+cleanup:
 	if (rc == SR_ERR_NOT_FOUND)
 		rc = SR_ERR_OK;
 
-cleanup:
 	return rc;
 }
 

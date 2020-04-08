@@ -1,17 +1,32 @@
 #include "ip_cfg.h"
 
 /**
-	author: hongbo.wang (hongbo.wang@nxp.com)
-*/
+ * @file ip_cfg.c
+ * @author hongbo wang (hongbo.wang@nxp.com)
+ * @brief Application to configure VLAN function based on sysrepo datastore.
+ *
+ * Copyright 2019-2020 NXP
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-struct sub_item_cfg
-{
+struct sub_item_cfg {
 	struct in_addr ip;
 	struct in_addr mask;
 };
 
-struct item_cfg
-{
+struct item_cfg {
+	bool valid;
 	bool enabled;
 	char ifname[IF_NAME_MAX_LEN];
 	int ipv4_cnt;
@@ -182,7 +197,8 @@ bool is_valid_addr(uint8_t *ip)
 	return true;
 }
 
-static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cfg *conf)
+static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
+			struct item_cfg *conf)
 {
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
@@ -190,9 +206,9 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	uint8_t u8_val = 0;
 	uint32_t u32_val = 0;
 	uint64_t u64_val = 0;
+	char *strval = NULL;
 	char *nodename = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
-	char *strval = NULL;
 	struct sub_item_cfg *ipv4 = NULL;
 
 	if (!session || !value || !conf)
@@ -203,7 +219,7 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
 	if (!nodename)
-		goto out;
+		goto ret_tag;
 
 	PRINT("nodename:%s type:%d\n", nodename, value->type);
 
@@ -212,6 +228,7 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 			conf->ipv4_cnt = 0;  /* only support one address now */
 			ipv4 = &conf->ipv4[conf->ipv4_cnt++];
 			ipv4->ip.s_addr = inet_addr(strval);
+			conf->valid = true;
 			printf("\nVALID ip= %s\n", strval);
 		}
 	} else if (!strcmp(nodename, "netmask")) {
@@ -224,12 +241,12 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value, struct item_cf
 		conf->enabled = value->data.bool_val;
 	}
 
-out:
+ret_tag:
 	return rc;
 }
 
 static int config_per_item(sr_session_ctx_t *session, char *path,
-			bool abort, struct item_cfg *conf)
+			struct item_cfg *conf)
 {
 	size_t i;
 	size_t count;
@@ -282,7 +299,7 @@ cleanup:
 	return rc;
 }
 
-static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
+static int parse_config(sr_session_ctx_t *session, const char *path)
 {
 	int i = 0;
 	int rc = SR_ERR_OK;
@@ -340,13 +357,34 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 					IF_XPATH, ifname, IP_MODULE_NAME);
 
 		PRINT("SUBXPATH:%s ifname:%s len:%ld\n", xpath, ifname, strlen(ifname));
-		rc = config_per_item(session, xpath, abort, conf);
+		rc = config_per_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
 	}
 
+cleanup:
+	if (rc == SR_ERR_NOT_FOUND)
+		rc = SR_ERR_OK;
+
+	return rc;
+}
+
+static int set_config(sr_session_ctx_t *session, bool abort)
+{
+	int i = 0;
+	int rc = SR_ERR_OK;
+	struct item_cfg *conf = &sitem_conf;
+
+	if (abort) {
+		memset(conf, 0, sizeof(struct item_cfg));
+		return rc;
+	}
+
+	if (!conf->valid)
+		return rc;
+
 	if (!conf->ifname || (strlen(conf->ifname) == 0))
-		goto cleanup;
+		return rc;
 
 	/* config ip and netmask */
 	PRINT("ifname:%s-%ld enabled:%s\n", conf->ifname,strlen(conf->ifname), conf->enabled ? "true" : "false");
@@ -371,10 +409,6 @@ static int sub_config(sr_session_ctx_t *session, const char *path, bool abort)
 		set_inet_updown(conf->ifname, false);
 	}
 
-cleanup:
-	if (rc == SR_ERR_NOT_FOUND)
-		rc = SR_ERR_OK;
-
 	return rc;
 }
 
@@ -389,21 +423,19 @@ int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 
 	switch (event) {
 	case SR_EV_CHANGE:
-		if (rc)
-			goto out;
-		rc = sub_config(session, xpath, false);
+		rc = parse_config(session, xpath);
 		break;
 	case SR_EV_ENABLED:
-		rc = sub_config(session, xpath, false);
 		break;
 	case SR_EV_DONE:
+		rc = set_config(session, false);
 		break;
 	case SR_EV_ABORT:
-		rc = sub_config(session, xpath, true);
+		rc = set_config(session, true);
 		break;
 	default:
 		break;
 	}
-out:
+
 	return rc;
 }
