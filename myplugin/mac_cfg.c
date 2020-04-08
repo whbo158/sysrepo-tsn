@@ -1,5 +1,3 @@
-#include "mac_cfg.h"
-
 /**
  * @file mac_cfg.c
  * @author hongbo wang (hongbo.wang@nxp.com)
@@ -19,6 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "mac_cfg.h"
 
 struct item_cfg {
 	bool valid;

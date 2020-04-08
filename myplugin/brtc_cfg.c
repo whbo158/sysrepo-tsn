@@ -1,8 +1,24 @@
-#include "brtc_cfg.h"
-
 /**
-	author: hongbo.wang (hongbo.wang@nxp.com)
-*/
+ * @file brtc_cfg.c
+ * @author hongbo wang (hongbo.wang@nxp.com)
+ * @brief Application to configure bridge vlan based on sysrepo datastore.
+ *
+ * Copyright 2019-2020 NXP
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "brtc_cfg.h"
 
 struct item_qdisc
 {
@@ -204,12 +220,11 @@ ret_tag:
 	return rc;
 }
 
-static int config_per_item(sr_session_ctx_t *session, char *path,
+static int parse_item(sr_session_ctx_t *session, char *path,
 			struct item_cfg *conf)
 {
 	size_t i;
 	size_t count;
-	int valid = 0;
 	int rc = SR_ERR_OK;
 	sr_val_t *values = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
@@ -245,12 +260,8 @@ static int config_per_item(sr_session_ctx_t *session, char *path,
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
 			continue;
 
-		if (!parse_node(session, &values[i], conf))
-			valid++;
+		rc = parse_node(session, &values[i], conf);
 	}
-
-	if (!valid)
-		goto cleanup;
 
 cleanup:
 	sr_free_values(values, count);
@@ -310,7 +321,7 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 		snprintf(ifname_bak, MAX_VLAN_LEN, "%s", ifname);
 
 		PRINT("SUBXPATH:%s ifname:%s len:%ld\n", xpath, ifname, strlen(ifname));
-		rc = config_per_item(session, xpath, conf);
+		rc = parse_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
 	}

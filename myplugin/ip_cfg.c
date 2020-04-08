@@ -1,5 +1,3 @@
-#include "ip_cfg.h"
-
 /**
  * @file ip_cfg.c
  * @author hongbo wang (hongbo.wang@nxp.com)
@@ -19,6 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "ip_cfg.h"
 
 struct sub_item_cfg {
 	struct in_addr ip;

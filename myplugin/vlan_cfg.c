@@ -1,9 +1,7 @@
-#include "vlan_cfg.h"
-
 /**
  * @file vlan_cfg.c
  * @author hongbo wang (hongbo.wang@nxp.com)
- * @brief Application to configure VLAN function based on sysrepo datastore.
+ * @brief Application to configure VLAN based on sysrepo datastore.
  *
  * Copyright 2019-2020 NXP
  *
@@ -19,6 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "vlan_cfg.h"
 
 struct item_cfg {
 	bool valid;
@@ -105,12 +105,11 @@ ret_tag:
 	return rc;
 }
 
-static int config_per_item(sr_session_ctx_t *session, char *path,
+static int parse_item(sr_session_ctx_t *session, char *path,
 			struct item_cfg *conf)
 {
 	size_t i;
 	size_t count;
-	int valid = 0;
 	int rc = SR_ERR_OK;
 	sr_val_t *values = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
@@ -145,12 +144,8 @@ static int config_per_item(sr_session_ctx_t *session, char *path,
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
 			continue;
 
-		if (!parse_node(session, &values[i], conf))
-			valid++;
+		rc = parse_node(session, &values[i], conf);
 	}
-
-	if (!valid)
-		goto cleanup;
 
 cleanup:
 	sr_free_values(values, count);
@@ -208,7 +203,7 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 			continue;
 		snprintf(vid_bak, MAX_VLAN_LEN, "%s", vid);
 
-		rc = config_per_item(session, xpath, conf);
+		rc = parse_item(session, xpath, conf);
 		if (rc != SR_ERR_OK)
 			break;
 	}
