@@ -218,20 +218,16 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 	if (!nodename)
 		goto ret_tag;
 
-	PRINT("nodename:%s type:%d\n", nodename, value->type);
-
 	strval = value->data.string_val;
 
 	if (!strcmp(nodename, "address")) {
 		if (!conf->valid) {
 			snprintf(conf->mac_addr, MAC_ADDR_LEN, "%s", strval);
 			conf->valid = true;
-			printf("\nVALID mac_addr = %s\n", conf->mac_addr);
 		}
 	} else if (!strcmp(nodename, "name")) {
 		if (!conf->valid) {
 			snprintf(conf->ifname, IF_NAME_MAX_LEN, "%s", strval);
-			printf("\nVALID ifname = %s\n", conf->ifname);
 		}
 	}
 
@@ -274,7 +270,6 @@ static int parse_item(sr_session_ctx_t *session, char *path,
 		return rc;
 	}
 
-	PRINT("CUR COUNT:%ld\n", count);
 	for (i = 0; i < count; i++) {
 		if (values[i].type == SR_LIST_T
 		    || values[i].type == SR_CONTAINER_PRESENCE_T)
@@ -332,8 +327,6 @@ static int parse_config(sr_session_ctx_t *session, const char *path)
 
 		ifname = sr_xpath_key_value(value->xpath, "bridge",
 					    "name", &xp_ctx);
-		PRINT("BRNAME:%s xpath:%s new:%p old:%p\n", ifname,
-				value->xpath, new_value, old_value);
 
 		sr_free_val(old_value);
 		sr_free_val(new_value);
@@ -389,7 +382,6 @@ int mac_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0};
 
-	PRINT("mod:%s path:%s event:%d\n", module_name, path, event);
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
 
 	switch (event) {
