@@ -127,14 +127,14 @@ int main(int argc, char **argv)
 
 	/* Init tsn mutex */
 	init_tsn_mutex();
-
+#endif
 	/* Connect to sysrepo */
 	rc = sr_connect(SR_CONN_DEFAULT, &connection);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_connect: %s\n", sr_strerror(rc));
 		goto cleanup;
 	}
-#endif
+
 	/* Start session */
 	rc = sr_session_start(connection, SR_DS_RUNNING, &session);
 	if (rc != SR_ERR_OK) {
@@ -214,6 +214,8 @@ int main(int argc, char **argv)
 					 qci_fm_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
 #endif
+
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE;
 
 	/* Subscribe to IP_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
