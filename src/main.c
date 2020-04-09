@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 	}
 #endif
 	/* Start session */
-	rc = sr_session_start(connection, SR_DS_STARTUP, &session);
+	rc = sr_session_start(connection, SR_DS_RUNNING, &session);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_session_start: %s\n",
 			sr_strerror(rc));
@@ -232,7 +232,7 @@ int main(int argc, char **argv)
 	strncat(path, BR_VLAN_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					vlan_subtree_change_cb, NULL, 0,
-					opts, &ip_subscription);
+					opts, &vlan_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -243,7 +243,7 @@ int main(int argc, char **argv)
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_ADDR_XPATH);
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					mac_subtree_change_cb, NULL, 0,
-					opts, &ip_subscription);
+					opts, &mac_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -255,19 +255,12 @@ int main(int argc, char **argv)
 	strncat(path, BR_TC_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					brtc_subtree_change_cb, NULL, 0,
-					opts, &ip_subscription);
-	if (rc != SR_ERR_OK) {
+					opts, &brtc_subscription);
+	if (rc != SR_ERR_OK){
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
-	if (rc != SR_ERR_OK) {
-		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
-			sr_strerror(rc));
-		goto cleanup;
-	}
-
 
 	/* Loop until ctrl-c is pressed / SIGINT is received */
 	signal(SIGINT, sigint_handler);

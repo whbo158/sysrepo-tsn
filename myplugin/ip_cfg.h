@@ -23,6 +23,10 @@
 
 #include "common.h"
 
+#ifndef IF_XPATH
+#define IF_XPATH ("/ietf-interfaces:interfaces/interface")
+#endif
+
 #define IPV4_XPATH	("/ietf-ip:ipv4")
 #define IP_MODULE_NAME	("ietf-ip")
 #define MAX_IP_NUM	(64)

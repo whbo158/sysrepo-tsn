@@ -20,6 +20,8 @@
 
 #include "ip_cfg.h"
 
+#define ADDR_LEN (sizeof(struct in_addr))
+
 struct sub_item_cfg {
 	struct in_addr ip;
 	struct in_addr mask;

@@ -36,7 +36,6 @@
 */
 
 #define PRINT printf("%s-%d: ", __func__, __LINE__);printf
-#define ADDR_LEN (sizeof(struct in_addr))
 
 //#define TEST_ADD (1)
 
