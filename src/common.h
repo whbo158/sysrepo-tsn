@@ -61,14 +61,6 @@
 #include <linux/sockios.h>
 
 #define PRINT printf("%s-%d: ", __func__, __LINE__);printf
-#define ADDR_LEN (sizeof(struct in_addr))
-
-#define XPATH_MAX_LEN		300
-#define IF_NAME_MAX_LEN		20
-#define NODE_NAME_MAX_LEN	80
-#define MSG_MAX_LEN		100
-
-#define IF_XPATH "/ietf-interfaces:interfaces/interface"
 
 enum apply_status {
 	APPLY_NONE = 0,

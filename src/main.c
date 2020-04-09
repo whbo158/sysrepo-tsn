@@ -240,7 +240,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Subscribe to MAC_CFG subtree */
-	snprintf(path, XPATH_MAX_LEN, "%s", BR_ADDRESS_XPATH);
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_ADDR_XPATH);
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					mac_subtree_change_cb, NULL, 0,
 					opts, &ip_subscription);
