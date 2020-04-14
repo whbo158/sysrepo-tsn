@@ -29,6 +29,10 @@
 #include "main.h"
 #include "qbv.h"
 
+static bool stc_cfg_flag = false;
+static char stc_cmd[MAX_CMD_LEN];
+static char stc_subcmd[MAX_CMD_LEN];
+
 struct tsn_qbv_conf *malloc_qbv_memory(void)
 {
 	struct tsn_qbv_conf *qbvconf_ptr;
@@ -66,6 +70,50 @@ void free_qbv_memory(struct tsn_qbv_conf *qbvconf_ptr)
 	free(qbvconf_ptr);
 }
 
+static tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
+		struct sr_qbv_conf *qbvconf)
+{
+	int i = 0;
+	int num_tc = 0;
+	int count = 1;
+	int offset = 0;
+	int rc = SR_ERR_OK;
+	uint32_t gate_mask = 0;
+	uint32_t interval = 0;
+	uint64_t base_time = 0;
+	uint64_t cycle_time = 0;
+	uint64_t cycle_time_extension = 0;
+	struct tsn_qbv_entry *entry = NULL;
+	struct tsn_qbv_basic *pqbv = &qbvconf->admin;
+
+	num_tc = pqbv->control_list_length;
+	if (num_tc > QBV_TC_NUM)
+		num_tc = QBV_TC_NUM;
+
+	base_time = pqbv->base_time;
+	cycle_time = pqbv->cycle_time;
+	cycle_time_extension = pqbv->cycle_time_extension;
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "tc qdisc replace ");
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "%s ", conf->filter.type);
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	for (i = 0; i < num_tc; i++) {
+		entry = pqbv->control_list;
+
+		//gate_mask = 0x01 << i;
+		gate_mask = entry[i].gate_state;
+		interval = entry[i].time_interval;
+	}
+
+	return rc;
+}
+
 int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 		struct sr_qbv_conf *qbvconf)
 {
@@ -82,6 +130,9 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 		time = cal_cycle_time(&qbvconf->cycletime);
 		qbvconf->qbvconf_ptr->admin.cycle_time = time;
 	}
+
+	if (stc_cfg_flag)
+		return tsn_config_qbv_tc(session, ifname, qbvconf);
 
 	rc = tsn_qos_port_qbv_set(ifname, qbvconf->qbvconf_ptr,
 				  qbvconf->qbv_en);

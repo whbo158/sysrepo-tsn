@@ -31,8 +31,8 @@
 
 #include "common.h"
 #include "main.h"
-#ifndef TEST_PLUGIN
 #include "qbv.h"
+#ifndef TEST_PLUGIN
 #include "qbu.h"
 #include "file_mon.h"
 #include "cb_streamid.h"
