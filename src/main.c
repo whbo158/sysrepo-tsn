@@ -31,11 +31,13 @@
 
 #include "common.h"
 #include "main.h"
-//#include "qbv.h"
-//#include "qbu.h"
-//#include "file_mon.h"
-//#include "cb_streamid.h"
-//#include "qci.h"
+#ifndef TEST_PLUGIN
+#include "qbv.h"
+#include "qbu.h"
+#include "file_mon.h"
+#include "cb_streamid.h"
+#include "qci.h"
+#endif
 
 #include "ip_cfg.h"
 #include "vlan_cfg.h"
@@ -48,7 +50,7 @@ static void sigint_handler(int signum)
 {
 	exit_application = 1;
 }
-#if 0
+#ifndef TEST_PLUGIN
 /* tsn_operation_monitor_cb()
  * file callback
  */
@@ -110,15 +112,12 @@ int main(int argc, char **argv)
 	sr_session_ctx_t *session;
 	sr_subscription_ctx_t *if_subscription;
 	sr_subscription_ctx_t *bridge_subscription;
-	sr_subscription_ctx_t *ip_subscription = NULL;
-	sr_subscription_ctx_t *vlan_subscription = NULL;
-	sr_subscription_ctx_t *mac_subscription = NULL;
-	sr_subscription_ctx_t *brtc_subscription = NULL;
+	sr_subscription_ctx_t *inet_subscription = NULL;
 	char path[XPATH_MAX_LEN];
 	sr_subscr_options_t opts;
 
 	exit_application = 0;
-#if 0
+#ifndef TEST_PLUGIN
 	/* Check pid file */
 	check_pid_file();
 
@@ -142,7 +141,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-#if 0
+#ifndef TEST_PLUGIN
 	/* Subscribe to QBV subtree */
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
@@ -222,7 +221,7 @@ int main(int argc, char **argv)
 	strncat(path, IPV4_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
 	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
 					ip_subtree_change_cb, NULL, 0,
-					opts, &ip_subscription);
+					opts, &inet_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -234,7 +233,7 @@ int main(int argc, char **argv)
 	strncat(path, BR_VLAN_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					vlan_subtree_change_cb, NULL, 0,
-					opts, &vlan_subscription);
+					opts, &inet_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -245,7 +244,7 @@ int main(int argc, char **argv)
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_ADDR_XPATH);
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					mac_subtree_change_cb, NULL, 0,
-					opts, &mac_subscription);
+					opts, &inet_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -257,7 +256,7 @@ int main(int argc, char **argv)
 	strncat(path, BR_TC_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
 	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					brtc_subtree_change_cb, NULL, 0,
-					opts, &brtc_subscription);
+					opts, &inet_subscription);
 	if (rc != SR_ERR_OK){
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -276,14 +275,9 @@ cleanup:
 		sr_unsubscribe(if_subscription);
 	if (bridge_subscription)
 		sr_unsubscribe(bridge_subscription);
-	if (ip_subscription)
-		sr_unsubscribe(ip_subscription);
-	if (vlan_subscription)
-		sr_unsubscribe(vlan_subscription);
-	if (mac_subscription)
-		sr_unsubscribe(mac_subscription);
-	if (brtc_subscription)
-		sr_unsubscribe(brtc_subscription);
+	if (inet_subscription)
+		sr_unsubscribe(inet_subscription);
+
 	if (session)
 		sr_session_stop(session);
 	if (connection)

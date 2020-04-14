@@ -26,12 +26,16 @@
 #define NODE_NAME_MAX_LEN	80
 #define MSG_MAX_LEN		100
 
+#define TEST_PLUGIN
+
 #include <sysrepo.h>
 #include <stdbool.h>
 #include <sysrepo/values.h>
 #include "sysrepo/xpath.h"
-//#include <tsn/genl_tsn.h> /* must ensure no stdbool.h was included before */
-//#include <linux/tsn.h>
+#ifndef TEST_PLUGIN
+#include <tsn/genl_tsn.h> /* must ensure no stdbool.h was included before */
+#include <linux/tsn.h>
+#endif
 #include <errno.h>
 
 #include <stdio.h>
