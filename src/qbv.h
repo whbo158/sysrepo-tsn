@@ -27,6 +27,8 @@
 #define QBV_GATE_PARA_XPATH "/ieee802-dot1q-sched:gate-parameters"
 #define QBV_MAX_SDU_XPATH "/ieee802-dot1q-sched:max-sdu-table"
 #define QBV_MODULE_NAME "ieee802-dot1q-sched"
+#define QBV_TC_NUM (8)
+#define MAX_CMD_LEN (512)
 
 struct sr_qbv_conf {
 	bool qbv_en;

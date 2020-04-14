@@ -220,6 +220,8 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 
 	strval = value->data.string_val;
 
+	PRINT("nodename:%s\n", nodename);
+
 	if (!strcmp(nodename, "ip")) {
 		if (is_valid_addr(strval) && (conf->ipv4_cnt < MAX_IP_NUM)) {
 			conf->ipv4_cnt = 0;  /* only support one address now */
@@ -409,6 +411,8 @@ int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0};
+
+	PRINT("module:%s path:%s event:%d\n", module_name, path, event);
 
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
 
