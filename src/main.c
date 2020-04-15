@@ -108,10 +108,10 @@ void check_pid_file(void)
 int main(int argc, char **argv)
 {
 	int rc = SR_ERR_OK;
-	sr_conn_ctx_t *connection;
-	sr_session_ctx_t *session;
-	sr_subscription_ctx_t *if_subscription;
-	sr_subscription_ctx_t *bridge_subscription;
+	sr_conn_ctx_t *connection = NULL;
+	sr_session_ctx_t *session = NULL;
+	sr_subscription_ctx_t *if_subscription = NULL;
+	sr_subscription_ctx_t *bridge_subscription = NULL;
 	sr_subscription_ctx_t *inet_subscription = NULL;
 	char path[XPATH_MAX_LEN];
 	sr_subscr_options_t opts;
@@ -271,7 +271,10 @@ int main(int argc, char **argv)
 		sleep(1000);  /* Or do some more useful work... */
 
 cleanup:
+#ifndef TEST_PLUGIN
 	destroy_tsn_mutex();
+#endif
+
 	if (if_subscription)
 		sr_unsubscribe(if_subscription);
 	if (bridge_subscription)

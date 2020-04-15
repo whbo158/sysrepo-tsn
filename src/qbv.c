@@ -98,8 +98,7 @@ static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	cycle_time = pqbv->admin.cycle_time;
 	cycle_time_extension = pqbv->admin.cycle_time_extension;
 
-	snprintf(stc_subcmd, MAX_CMD_LEN, "tc qdisc replace ");
-	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc replace ");
 
 	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
