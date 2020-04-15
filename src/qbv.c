@@ -160,6 +160,9 @@ static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	snprintf(stc_subcmd, MAX_CMD_LEN, "flags 2");
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
+	printf("tc qbv: %s\n", stc_cmd);
+	system(stc_cmd);
+
 	return rc;
 }
 
@@ -179,7 +182,7 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 		time = cal_cycle_time(&qbvconf->cycletime);
 		qbvconf->qbvconf_ptr->admin.cycle_time = time;
 	}
-
+stc_cfg_flag = true;
 	if (stc_cfg_flag)
 		return tsn_config_qbv_tc(session, ifname, qbvconf);
 #ifndef TEST_PLUGIN
