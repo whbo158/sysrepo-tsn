@@ -70,7 +70,7 @@ void free_qbv_memory(struct tsn_qbv_conf *qbvconf_ptr)
 	free(qbvconf_ptr);
 }
 
-static tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
+static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 		struct sr_qbv_conf *qbvconf)
 {
 	int i = 0;
@@ -84,7 +84,7 @@ static tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	uint64_t cycle_time = 0;
 	uint64_t cycle_time_extension = 0;
 	struct tsn_qbv_entry *entry = NULL;
-	struct tsn_qbv_conf *pqbv = &qbvconf->qbvconf_ptr;
+	struct tsn_qbv_conf *pqbv = qbvconf->qbvconf_ptr;
 
 	num_tc = pqbv->admin.control_list_length;
 	if (num_tc > QBV_TC_NUM)
@@ -130,10 +130,10 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 
 	if (stc_cfg_flag)
 		return tsn_config_qbv_tc(session, ifname, qbvconf);
-
+#ifndef TEST_PLUGIN
 	rc = tsn_qos_port_qbv_set(ifname, qbvconf->qbvconf_ptr,
 				  qbvconf->qbv_en);
-
+#endif
 	if (rc < 0) {
 		snprintf(xpath, XPATH_MAX_LEN, "%s[name='%s']/%s:*//*",
 			 IF_XPATH, ifname, QBV_MODULE_NAME);
@@ -446,7 +446,7 @@ int qbv_config(sr_session_ctx_t *session, const char *path, bool abort)
 			continue;
 
 		if (strcmp(ifname, ifname_bak)) {
-			snprintf(ifname_bak, IF_NAME_MAX_LEN, ifname);
+			snprintf(ifname_bak, IF_NAME_MAX_LEN, "%s", ifname);
 			snprintf(xpath, XPATH_MAX_LEN,
 				 "%s[name='%s']/%s:*//*", IF_XPATH, ifname,
 				 QBV_MODULE_NAME);
