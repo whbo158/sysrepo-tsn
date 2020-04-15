@@ -78,6 +78,7 @@ static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	int count = 1;
 	int offset = 0;
 	int rc = SR_ERR_OK;
+	uint32_t clockid = 0;
 	uint32_t gate_mask = 0;
 	uint32_t interval = 0;
 	uint64_t base_time = 0;
@@ -87,6 +88,9 @@ static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	struct tsn_qbv_conf *pqbv = qbvconf->qbvconf_ptr;
 
 	num_tc = pqbv->admin.control_list_length;
+	if (num_tc == 0)
+		return rc;
+
 	if (num_tc > QBV_TC_NUM)
 		num_tc = QBV_TC_NUM;
 
@@ -100,13 +104,58 @@ static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
+	snprintf(stc_subcmd, MAX_CMD_LEN, "parent root handle 100 taprio ");
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "num_tc %d map ", num_tc);
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	for (i = 0; i < QBV_TC_NUM; i++) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "%d ", i);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "queues ");
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	for (i = 0; i < QBV_TC_NUM; i++) {
+		offset = i;
+		snprintf(stc_subcmd, MAX_CMD_LEN, "%d@%d ", count, offset);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+
+	if (base_time > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "base-time %ld ", base_time);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+
+	if (cycle_time > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %ld ", cycle_time);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+
+	if (cycle_time_extension > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %ld ", cycle_time_extension);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+
+	if (clockid > 0) {
+		snprintf(stc_subcmd, MAX_CMD_LEN, "clockid %d ", clockid);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+	}
+
 	for (i = 0; i < num_tc; i++) {
 		entry = pqbv->admin.control_list;
 
-		//gate_mask = 0x01 << i;
 		gate_mask = entry[i].gate_state;
 		interval = entry[i].time_interval;
+
+		snprintf(stc_subcmd, MAX_CMD_LEN, "sched-entry S %d %d ", gate_mask, interval);
+		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "flags 2");
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
 	return rc;
 }
