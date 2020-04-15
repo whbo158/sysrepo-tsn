@@ -29,7 +29,7 @@
 #include "main.h"
 #include "qbv.h"
 
-static bool stc_cfg_flag = false;
+static bool stc_cfg_flag;
 static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
 
@@ -130,12 +130,14 @@ static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	}
 
 	if (cycle_time > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %ld ", cycle_time);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %ld ",
+				cycle_time);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
 	if (cycle_time_extension > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %ld ", cycle_time_extension);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %ld ",
+				cycle_time_extension);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
@@ -150,7 +152,8 @@ static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 		gate_mask = entry[i].gate_state;
 		interval = entry[i].time_interval;
 
-		snprintf(stc_subcmd, MAX_CMD_LEN, "sched-entry S %d %d ", gate_mask, interval);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "sched-entry S %d %d ",
+				gate_mask, interval);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
@@ -510,8 +513,8 @@ cleanup:
 	return rc;
 }
 
-int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_event_t event, void *private_ctx)
+int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
+	const char *path, sr_event_t event, uint32_t id, void *private_ctx)
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};

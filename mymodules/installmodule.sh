@@ -7,5 +7,5 @@ sudo sysrepoctl -i ietf-inet-types@2013-07-15.yang
 sudo sysrepoctl -i iana-if-type@2017-01-19.yang
 sudo sysrepoctl -i ietf-ip@2014-06-16.yang -e ipv4-non-contiguous-netmasks
 sudo sysrepoctl -i ieee802-dot1q-bridge.yang
-sudo sysrepoctl -i ieee802-dot1q-sched.yang
+sudo sysrepoctl -i ieee802-dot1q-sched.yang -e scheduled-traffic
 sudo sysrepoctl -i nxp-bridge-vlan-tc-flower.yang

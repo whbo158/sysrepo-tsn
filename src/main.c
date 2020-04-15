@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-#ifndef TEST_PLUGIN
+
 	/* Subscribe to QBV subtree */
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
@@ -155,6 +155,7 @@ int main(int argc, char **argv)
 		goto cleanup;
 	}
 
+#ifndef TEST_PLUGIN
 	/* Subscribe to QBV subtree */
 	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
 	strncat(path, QBV_MAX_SDU_XPATH, XPATH_MAX_LEN);
