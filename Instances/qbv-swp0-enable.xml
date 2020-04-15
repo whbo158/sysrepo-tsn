@@ -44,7 +44,7 @@
 				<sched:index>2</sched:index>
 				<sched:operation-name>sched:set-gate-states</sched:operation-name>
 				<sched:sgs-params>
-					<sched:gate-states-value>7</sched:gate-states-value>
+					<sched:gate-states-value>8</sched:gate-states-value>
 					<sched:time-interval-value>6000</sched:time-interval-value>
 				</sched:sgs-params>
 			</sched:admin-control-list>

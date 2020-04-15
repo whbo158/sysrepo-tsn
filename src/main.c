@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Subscribe to QBV subtree */
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE;
 	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
 	strncat(path, QBV_GATE_PARA_XPATH, XPATH_MAX_LEN);
 	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
