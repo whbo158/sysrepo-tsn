@@ -84,15 +84,15 @@ static tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	uint64_t cycle_time = 0;
 	uint64_t cycle_time_extension = 0;
 	struct tsn_qbv_entry *entry = NULL;
-	struct tsn_qbv_basic *pqbv = &qbvconf->admin;
+	struct tsn_qbv_conf *pqbv = &qbvconf->qbvconf_ptr;
 
-	num_tc = pqbv->control_list_length;
+	num_tc = pqbv->admin.control_list_length;
 	if (num_tc > QBV_TC_NUM)
 		num_tc = QBV_TC_NUM;
 
-	base_time = pqbv->base_time;
-	cycle_time = pqbv->cycle_time;
-	cycle_time_extension = pqbv->cycle_time_extension;
+	base_time = pqbv->admin.base_time;
+	cycle_time = pqbv->admin.cycle_time;
+	cycle_time_extension = pqbv->admin.cycle_time_extension;
 
 	snprintf(stc_subcmd, MAX_CMD_LEN, "tc qdisc replace ");
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
@@ -100,11 +100,8 @@ static tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
-	snprintf(stc_subcmd, MAX_CMD_LEN, "%s ", conf->filter.type);
-	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
-
 	for (i = 0; i < num_tc; i++) {
-		entry = pqbv->control_list;
+		entry = pqbv->admin.control_list;
 
 		//gate_mask = 0x01 << i;
 		gate_mask = entry[i].gate_state;
