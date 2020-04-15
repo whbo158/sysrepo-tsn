@@ -13,6 +13,15 @@
 		<sched:gate-parameters>
 			<sched:gate-enabled>true</sched:gate-enabled>
 			<sched:admin-gate-states>127</sched:admin-gate-states>
+			<sched:admin-base-time>
+				<sched:seconds>100</sched:seconds>
+				<sched:fractional-seconds>5000</sched:fractional-seconds>
+			</sched:admin-base-time>
+			<sched:admin-cycle-time>
+				<sched:numerator>8000</sched:numerator>
+				<sched:denominator>1000000000</sched:denominator>
+			</sched:admin-cycle-time>
+			<sched:admin-cycle-time-extension>1000</sched:admin-cycle-time-extension>
 			<sched:config-change>true</sched:config-change>
 			<sched:admin-control-list-length>3</sched:admin-control-list-length>
 			<sched:admin-control-list>
