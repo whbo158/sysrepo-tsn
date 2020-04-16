@@ -34,6 +34,8 @@ static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
 static char sif_name[IF_NAME_MAX_LEN];
 
+static int tsn_config_clr_qbv_by_tc(struct sr_qbv_conf *qbvconf);
+
 struct tsn_qbv_conf *malloc_qbv_memory(void)
 {
 	struct tsn_qbv_conf *qbvconf_ptr;
@@ -95,6 +97,8 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 
 	if (num_tc > QBV_TC_NUM)
 		num_tc = QBV_TC_NUM;
+
+	tsn_config_clr_qbv_by_tc(qbvconf);
 
 	base_time = pqbv->admin.base_time;
 	cycle_time = pqbv->admin.cycle_time;
