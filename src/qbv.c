@@ -32,6 +32,7 @@
 static bool stc_cfg_flag;
 static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
+static char sif_name[IF_NAME_MAX_LEN];
 
 struct tsn_qbv_conf *malloc_qbv_memory(void)
 {
@@ -70,13 +71,14 @@ void free_qbv_memory(struct tsn_qbv_conf *qbvconf_ptr)
 	free(qbvconf_ptr);
 }
 
-static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
+static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 		struct sr_qbv_conf *qbvconf)
 {
 	int i = 0;
 	int num_tc = 0;
 	int count = 1;
 	int offset = 0;
+	pid_t sysret = 0;
 	int rc = SR_ERR_OK;
 	uint32_t clockid = 0;
 	uint32_t gate_mask = 0;
@@ -159,8 +161,37 @@ static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	snprintf(stc_subcmd, MAX_CMD_LEN, "flags 2");
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
-	printf("tc qbv: %s\n", stc_cmd);
+	sysret = system(stc_cmd);
+	if ((sysret != -1) && WIFEXITED(sysret) && (WEXITSTATUS(sysret) == 0)) {
+		printf("ok. %s\n", stc_cmd);
+	} else {
+		printf("failed! ret:%d %s\n", sysret, stc_cmd);
+		rc = SR_ERR_INVAL_ARG;
+	}
+
+	snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
+
+	return rc;
+}
+
+static int tsn_config_clr_qbv_by_tc(struct sr_qbv_conf *qbvconf)
+{
+	int rc = SR_ERR_OK;
+
+	if (strlen(sif_name) == 0)
+		return rc;
+
+	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc del ");
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", sif_name);
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "parent root handle 100");
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	memset(sif_name, 0, sizeof(sif_name));
 	system(stc_cmd);
+	printf("cmd: %s\n", stc_cmd);
 
 	return rc;
 }
@@ -183,7 +214,7 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 	}
 stc_cfg_flag = true;
 	if (stc_cfg_flag)
-		return tsn_config_qbv_tc(session, ifname, qbvconf);
+		return tsn_config_qbv_by_tc(session, ifname, qbvconf);
 #ifndef TEST_PLUGIN
 	rc = tsn_qos_port_qbv_set(ifname, qbvconf->qbvconf_ptr,
 				  qbvconf->qbv_en);
@@ -215,6 +246,9 @@ void clr_qbv(sr_val_t *value, struct sr_qbv_conf *qbvconf)
 	nodename = sr_xpath_node_name(value->xpath);
 	if (!nodename)
 		return;
+
+	if (stc_cfg_flag)
+		tsn_config_clr_qbv_by_tc(qbvconf);
 
 	if (!strcmp(nodename, "gate-enabled")) {
 		qbvconf->qbv_en = false;
@@ -262,6 +296,7 @@ void clr_qbv(sr_val_t *value, struct sr_qbv_conf *qbvconf)
 					      &xp_ctx)))
 			qbvconf->qbvconf_ptr->maxsdu = 0;
 	}
+
 }
 
 int parse_qbv(sr_session_ctx_t *session, sr_val_t *value,
