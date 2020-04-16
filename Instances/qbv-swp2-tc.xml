@@ -3,7 +3,7 @@
 	    xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0"
 	    xmlns:preempt="urn:ieee:std:802.1Q:yang:ieee802-dot1q-preemption">
 	<interface>
-		<name>swp0</name>
+		<name>swp2</name>
 		<enabled>true</enabled>
 		<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
 		<sched:max-sdu-table>
@@ -21,7 +21,7 @@
 				<sched:numerator>8000</sched:numerator>
 				<sched:denominator>1000000000</sched:denominator>
 			</sched:admin-cycle-time>
-			<sched:admin-cycle-time-extension>1000</sched:admin-cycle-time-extension>
+			<sched:admin-cycle-time-extension>0</sched:admin-cycle-time-extension>
 			<sched:config-change>true</sched:config-change>
 			<sched:admin-control-list-length>3</sched:admin-control-list-length>
 			<sched:admin-control-list>

@@ -109,7 +109,7 @@ static int tsn_config_qbv_tc(sr_session_ctx_t *session, char *ifname,
 	snprintf(stc_subcmd, MAX_CMD_LEN, "num_tc %d map ", num_tc);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
-	for (i = 0; i < QBV_TC_NUM; i++) {
+	for (i = 0; i < num_tc; i++) {
 		snprintf(stc_subcmd, MAX_CMD_LEN, "%d ", i);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
