@@ -8,17 +8,17 @@
 		<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
 		<sched:max-sdu-table>
 			<sched:traffic-class>0</sched:traffic-class>
-			<sched:queue-max-sdu>1024</sched:queue-max-sdu>
+			<sched:queue-max-sdu>10</sched:queue-max-sdu>
 		</sched:max-sdu-table>
 		<sched:gate-parameters>
 			<sched:gate-enabled>true</sched:gate-enabled>
-			<sched:admin-gate-states>127</sched:admin-gate-states>
+			<sched:admin-gate-states>0</sched:admin-gate-states>
 			<sched:admin-base-time>
-				<sched:seconds>800</sched:seconds>
+				<sched:seconds>1200</sched:seconds>
 				<sched:fractional-seconds>5000</sched:fractional-seconds>
 			</sched:admin-base-time>
 			<sched:admin-cycle-time>
-				<sched:numerator>8000</sched:numerator>
+				<sched:numerator>0</sched:numerator>
 				<sched:denominator>1000000000</sched:denominator>
 			</sched:admin-cycle-time>
 			<sched:admin-cycle-time-extension>0</sched:admin-cycle-time-extension>

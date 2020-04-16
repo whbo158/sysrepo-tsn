@@ -173,6 +173,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 		rc = SR_ERR_INVAL_ARG;
 	}
 
+	stc_cfg_flag = false;
 	snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 
 	return rc;
@@ -216,7 +217,8 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 		time = cal_cycle_time(&qbvconf->cycletime);
 		qbvconf->qbvconf_ptr->admin.cycle_time = time;
 	}
-stc_cfg_flag = true;
+
+	printf("stc_cfg_flag:%d\n", stc_cfg_flag);
 	if (stc_cfg_flag)
 		return tsn_config_qbv_by_tc(session, ifname, qbvconf);
 #ifndef TEST_PLUGIN
@@ -326,6 +328,11 @@ int parse_qbv(sr_session_ctx_t *session, sr_val_t *value,
 	} else if (!strcmp(nodename, "admin-gate-states")) {
 		u8_val = value->data.uint8_val;
 		qbvconf->qbvconf_ptr->admin.gate_states = u8_val;
+
+		if (u8_val == 0)
+			stc_cfg_flag = true;
+		else
+			stc_cfg_flag = false;
 	} else if (!strcmp(nodename, "admin-control-list-length")) {
 		u32_val = value->data.uint32_val;
 		qbvconf->qbvconf_ptr->admin.control_list_length = u32_val;
