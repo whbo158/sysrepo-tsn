@@ -163,9 +163,9 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 
 	sysret = system(stc_cmd);
 	if ((sysret != -1) && WIFEXITED(sysret) && (WEXITSTATUS(sysret) == 0)) {
-		printf("ok. %s\n", stc_cmd);
+		printf("ok. cmd:%s\n", stc_cmd);
 	} else {
-		printf("failed! ret:%d %s\n", sysret, stc_cmd);
+		printf("failed! ret:0x%X cmd:%s\n", sysret, stc_cmd);
 		rc = SR_ERR_INVAL_ARG;
 	}
 
@@ -191,7 +191,7 @@ static int tsn_config_clr_qbv_by_tc(struct sr_qbv_conf *qbvconf)
 
 	memset(sif_name, 0, sizeof(sif_name));
 	system(stc_cmd);
-	printf("cmd: %s\n", stc_cmd);
+	printf("cmd:%s\n", stc_cmd);
 
 	return rc;
 }
