@@ -181,7 +181,7 @@ static int set_inet_updown(char *ifname, bool upflag)
 	return 0;
 }
 
-bool is_valid_addr(uint8_t *ip)
+bool is_valid_addr(char *ip)
 {
 	int ret = 0;
 	struct in_addr ip_addr;
