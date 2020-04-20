@@ -10,6 +10,11 @@ https://www.kernel.org/doc/html/latest/networking/dsa/dsa.html
 https://community.nxp.com/thread/507475
 https://www.baidu.com/link?url=Go40Fsc-k-2DX4QfAqbHyCB7h1IfnZuaQ5MiEW4ZykubS3qSPrULhYgkHI9C-6Td85pqhS6qM47Xyphl8SwHpa&wd=&eqid=9992f984005c090e000000035e95023a
 
+tftp -g -r mymodules.tgz 10.193.20.33
+tftp -g -r npmodules.tgz 10.193.20.33
+tftp -g -r setup.sh 10.193.20.33
+date -s "2020-04-20 15:57:00"
+
 base:
 tc qdisc replace dev swp2 parent root handle 100 taprio num_tc 3 map 0 1 2 queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 base-time 100000005000 cycle-time 8000 sched-entry S 5 5000 sched-entry S 7 6000 sched-entry S 8 6000 flags 2
 
@@ -35,8 +40,6 @@ setenv ethaddr "00:04:9f:ef:06:06"
 setenv ethprime "eTSEC1"
 setenv scsidevs "0"
 
-date -s "2020-04-20 13:15:00"
-
 BR2_TARGET_ROOTFS_CPIO_UIMAGE
 
 make qoriq-sysrepo-tsn
@@ -48,10 +51,7 @@ make qoriq-sysrepo-tsn
 #then reset the board
 =>setenv bootargs 'root=/dev/ram0 rw ramdisk_size=50000000 console=ttyS0,115200  cma=64M@0x0-0xb0000000;'
 =>saveenv
-=>tftp 83000000 uImage
-=>tftp 88000000 rootfs.cpio.uboot
-=>tftp 8f000000 ls1021a-tsn.dtb
-=>bootm 83000000 88000000 8f000000
+=>tftp 83000000 uImage; tftp 88000000 rootfs.cpio.uboot; tftp 8f000000 ls1021a-tsn.dtb; bootm 83000000 88000000 8f000000;
 
 BR2_PACKAGE_QORIQ_SYSREPO_TSN
 
