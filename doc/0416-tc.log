@@ -1,0 +1,44 @@
+[root@LS1021ATSN ~] # tc qdisc replace dev swp2 parent root handle 100 taprio num_tc 3 map 0 1 2 queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 base-time 100000005000 cycle-time 8000 sched-entry S 5 5000 sched-entry S 7 6000 sched-entry S 8 6000 flags 2
+[ 2055.911629] sja1105 spi0.1: enable 1
+[ 2055.915347] sja1105 spi0.1: base_time 100000005000 ns
+[ 2055.920377] sja1105 spi0.1: cycle_time 8000 ns
+[ 2055.924851] sja1105 spi0.1: cycle_time_extension 0
+[ 2055.929623] sja1105 spi0.1: num_entries 3
+[ 2055.933661] sja1105 spi0.1: [0] command 0 
+[ 2055.937744] sja1105 spi0.1: gate_mask 5 
+[ 2055.941649] sja1105 spi0.1: interval 5000
+[ 2055.945678] sja1105 spi0.1: [1] command 0 
+[ 2055.949760] sja1105 spi0.1: gate_mask 7 
+[ 2055.953698] sja1105 spi0.1: interval 6000
+[ 2055.957693] sja1105 spi0.1: [2] command 0 
+[ 2055.961770] sja1105 spi0.1: gate_mask 8 
+[ 2055.965709] sja1105 spi0.1: interval 6000
+[ 2055.978678] sja1105 spi0.1: Reset switch and programmed static config. Reason: Time-aware scheduling
+[root@LS1021ATSN ~] # 
+[root@LS1021ATSN ~] # 
+[root@LS1021ATSN ~] # tc qdisc show
+qdisc noqueue 0: dev lo root refcnt 2 
+qdisc taprio 100: dev swp2 root refcnt 9 tc 3 map 0 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0
+queues offset 0 count 1 offset 1 count 1 offset 2 count 1
+clockid invalid flags 0x6305a   base-time 100000005000 cycle-time 8000 cycle-time-extension 0
+        index 0 cmd S gatemask 0x5 interval 5000
+        index 1 cmd S gatemask 0x7 interval 6000
+        index 2 cmd S gatemask 0x8 interval 6000
+
+qdisc pfifo 0: dev swp2 parent 100:8 limit 1000p
+qdisc pfifo 0: dev swp2 parent 100:7 limit 1000p
+qdisc pfifo 0: dev swp2 parent 100:6 limit 1000p
+qdisc pfifo 0: dev swp2 parent 100:5 limit 1000p
+qdisc pfifo 0: dev swp2 parent 100:4 limit 1000p
+qdisc pfifo 0: dev swp2 parent 100:3 limit 1000p
+qdisc pfifo 0: dev swp2 parent 100:2 limit 1000p
+qdisc pfifo 0: dev swp2 parent 100:1 limit 1000p
+[root@LS1021ATSN ~] # 
+[root@LS1021ATSN ~] # 
+[root@LS1021ATSN ~] # tc qdisc del dev swp2 parent root handle 100
+[ 2126.691024] sja1105 spi0.1: enable 0
+[ 2126.694728] sja1105 spi0.1: base_time 0 ns
+[ 2126.698808] sja1105 spi0.1: cycle_time 0 ns
+[ 2126.703029] sja1105 spi0.1: cycle_time_extension 0
+[ 2126.707800] sja1105 spi0.1: num_entries 0
+[ 2126.721191] sja1105 spi0.1: Reset switch and programmed static config. Reason: Time-aware scheduling

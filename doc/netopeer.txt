@@ -1,0 +1,388 @@
+
+question:
+1. ip, should add if_name?
+2. 
+
+export DIR="drivers/net/dsa/ net/dsa/ drivers/net/ethernet/mscc/"
+
+ndo_setup_tc
+
+net/sched/sch_api.c RTM_NEWQDISC
+
+SR_ERR_INVAL_ARG
+
+enum tc_setup_type {
+	TC_SETUP_QDISC_MQPRIO,
+	TC_SETUP_CLSU32,
+	TC_SETUP_CLSFLOWER,
+	TC_SETUP_CLSMATCHALL,
+	TC_SETUP_CLSBPF,
+	TC_SETUP_BLOCK,
+	TC_SETUP_QDISC_CBS,
+	TC_SETUP_QDISC_RED,
+	TC_SETUP_QDISC_PRIO,
+	TC_SETUP_QDISC_MQ,
+	TC_SETUP_QDISC_ETF,
+	TC_SETUP_ROOT_QDISC,
+	TC_SETUP_QDISC_GRED,
+	TC_SETUP_QDISC_TAPRIO,
+};
+
+/mnt/vda2/nxp_openil/images/iproute2-4.9.0
+
+net/sched/cls_api.c
+
+	rtnl_register(PF_UNSPEC, RTM_NEWTFILTER, tc_new_tfilter, NULL,
+		      RTNL_FLAG_DOIT_UNLOCKED);
+	rtnl_register(PF_UNSPEC, RTM_DELTFILTER, tc_del_tfilter, NULL,
+		      RTNL_FLAG_DOIT_UNLOCKED);
+	rtnl_register(PF_UNSPEC, RTM_GETTFILTER, tc_get_tfilter,
+		      tc_dump_tfilter, RTNL_FLAG_DOIT_UNLOCKED);
+	rtnl_register(PF_UNSPEC, RTM_NEWCHAIN, tc_ctl_chain, NULL, 0);
+	rtnl_register(PF_UNSPEC, RTM_DELCHAIN, tc_ctl_chain, NULL, 0);
+	rtnl_register(PF_UNSPEC, RTM_GETCHAIN, tc_ctl_chain,
+		      tc_dump_chain, 0);
+
+cls_flower_add
+port_setup_tc
+
+$ sudo apt install -y git cmake build-essential bison autoconf dh-autoreconf flex
+$ sudo apt install -y libavl-dev libprotobuf-c-dev protobuf-c-compiler zlib1g-dev
+$ sudo apt install -y libgcrypt20-dev libssh-dev libev-dev libpcre3-dev
+
+1. libyang1.1 (1.0.109)
+
+	https://tools.ietf.org/pdf/rfc7950.pdf
+
+	git@github.com:CESNET/libyang.git
+	https://github.com/whbo158/libyang.git
+
+	$ mkdir build; cd build
+	$ cmake ..
+	$ make
+	# make install
+
+
+	cmake -DCMAKE_INSTALL_PREFIX:PATH=/mnt/vda3/software/storage/netopeer/Netopeer2/server/serverbin ..
+
+
+	grep -irn ietf-yang-library
+	grep -irn module-set-id
+	
+2. sysrepo v1.3.21 (SO v4.1.8)
+
+	git@github.com:sysrepo/sysrepo.git
+	https://github.com/whbo158/sysrepo.git 
+	
+	$ mkdir build; cd build
+	$ cmake ..
+	$ make
+	# make install
+
+
+3. libnetconf2 v1.1.3
+
+	git@github.com:CESNET/libnetconf2.git
+	https://github.com/whbo158/libnetconf2.git
+
+	$ mkdir build; cd build
+	$ cmake ..
+	$ make
+	# make install
+	
+4. protobuf
+	$ git clone https://github.com/protocolbuffers/protobuf.git
+	$ cd protobuf
+	$ git submodule update --init --recursive
+	$ ./autogen.sh
+	$ ./configure
+	$ make
+	$ sudo make install
+	$ sudo ldconfig # refresh shared library cache.
+	
+5. Netopeer2 v1.1.1
+	git@github.com:CESNET/Netopeer2.git
+	https://github.com/whbo158/Netopeer2.git
+	
+	$ cd server
+	$ mkdir build; cd build
+	$ cmake ..
+	$ make
+	# make install
+	
+	$ cd cli
+	$ mkdir build; cd build
+	$ cmake ..
+	$ make
+	# make install
+	
+6. sysrepo-tsn
+	https://github.com/whbo158/sysrepo-tsn.git
+	
+
+77. libssh
+
+	$ git clone http://git.libssh.org/projects/libssh.git
+	$ cd libssh; mkdir build; cd build
+	$ cmake ..
+	$ make
+	# make install
+
+88. cmocka
+
+	$ git clone git://git.cryptomilk.org/projects/cmocka.git
+	$ cd cmocka
+	$ git checkout tags/cmocka-1.0.1
+	$ mkdir build; cd build
+	$ cmake ..
+	$ make
+	# make install
+
+mkdir mymodules
+
+cp -fr /mnt/vda3/software/storage/nxp_openil/openil/output/build/sysrepo-tsn-v0.1/modules/*.yang mymodules
+
+sudo sysrepoctl -i ieee802-dot1q-types.yang
+sudo sysrepoctl -i ietf-interfaces@2014-05-08.yang
+sudo sysrepoctl -i ietf-inet-types@2013-07-15.yang
+sudo sysrepoctl -i iana-if-type@2017-01-19.yang
+sudo sysrepoctl -i ietf-ip@2014-06-16.yang -e ipv4-non-contiguous-netmasks
+sudo sysrepoctl -i ieee802-dot1q-bridge.yang
+
+sudo sysrepoctl -u ietf-ip
+
+sudo sysrepoctl -c ietf-ip -e ipv4-non-contiguous-netmasks
+
+connect 192.168.0.9 --login whb
+edit-config --target running --config=ietf-ip-cfg.xml
+edit-config --target running --config=ietf-vlan-cfg.xml
+
+sudo netopeer2-server -d -v2
+
+sudo sysrepoctl -i ieee802-dot1q-preemption.yang
+sudo sysrepoctl -i ieee802-dot1q-sched.yang -e scheduled-traffic
+
+sudo sysrepoctl -u ieee802-dot1q-sched
+sudo sysrepoctl -u ieee802-dot1q-preemption
+sudo sysrepoctl -u ieee802-dot1q-types
+sudo sysrepoctl -u ietf-interfaces
+
+sudo sysrepoctl -c ietf-netconf -e writable-running
+sudo sysrepoctl -c ietf-netconf -e candidate
+sudo sysrepoctl -c ietf-netconf -e rollback-on-error
+sudo sysrepoctl -c ietf-netconf -e validate
+sudo sysrepoctl -c ietf-netconf -e startup
+sudo sysrepoctl -c ietf-netconf -e url
+sudo sysrepoctl -c ietf-netconf -e xpath
+
+sudo sysrepoctl --uninstall ieee802-dot1q-sched
+
+sudo sysrepoctl -l
+
+sudo ip link add name vethmy0 type veth peer name vethmy1
+
+whb@whb-OptiPlex-790:sysrepo-tsn$ sudo sysrepoctl -l
+Sysrepo repository: /mnt/vda3/software/storage/netopeer/sysrepo/build/repository
+
+sudo netopeer2-server -U -d 
+
+
+Module Name                | Revision   | Flags | Owner     | Permissions | Submodules | Features
+----------------------------------------------------------------------------------------------------------
+ieee802-dot1q-preemption   | 2018-09-10 | I     | root:root | 600         |            |
+ieee802-dot1q-sched        | 2018-09-10 | I     | root:root | 600         |            | scheduled-traffic
+ieee802-dot1q-types        | 2018-03-07 | I     | root:root | 600         |            |
+ietf-datastores            | 2017-08-17 | i     |           |             |            |
+ietf-inet-types            | 2013-07-15 | i     |           |             |            |
+ietf-interfaces            | 2014-05-08 | I     | root:root | 600         |            |
+ietf-netconf               | 2011-06-01 | I     | root:root | 666         |            |
+ietf-netconf-notifications | 2012-02-06 | I     | root:root | 666         |            |
+ietf-netconf-with-defaults | 2011-06-01 | I     | root:root | 666         |            |
+ietf-origin                | 2018-02-14 | I     | root:root | 666         |            |
+ietf-yang-library          | 2019-01-04 | I     | root:root | 666         |            |
+ietf-yang-metadata         | 2016-08-05 | i     |           |             |            |
+ietf-yang-types            | 2013-07-15 | i     |           |             |            |
+yang                       | 2017-02-20 | I     | root:root | 666         |            |
+
+Flags meaning: I - Installed/i - Imported; R - Replay support; N - New/X - Removed/U - Updated; F - Feature changes
+
+
+typedef listen-ipv4-address {
+type inet:ipv4-address;
+default "0.0.0.0";
+}
+
+https://github.com/YangModels/yang/
+https://github.com/YangModels/yang/blob/master/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-sched.yang
+
+how to get ip and mask?
+http://blog.chinaunix.net/uid-27018250-id-4093622.html
+
+http://www.voidcn.com/article/p-glbhkrgl-xc.html
+
+ip link add name vethmy0 type veth peer name vethmy1
+sudo ifconfig vethmy0 192.168.8.1
+sudo ifconfig vethmy1 192.168.9.1
+
+sudo ip link add name switch type bridge
+ip link set switch up
+ip link set vethmy1 master switch
+
+how to change mac? *.yang ?
+
+https://github.com/YangModels/yang.git
+standard/ieee/draft/802.1/Qcw/ieee802-dot1q-types.yang
+
+
+sudo sysrepoctl -i ./yang/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-types.yang
+sudo sysrepoctl -i ./yang/standard/ietf/RFC/ietf-interfaces@2018-02-20.yang
+sudo sysrepoctl -i ./yang/standard/ieee/draft/802.1/Qcw/ieee802-types.yang
+sudo sysrepoctl -i ./yang/standard/ietf/RFC/iana-if-type@2017-01-19.yang
+sudo sysrepoctl -i ./yang/standard/ieee/published/802.1/ieee802-dot1q-bridge.yang
+sudo sysrepoctl -i ./yang/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-preemption.yang
+sudo sysrepoctl -i ./yang/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-sched.yang
+
+ip link add name switch type bridge
+ip link set switch up
+ip link set swp0 master switch && ip link set swp0 up
+ip link set swp1 master switch && ip link set swp1 up
+ip link set swp2 master switch && ip link set swp2 up
+ip link set swp3 master switch && ip link set swp3 up
+ip link set swp4 master switch && ip link set swp4 up
+ip link set swp5 master switch && ip link set swp5 up
+
+ip link add name switch type bridge
+ip link set switch up
+ip link set swp0 master switch && ip link set swp0 up
+bridge link set dev swp0 state disabled
+ip link set swp1 master switch && ip link set swp1 up
+bridge link set dev swp1 state disabled
+ip link set swp2 master switch && ip link set swp2 up
+bridge link set dev swp2 state disabled
+ip link set swp3 master switch && ip link set swp3 up
+bridge link set dev swp3 state disabled
+ip link set swp4 master switch && ip link set swp4 up
+
+
+sudo netopeer2-server -d -v2
+
+netopeer2-cli
+> connect --ssh --host 10.193.20.33 --port 830 --login root
+
+
+sudo apt install vlan
+whb@whb-OptiPlex-790:myapp$ sudo vconfig add vethmy0 88
+Added VLAN with VID == 88 to IF -:vethmy0:-
+sudo ifconfig vethmy0.88 up
+
+sudo vconfig add switch 88
+sudo vconfig rem switch.88
+
+sudo vconfig add vethmy0 100
+
+whb@whb-OptiPlex-790:myapp$ sudo vconfig add switch 88
+Added VLAN with VID == 88 to IF -:switch:-
+sudo ifconfig switch.88 up
+
+sudo brctl addbr vlan88
+sudo brctl addif vlan88 vethmy0.88
+sudo brctl addif vlan88 switch.88
+sudo ifconfig vlan88 up
+
+ip link add name switch0 type bridge
+
+ip link add name vethmy0 type veth peer name vethmy1
+
+sudo vconfig add vethmy0 100
+sudo brctl addbr wmybr0
+sudo brctl addif wmybr0 vethmy0.100
+
+
+sudo brctl delif wmybr0 vethmy0.100
+sudo brctl delbr wmybr0
+sudo vconfig rem vethmy0.100
+
+SIOCSIFVLAN
+ioctl_or_perror_and_die
+https://fossies.org/linux/misc/old/vlan.1.9.tar.gz/
+https://www.candelatech.com/~greear/vlan/vlan.1.9.tar.gz
+
+SIOCBRADDIF
+https://lists.gnu.org/archive/html/qemu-devel/2012-07/msg03101.html
+https://blog.csdn.net/sinat_20184565/article/details/80626694
+
+SIOCBRADDIF SIOCBRADDBR
+https://github.com/thomastan/busybox-w32/blob/master/networking/brctl.c
+
+
+
+whb@whb-VirtualBox:~/svn/netopeer/sysrepo/examples$ ./inet_cfg_plugin 
+Application will watch for changes in "/ietf-interfaces:interfaces/interface".
+
+ ========== READING RUNNING CONFIG: ==========
+
+[ERR]: Read permission "ietf-interfaces" check failed.
+[ERR]: Write permission "ietf-interfaces" check failed.
+[ERR]: Failed to open "/sr_ietf-interfaces.operational" (Permission denied).
+whb@whb-VirtualBox:~/svn/netopeer/sysrepo/examples$ sudo ./inet_cfg_plugin 
+[sudo] password for whb: 
+Application will watch for changes in "/ietf-interfaces:interfaces/interface".
+
+ ========== READING RUNNING CONFIG: ==========
+
+/ietf-interfaces:interfaces (container)
+/ietf-interfaces:interfaces/interface[name='vethmy0'] (list instance)
+/ietf-interfaces:interfaces/interface[name='vethmy0']/name = vethmy0
+/ietf-interfaces:interfaces/interface[name='vethmy0']/enabled = true
+/ietf-interfaces:interfaces/interface[name='vethmy0']/type = iana-if-type:ethernetCsmacd
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4 (container)
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/enabled = true
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/forwarding = false
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/address[ip='192.168.11.1'] (list instance)
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/address[ip='192.168.11.1']/ip = 192.168.11.1
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/address[ip='192.168.11.1']/netmask = 255.255.255.0
+
+
+ ========== LISTENING FOR CHANGES ==========
+
+
+
+
+
+
+
+ ========== EVENT change CHANGES: ====================================
+
+
+ ========== END OF CHANGES =======================================
+
+ ========== EVENT done CHANGES: ====================================
+
+
+ ========== END OF CHANGES =======================================
+
+ ========== CONFIG HAS CHANGED, CURRENT RUNNING CONFIG: ==========
+
+/ietf-interfaces:interfaces (container)
+/ietf-interfaces:interfaces/interface[name='vethmy0'] (list instance)
+/ietf-interfaces:interfaces/interface[name='vethmy0']/name = vethmy0
+/ietf-interfaces:interfaces/interface[name='vethmy0']/enabled = true
+/ietf-interfaces:interfaces/interface[name='vethmy0']/type = iana-if-type:ethernetCsmacd
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4 (container)
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/enabled = true
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/forwarding = false
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/address[ip='192.168.11.1'] (list instance)
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/address[ip='192.168.11.1']/ip = 192.168.11.1
+/ietf-interfaces:interfaces/interface[name='vethmy0']/ietf-ip:ipv4/address[ip='192.168.11.1']/netmask = 255.255.255.0
+
+
+
+
+
+
+
+
+
+
+
+

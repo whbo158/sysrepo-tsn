@@ -1,0 +1,574 @@
+
+export DIR="drivers/net/dsa/ net/dsa/ drivers/net/ethernet/mscc/ net/sched net/tsn"
+
+https://linux.nxdi.nxp.com/patchwork/patch/69361/ 
+https://linux.nxdi.nxp.com/patchwork/patch/69363/
+Documentation/networking/dsa/sja1105.rst 
+
+https://www.kernel.org/doc/html/latest/networking/dsa/dsa.html
+
+https://community.nxp.com/thread/507475
+https://www.baidu.com/link?url=Go40Fsc-k-2DX4QfAqbHyCB7h1IfnZuaQ5MiEW4ZykubS3qSPrULhYgkHI9C-6Td85pqhS6qM47Xyphl8SwHpa&wd=&eqid=9992f984005c090e000000035e95023a
+
+base:
+tc qdisc replace dev swp2 parent root handle 100 taprio num_tc 3 map 0 1 2 queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 base-time 100000005000 cycle-time 8000 sched-entry S 5 5000 sched-entry S 7 6000 sched-entry S 8 6000 flags 2
+
+tc qdisc show
+
+tc qdisc del dev swp2 parent root handle 100
+
+board/nxp/ls1021atsn/u-boot-environment.txt
+
+setenv bootargs "root=/dev/mmcblk0p2 rootwait rw console=ttyS0,115200 cma=64M@0x0-0xb0000000;"
+setenv sdcmd1 "mmcinfo;fatload mmc 0:1 0x80008000 uImage;"
+setenv sdcmd2 "fatload mmc 0:1 0x8f000000 ls1021a-tsn.dtb;"
+setenv sdcmd "run sdcmd1; run sdcmd2; bootm 0x80008000 - 0x8f000000"
+setenv bootcmd "run sdcmd"
+
+setenv serverip "10.193.20.33"
+setenv ipaddr "10.193.20.233"
+
+setenv ethact "eTSEC1"
+setenv eth1addr "00:04:9f:ef:07:07"
+setenv eth2addr "00:04:9f:ef:08:08"
+setenv ethaddr "00:04:9f:ef:06:06"
+setenv ethprime "eTSEC1"
+setenv scsidevs "0"
+
+date -s "2020-04-20 13:15:00"
+
+BR2_TARGET_ROOTFS_CPIO_UIMAGE
+
+make qoriq-sysrepo-tsn
+
+1. net/core/rtnetlink.c
+static int __net_init rtnetlink_net_init(struct net *net)
+{
+	struct sock *sk;
+	struct netlink_kernel_cfg cfg = {
+		.groups		= RTNLGRP_MAX,
+		.input		= rtnetlink_rcv,
+		.cb_mutex	= &rtnl_mutex,
+		.flags		= NL_CFG_F_NONROOT_RECV,
+		.bind		= rtnetlink_bind,
+	};
+
+	sk = netlink_kernel_create(net, NETLINK_ROUTE, &cfg);
+	if (!sk)
+		return -ENOMEM;
+	net->rtnl = sk;
+	return 0;
+}
+
+static void rtnetlink_rcv(struct sk_buff *skb)
+{
+	netlink_rcv_skb(skb, &rtnetlink_rcv_msg);
+}
+
+rtnetlink_rcv_msg -> doit (tc_new_tfilter in net/sched/cls_api.c)
+
+	link = rtnl_get_link(family, type);
+	if (link && link->doit)
+		err = link->doit(skb, nlh, extack);
+	
+2. net/sched/cls_api.c
+
+static int __init tc_filter_init(void)
+{
+	int err;
+
+	tc_filter_wq = alloc_ordered_workqueue("tc_filter_workqueue", 0);
+	if (!tc_filter_wq)
+		return -ENOMEM;
+
+	err = register_pernet_subsys(&tcf_net_ops);
+	if (err)
+		goto err_register_pernet_subsys;
+
+	flow_indr_add_block_ing_cb(&block_ing_entry);
+
+	rtnl_register(PF_UNSPEC, RTM_NEWTFILTER, tc_new_tfilter, NULL,
+		      RTNL_FLAG_DOIT_UNLOCKED);
+	rtnl_register(PF_UNSPEC, RTM_DELTFILTER, tc_del_tfilter, NULL,
+		      RTNL_FLAG_DOIT_UNLOCKED);
+	rtnl_register(PF_UNSPEC, RTM_GETTFILTER, tc_get_tfilter,
+		      tc_dump_tfilter, RTNL_FLAG_DOIT_UNLOCKED);
+	rtnl_register(PF_UNSPEC, RTM_NEWCHAIN, tc_ctl_chain, NULL, 0);
+	rtnl_register(PF_UNSPEC, RTM_DELCHAIN, tc_ctl_chain, NULL, 0);
+	rtnl_register(PF_UNSPEC, RTM_GETCHAIN, tc_ctl_chain,
+		      tc_dump_chain, 0);
+
+	return 0;
+
+err_register_pernet_subsys:
+	destroy_workqueue(tc_filter_wq);
+	return err;
+}
+
+tc_new_tfilter -> change (fl_change in net/sched/cls_flower.c) -> fl_hw_replace_filter
+tc_new_tfilter -> tfilter_notify
+
+	err = tp->ops->change(net, skb, tp, cl, t->tcm_handle, tca, &fh,
+			      n->nlmsg_flags & NLM_F_CREATE ? TCA_ACT_NOREPLACE : TCA_ACT_REPLACE,
+			      rtnl_held, extack);
+				  
+fl_change -> fl_set_parms
+				  
+3. 
+drivers/net/ethernet/mscc/ocelot_flower.c 
+grep -wrn FLOW_CLS_REPLACE $DIR
+net/dsa/slave.c:1020:	case FLOW_CLS_REPLACE:
+drivers/net/ethernet/mscc/ocelot_flower.c:239:	case FLOW_CLS_REPLACE:	
+
+
+drivers/net/ethernet/mscc/ocelot_tc.c  
+
+ocelot_setup_tc_cls_flower
+
+ocelot_setup_tc -> 
+
+grep -wrn ocelot_setup_tc $DIR
+drivers/net/ethernet/mscc/ocelot.c:1221:	.ndo_setup_tc			= ocelot_setup_tc,
+
+
+ocelot_setup_tc -> ocelot_setup_tc_block
+
+
+4. another flow net/dsa/slave.c
+
+dsa_slave_setup_tc_block_cb -> dsa_slave_setup_tc_cls_flower -> dsa_slave_add_cls_flower -> cls_flower_add (felix_cls_flower_add in driver/net/dsa/ocelot/felix.c)
+
+grep -wrn ndo_setup_tc $DIR
+net/dsa/slave.c:1314:	.ndo_setup_tc		= dsa_slave_setup_tc,
+drivers/net/ethernet/mscc/ocelot.c:1221:	.ndo_setup_tc			= ocelot_setup_tc,
+
+	.ndo_setup_tc		= dsa_slave_setup_tc,  
+	
+	dsa_slave_setup_tc -> ... -> dsa_slave_setup_tc_block_cb
+	
+	
+	$ grep -wrn TC_SETUP_CLSFLOWER $DIR
+net/dsa/slave.c:1042:	case TC_SETUP_CLSFLOWER:
+drivers/net/ethernet/mscc/ocelot_tc.c:100:	case TC_SETUP_CLSFLOWER:
+net/sched/cls_flower.c:419:	tc_setup_cb_destroy(block, tp, TC_SETUP_CLSFLOWER, &cls_flower, false,
+net/sched/cls_flower.c:456:	err = tc_setup_cb_add(block, tp, TC_SETUP_CLSFLOWER, &cls_flower,
+net/sched/cls_flower.c:483:	tc_setup_cb_call(block, TC_SETUP_CLSFLOWER, &cls_flower, false,
+net/sched/cls_flower.c:1818:					    TC_SETUP_CLSFLOWER, &cls_flower,
+net/sched/cls_flower.c:1879:	tc_setup_cb_call(block, TC_SETUP_CLSFLOWER, &cls_flower, false, true);
+net/sched/cls_flower.c:1895:	tc_setup_cb_call(block, TC_SETUP_CLSFLOWER, &cls_flower, false, true);
+
+
+
+net/sched/cls_api.c net/sched/cls_flower.c drivers/net/ethernet/mscc/ocelot_flower.c
+
+tc_ctl_chain -> tc_chain_tmplt_add -> tmplt_create (fl_tmplt_create)
+fl_tmplt_create -> nla_parse_nested_deprecated and fl_set_key
+fl_tmplt_create -> fl_hw_create_tmplt -> tc_setup_cb_call -> dsa_slave_setup_tc_block_cb -> dsa_slave_setup_tc_cls_flower -> dsa_slave_add_cls_flower -> felix_cls_flower_add -> ocelot_cls_flower_replace -> ocelot_flower_parse
+
+struct fl_flow_key
+
+static int fl_hw_create_tmplt(struct tcf_chain *chain,
+			      struct fl_flow_tmplt *tmplt)
+{
+	struct flow_cls_offload cls_flower = {};
+	struct tcf_block *block = chain->block;
+
+	cls_flower.rule = flow_rule_alloc(0);
+	if (!cls_flower.rule)
+		return -ENOMEM;
+
+	cls_flower.common.chain_index = chain->index;
+	cls_flower.command = FLOW_CLS_TMPLT_CREATE;
+	cls_flower.cookie = (unsigned long) tmplt;
+	cls_flower.rule->match.dissector = &tmplt->dissector;
+	cls_flower.rule->match.mask = &tmplt->mask;
+	cls_flower.rule->match.key = &tmplt->dummy_key;
+
+	/* We don't care if driver (any of them) fails to handle this
+	 * call. It serves just as a hint for it.
+	 */
+	tc_setup_cb_call(block, TC_SETUP_CLSFLOWER, &cls_flower, false, true);
+	kfree(cls_flower.rule);
+
+	return 0;
+}
+
+5. net/dsa/slave.c
+
+.ndo_setup_tc		= dsa_slave_setup_tc,
+
+static int dsa_slave_setup_tc(struct net_device *dev, enum tc_setup_type type,
+			      void *type_data)
+{
+	struct dsa_port *dp = dsa_slave_to_port(dev);
+	struct dsa_switch *ds = dp->ds;
+
+	if (type == TC_SETUP_BLOCK)
+		return dsa_slave_setup_tc_block(dev, type_data);
+
+	if (!ds->ops->port_setup_tc)
+		return -EOPNOTSUPP;
+
+	return ds->ops->port_setup_tc(ds, dp->index, type, type_data);
+}
+
+$ grep -wrn port_setup_tc $DIR
+drivers/net/dsa/sja1105/sja1105_main.c:2108:	.port_setup_tc		= sja1105_port_setup_tc,
+net/dsa/slave.c:1112:	if (!ds->ops->port_setup_tc)
+net/dsa/slave.c:1115:	return ds->ops->port_setup_tc(ds, dp->index, type, type_data);
+
+
+$ grep -wrn ndo_setup_tc $DIR
+net/dsa/slave.c:1314:	.ndo_setup_tc		= dsa_slave_setup_tc,
+drivers/net/ethernet/mscc/ocelot.c:1221:	.ndo_setup_tc			= ocelot_setup_tc,
+net/sched/sch_gred.c:320:	if (!tc_can_offload(dev) || !dev->netdev_ops->ndo_setup_tc)
+net/sched/sch_gred.c:349:	dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_QDISC_GRED, &opt);
+net/sched/sch_mqprio.c:44:	if (priv->hw_offload && dev->netdev_ops->ndo_setup_tc) {
+net/sched/sch_mqprio.c:50:			dev->netdev_ops->ndo_setup_tc(dev,
+net/sched/sch_mqprio.c:85:	 * provided queue counts.  If ndo_setup_tc is not present then
+net/sched/sch_mqprio.c:89:		return dev->netdev_ops->ndo_setup_tc ? 0 : -EINVAL;
+net/sched/sch_mqprio.c:240:	 * the queue mapping then run ndo_setup_tc otherwise use the
+net/sched/sch_mqprio.c:267:		err = dev->netdev_ops->ndo_setup_tc(dev,
+net/sched/sch_etf.c:306:	if (!ops->ndo_setup_tc)
+net/sched/sch_etf.c:312:	err = ops->ndo_setup_tc(dev, TC_SETUP_QDISC_ETF, &etf);
+net/sched/sch_etf.c:328:	if (!ops->ndo_setup_tc) {
+net/sched/sch_etf.c:336:	err = ops->ndo_setup_tc(dev, TC_SETUP_QDISC_ETF, &etf);
+net/sched/sch_mq.c:32:	if (!tc_can_offload(dev) || !dev->netdev_ops->ndo_setup_tc)
+net/sched/sch_mq.c:35:	return dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_QDISC_MQ, &opt);
+net/sched/cls_api.c:729:	err = dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_BLOCK, &bo);
+net/sched/cls_api.c:744:	if (!dev->netdev_ops->ndo_setup_tc)
+net/sched/cls_api.c:788:	if (!dev->netdev_ops->ndo_setup_tc)
+net/sched/sch_red.c:157:	if (!tc_can_offload(dev) || !dev->netdev_ops->ndo_setup_tc)
+net/sched/sch_red.c:173:	return dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_QDISC_RED, &opt);
+net/sched/sch_red.c:346:		dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_QDISC_RED,
+net/sched/sch_api.c:809:	if (!tc_can_offload(dev) || !dev->netdev_ops->ndo_setup_tc)
+net/sched/sch_api.c:812:	err = dev->netdev_ops->ndo_setup_tc(dev, type, type_data);
+net/sched/sch_api.c:831:	if (!tc_can_offload(dev) || !dev->netdev_ops->ndo_setup_tc)
+net/sched/sch_api.c:834:	err = dev->netdev_ops->ndo_setup_tc(dev, type, type_data);
+net/sched/sch_cbs.c:253:	if (!ops->ndo_setup_tc)
+net/sched/sch_cbs.c:259:	err = ops->ndo_setup_tc(dev, TC_SETUP_QDISC_CBS, &cbs);
+net/sched/sch_cbs.c:273:	if (!ops->ndo_setup_tc) {
+net/sched/sch_cbs.c:286:	err = ops->ndo_setup_tc(dev, TC_SETUP_QDISC_CBS, &cbs);
+net/sched/sch_taprio.c:1205:	if (!ops->ndo_setup_tc) {
+net/sched/sch_taprio.c:1220:	err = ops->ndo_setup_tc(dev, TC_SETUP_QDISC_TAPRIO, offload);
+net/sched/sch_taprio.c:1244:	if (!ops->ndo_setup_tc)
+net/sched/sch_taprio.c:1255:	err = ops->ndo_setup_tc(dev, TC_SETUP_QDISC_TAPRIO, offload);
+net/sched/sch_prio.c:150:	if (!tc_can_offload(dev) || !dev->netdev_ops->ndo_setup_tc)
+net/sched/sch_prio.c:163:	return dev->netdev_ops->ndo_setup_tc(dev, TC_SETUP_QDISC_PRIO, &opt);
+
+
+$ grep -wrn register_qdisc $DIR
+net/sched/sch_gred.c:928:	return register_qdisc(&gred_qdisc_ops);
+net/sched/sch_fq_codel.c:713:	return register_qdisc(&fq_codel_qdisc_ops);
+net/sched/sch_mqprio.c:631:	return register_qdisc(&mqprio_qdisc_ops);
+net/sched/sch_qfq.c:1517:	return register_qdisc(&qfq_qdisc_ops);
+net/sched/sch_ingress.c:278:	ret = register_qdisc(&ingress_qdisc_ops);
+net/sched/sch_ingress.c:280:		ret = register_qdisc(&clsact_qdisc_ops);
+net/sched/sch_cake.c:3073:	return register_qdisc(&cake_qdisc_ops);
+net/sched/sch_etf.c:511:	return register_qdisc(&etf_qdisc_ops);
+net/sched/sch_teql.c:493:		err = register_qdisc(&master->qops);
+net/sched/sch_fq.c:987:	ret = register_qdisc(&fq_qdisc_ops);
+net/sched/sch_pie.c:574:	return register_qdisc(&pie_qdisc_ops);
+net/sched/sch_hfsc.c:1679:	return register_qdisc(&hfsc_qdisc_ops);
+net/sched/sch_sfq.c:923:	return register_qdisc(&sfq_qdisc_ops);
+net/sched/sch_skbprio.c:305:	return register_qdisc(&skbprio_qdisc_ops);
+net/sched/sch_dsmark.c:511:	return register_qdisc(&dsmark_qdisc_ops);
+net/sched/sch_blackhole.c:39:	return register_qdisc(&blackhole_qdisc_ops);
+net/sched/sch_red.c:445:	return register_qdisc(&red_qdisc_ops);
+net/sched/sch_api.c:128:int register_qdisc(struct Qdisc_ops *qops)
+net/sched/sch_api.c:170:EXPORT_SYMBOL(register_qdisc);
+net/sched/sch_api.c:2253:	register_qdisc(&pfifo_fast_ops);
+net/sched/sch_api.c:2254:	register_qdisc(&pfifo_qdisc_ops);
+net/sched/sch_api.c:2255:	register_qdisc(&bfifo_qdisc_ops);
+net/sched/sch_api.c:2256:	register_qdisc(&pfifo_head_drop_qdisc_ops);
+net/sched/sch_api.c:2257:	register_qdisc(&mq_qdisc_ops);
+net/sched/sch_api.c:2258:	register_qdisc(&noqueue_qdisc_ops);
+net/sched/sch_choke.c:512:	return register_qdisc(&choke_qdisc_ops);
+net/sched/sch_atm.c:697:	return register_qdisc(&atm_qdisc_ops);
+net/sched/sch_hhf.c:711:	return register_qdisc(&hhf_qdisc_ops);
+net/sched/sch_netem.c:1286:	return register_qdisc(&netem_qdisc_ops);
+net/sched/sch_cbs.c:557:	err = register_qdisc(&cbs_qdisc_ops);
+net/sched/sch_plug.c:222:	return register_qdisc(&plug_qdisc_ops);
+net/sched/sch_tbf.c:550:	return register_qdisc(&tbf_qdisc_ops);
+net/sched/sch_htb.c:1590:	return register_qdisc(&htb_qdisc_ops);
+net/sched/sch_taprio.c:1922:	return register_qdisc(&taprio_qdisc_ops);
+net/sched/sch_codel.c:296:	return register_qdisc(&codel_qdisc_ops);
+net/sched/sch_sfb.c:717:	return register_qdisc(&sfb_qdisc_ops);
+net/sched/sch_prio.c:427:	return register_qdisc(&prio_qdisc_ops);
+net/sched/sch_cbq.c:1809:	return register_qdisc(&cbq_qdisc_ops);
+net/sched/sch_multiq.c:410:	return register_qdisc(&multiq_qdisc_ops);
+net/sched/sch_drr.c:497:	return register_qdisc(&drr_qdisc_ops);
+
+
+6. net/sched/sch_taprio.c 
+static struct Qdisc_ops taprio_qdisc_ops __read_mostly = {
+	.cl_ops		= &taprio_class_ops,
+	.id		= "taprio",
+	.priv_size	= sizeof(struct taprio_sched),
+	.init		= taprio_init,
+	.change		= taprio_change,
+	.destroy	= taprio_destroy,
+	.peek		= taprio_peek,
+	.dequeue	= taprio_dequeue,
+	.enqueue	= taprio_enqueue,
+	.dump		= taprio_dump,
+	.owner		= THIS_MODULE,
+};
+
+taprio_change -> nla_parse_nested_deprecated & parse_taprio_schedule
+taprio_change -> taprio_enable_offload -> taprio_sched_to_offload & ndo_setup_tc(dsa_slave_setup_tc) -> sja1105_port_setup_tc -> sja1105_setup_tc_taprio
+
+
+7.
+7.1 sja1105-tool:
+static_config_upload -> sja1105_static_config_pack
+staging_area_save -> sja1105_static_config_pack
+
+sja1105-tool config load standard.xml
+
+main -> parse_args -> config_parse_args -> sja1105_staging_area_from_xml -> parse_root -> parse_static_config -> parse_config_table
+
+	const char *options[] = {
+		"schedule-table",
+		"schedule-entry-points-table",
+		"vl-lookup-table",
+		"vl-policing-table",
+		"vl-forwarding-table",
+		"l2-address-lookup-table",
+		"l2-policing-table",
+		"vlan-lookup-table",
+		"l2-forwarding-table",
+		"mac-configuration-table",
+		"schedule-parameters-table",
+		"schedule-entry-points-parameters-table",
+		"vl-forwarding-parameters-table",
+		"l2-address-lookup-parameters-table",
+		"l2-forwarding-parameters-table",
+		"clock-synchronization-parameters-table",
+		"avb-parameters-table",
+		"general-parameters-table",
+		"xmii-mode-parameters-table",
+		"sgmii-table",
+	};
+
+
+7.2 kernel
+
+sja1105_port_setup_tc -> sja1105_setup_tc_taprio -> sja1105_static_config_reload
+sja1105_setup_tc_taprio -> taprio_offload_get & sja1105_init_scheduling
+
+struct sja1105_tas_data *tas_data = &priv->tas_data;
+struct sja1105_table *table = &priv->static_config.tables[BLK_IDX_SCHEDULE];
+struct sja1105_schedule_entry *schedule = table->entries;
+
+sja1105_static_config_load -> sja1105_static_config_upload
+sja1105_static_config_reload -> sja1105_static_config_upload
+
+sja1105_static_config_upload -> static_config_buf_prepare_for_upload -> sja1105_static_config_pack
+sja1105_static_config_upload -> sja1105_spi_send_long_packed_buf -> sja1105_spi_send_packed_buf -> sja1105_spi_message_pack & sja1105_spi_transfer
+
+
+8. 1105 & 1028 qbv tc-workflow
+
+8.1 kernel
+include/net/pkt_sched.h
+
+struct tc_taprio_sched_entry {
+	u8 command; /* TC_TAPRIO_CMD_* */
+
+	/* The gate_mask in the offloading side refers to traffic classes */
+	u32 gate_mask;
+	u32 interval;
+};
+
+struct tc_taprio_qopt_offload {
+	u8 enable;
+	ktime_t base_time;
+	u64 cycle_time;
+	u64 cycle_time_extension;
+
+	size_t num_entries;
+	struct tc_taprio_sched_entry entries[0];
+};
+
+enum {
+	TCA_TAPRIO_ATTR_UNSPEC,
+	TCA_TAPRIO_ATTR_PRIOMAP, /* struct tc_mqprio_qopt */
+	TCA_TAPRIO_ATTR_SCHED_ENTRY_LIST, /* nested of entry */
+	TCA_TAPRIO_ATTR_SCHED_BASE_TIME, /* s64 */	
+	TCA_TAPRIO_ATTR_SCHED_SINGLE_ENTRY, /* single entry */
+	TCA_TAPRIO_ATTR_SCHED_CLOCKID, /* s32 */
+	TCA_TAPRIO_PAD,
+	TCA_TAPRIO_ATTR_ADMIN_SCHED, /* The admin sched, only used in dump */
+	TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME, /* s64 */
+	TCA_TAPRIO_ATTR_SCHED_CYCLE_TIME_EXTENSION, /* s64 */
+	TCA_TAPRIO_ATTR_FLAGS, /* u32 */
+	TCA_TAPRIO_ATTR_TXTIME_DELAY, /* u32 */
+	__TCA_TAPRIO_ATTR_MAX,
+};
+
+include/linux/netdevice.h:
+
+enum tc_setup_type {
+	TC_SETUP_QDISC_MQPRIO,
+	TC_SETUP_CLSU32,
+	TC_SETUP_CLSFLOWER,
+	TC_SETUP_CLSMATCHALL,
+	TC_SETUP_CLSBPF,
+	TC_SETUP_BLOCK,
+	TC_SETUP_QDISC_CBS,
+	TC_SETUP_QDISC_RED,
+	TC_SETUP_QDISC_PRIO,
+	TC_SETUP_QDISC_MQ,
+	TC_SETUP_QDISC_ETF,
+	TC_SETUP_ROOT_QDISC,
+	TC_SETUP_QDISC_GRED,
+	TC_SETUP_QDISC_TAPRIO,
+};
+
+	if (tb[TCA_TAPRIO_ATTR_PRIOMAP])
+		mqprio = nla_data(tb[TCA_TAPRIO_ATTR_PRIOMAP]);
+
+net/sched/sch_taprio.c:
+
+	struct net_device *dev;
+
+	if (mqprio) {
+		netdev_set_num_tc(dev, mqprio->num_tc);
+		for (i = 0; i < mqprio->num_tc; i++)
+			netdev_set_tc_queue(dev, i,
+					    mqprio->count[i],
+					    mqprio->offset[i]);
+
+		/* Always use supplied priority mappings */
+		for (i = 0; i <= TC_BITMASK; i++)
+			netdev_set_prio_tc_map(dev, i,
+					       mqprio->prio_tc_map[i]);
+	}
+
+net/core/dev.c:
+
+	netif_setup_tc
+
+/* An entry for gate control list */
+struct tsn_qbv_entry {
+	/* Octet represent the gate states for the corresponding traffic
+	 * classes.
+	 * The MS bit corresponds to traffic class 7.
+	 * The LS bit to traffic class 0.
+	 * A bit value of 0 indicates closed;
+	 * A bit value of 1 indicates open.
+	 */
+	__u8 gate_state;
+
+	/* A TimeInterval is encoded in 4 octets as a 32-bit unsigned integer,
+	 * representing a number of nanoseconds.
+	 */
+	__u32 time_interval;
+};
+
+/* The administrative/operation time and gate list */
+struct tsn_qbv_basic {
+	/* The administrative/operation value of the GateStates parameter for
+	 * the Port.
+	 * The bits of the octet represent the gate states for the
+	 * corresponding traffic classes; the MS bit corresponds to traffic
+	 * class 7, the LS bit to traffic class 0. A bit value of 0 indicates
+	 * closed; a bit value of 1 indicates open.
+	 * The value of this object MUST be retained
+	 * across reinitializations of the management system.
+	 */
+	__u8 gate_states;
+
+	/* The administrative/operation value of the ListMax parameter for the
+	 * port. The integer value indicates the number of entries (TLVs) in
+	 * the AdminControlList. The value of this object MUST be retained
+	 * across reinitializations of the management system.
+	 */
+	__u32 control_list_length;
+
+	/* The administrative/operation value of the AdminCycleTime
+	 * parameter for the Port. The numerator and denominator together
+	 * represent the cycle time as a rational number of seconds.  The value
+	 * of this object MUST be retained across reinitializations of the
+	 * management system.
+	 */
+	__u32 cycle_time;
+
+	/* The administrative/operation value of the CycleTimeExtension
+	 * parameter for the Port. The value is an unsigned integer number of
+	 * nanoseconds.
+	 * The value of this object MUST be retained across reinitializations
+	 * of the management system.
+	 */
+
+	__u32 cycle_time_extension;
+
+	/* The administrative/operation value of the BaseTime parameter for the
+	 * Port.  The value is a representation of a PTPtime value, consisting
+	 * of a 48-bit integer number of seconds and a 32-bit integer number of
+	 * nanoseconds.
+	 * The value of this object MUST be retained across reinitializations of
+	 * the management system.
+	 */
+	ptptime_t base_time;
+
+	/* admin_control_list represent the AdminControlList/OperControlList.
+	 * The administrative version of the gate control list for the Port.
+	 */
+	struct tsn_qbv_entry *control_list;
+};
+
+struct tsn_qbv_conf {
+	/* The GateEnabled parameter determines whether traffic scheduling is
+	 * active (true) or inactive (false).  The value of this object MUST be
+	 * retained across reinitializations of the management system.
+	 */
+	__u8 gate_enabled;
+
+	/* The maxsdu parameter denoting the maximum SDU size supported by the
+	 * queue.
+	 */
+	__u32 maxsdu;
+
+	/* The ConfigChange parameter signals the start of a configuration
+	 * change when it is set to TRUE. This should only be done when the
+	 * various administrative parameters are all set to appropriate values.
+	 */
+	__u8 config_change;
+
+	/* The admin parameter signals the admin relate cycletime, basictime,
+	 * gatelist paraters.
+	 */
+	struct tsn_qbv_basic admin;
+};
+
+
+8.2 iproute2-tc
+
+tc/q_taprio.c
+
+taprio_parse_opt
+
+		} else if (strcmp(*argv, "base-time") == 0) {
+			NEXT_ARG();
+			if (get_s64(&base_time, *argv, 10)) {
+				PREV_ARG();
+				break;
+			}
+		}
+
+	if (base_time)
+		addattr_l(n, 1024, TCA_TAPRIO_ATTR_SCHED_BASE_TIME, &base_time, sizeof(base_time));
+
+
+	if (strcmp(*argv, "num_tc") == 0) {
+			NEXT_ARG();
+			if (get_u8(&opt.num_tc, *argv, 10)) {
+				fprintf(stderr, "Illegal \"num_tc\"\n");
+				return -1;
+			}
+		} 
+
+	if (opt.num_tc > 0)
+		addattr_l(n, 1024, TCA_TAPRIO_ATTR_PRIOMAP, &opt, sizeof(opt));
