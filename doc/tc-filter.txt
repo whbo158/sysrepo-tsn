@@ -1,0 +1,358 @@
+
+tftp -g -r nxf24402/netopeer.tgz 192.168.2.1
+tftp -g -r nxf24402/myapp 192.168.2.1
+
+tftpboot 82000000 nxf24402/sdcard_ubuntu.img
+
+tftpboot 82000000 nxf24402/sdcard-new.img
+
+tftpboot 82000000 nxf48758/sdcard-hxl.img
+
+scp myapp nxf24402@star:/tftpboot/nxf24402
+
+mmmc dev 1
+mmc info 
+mmc version  -4G
+
+[‎2020/‎3/‎5 9:59]  Jerry Huang:  
+qixis_reset sd 
+Board: LS1028AE Rev1.0-RDB, Version: C, boot from NOR 
+=> mmcinfo
+Device: FSL_SDHC
+Manufacturer ID: 2
+OEM: 544d
+Name: SA32G
+Bus Speed: 50000000
+Mode : SD High Speed (50MHz)
+Rd Block Len: 512
+SD version 3.0
+High Capacity: Yes
+Capacity: 28.8 GiB
+Bus Width: 4-bit
+Erase Group Size: 512 Bytes 
+ 
+
+
+[‎2020/‎3/‎5 10:00]  Jerry Huang:  
+=> mmc dev 1
+switch to partitions #0, OK
+mmc1(part 0) is current device
+=> mmcinfo
+Device: FSL_SDHC
+Manufacturer ID: 13
+OEM: 14e
+Name: Q2J55
+Bus Speed: 52000000
+Mode : MMC High Speed (52MHz)
+Rd Block Len: 512
+MMC version 5.0
+High Capacity: Yes
+Capacity: 7.1 GiB
+Bus Width: 4-bit
+Erase Group Size: 512 KiB
+HC WP Group Size: 8 MiB
+User Capacity: 7.1 GiB WRREL
+Boot Capacity: 2 MiB ENH
+RPMB Capacity: 4 MiB ENH 
+ 
+
+
+[‎2020/‎3/‎5 10:02]  Jerry Huang:  
+400MB
+0xC 8000‬ 
+ 
+[‎2020/‎3/‎5 10:03]  Jerry Huang:  
+mmc erase 0 0x100000 
+mmc write 0xxxxx 0 0x100000 
+ 
+[‎2020/‎3/‎5 10:04]  Jerry Huang:  
+qixis_reset sd 
+
+usb start
+setenv ethact asix_eth
+tftpboot 82000000 nxf24402/sdcard.img
+
+mmc erase 0 0x160000 
+mmc write 82000000 0 0x160000 
+qixis_reset sd 
+
+
+[    2.971468] spi-nor spi0.0: mt35xu02g (262144 Kbytes)
+[    2.981085] libphy: Fixed MDIO Bus: probed
+[    2.985699] tun: Universal TUN/TAP device driver, 1.6
+[    2.990937] mscc_felix 0000:00:00.5: Adding to iommu group 1
+[    2.996821] mscc_felix 0000:00:00.5: Failed to register DSA switch: -517
+[    3.003991] thunder_xcv, ver 1.0
+[    3.007246] thunder_bgx, ver 1.0
+
+
+
+http://sun.ap.freescale.net//lars_logs/b45279/LS1028ARDB_UBOOT_LTS_LE_64BIT_UBUNTU_lttng/report_LS1028ARDB_UBOOT_LTS_LE_64BIT_UBUNTU_lttng_2020-03-02_17-35-55.html
+
+
+
+b45279@star:/tftpboot/b45279/openil/ls1028ardb/rc3$ bft port -l ls1028ardb-4
+name: ls1028ardb-4 | ip: 192.168.2.42 | mac: 00:e0:0c:00:16:xx
+LS1028ARDB-4_QSGMII1        MRV2_1:8
+LS1028ARDB-4_QSGMII2        MRV6_2:27
+LS1028ARDB-4_SD             Sandisk_16G
+LS1028ARDB-4_SGMII1         MRV6_3:34
+LS1028ARDB-4_USB            Sandisk_16G
+LS1028ARDB-4_USBETH         NW_1:17
+LS1028ARDB-4_serial0        OG_3:15
+b45279@star:/tftpboot/b45279/openil/ls1028ardb/rc3$ bft map -m 'LS1028ARDB-4_QSGMII1,spirent1g' -c 
+
+QSGMII1 swp0
+QSGMII2 swp1
+
+tc qdisc add dev swp0 ingress
+
+ok: tc filter add dev swp0 protocol ip parent ffff: flower skip_sw src_ip 192.85.1.2 action drop
+
+[root@OpenIL-LS1028ARDB:~]# tc filter list dev swp0 parent ffff:
+filter protocol ip pref 49152 flower
+filter protocol ip pref 49152 flower handle 0x1
+  eth_type ipv4
+  src_ip 192.85.1.2
+  skip_sw
+        action order 1: gact action drop
+         random type none pass val 0
+         index 1 ref 1 bind 1
+
+tc filter del dev swp0 parent ffff: pref 49152
+
+tc filter add dev swp0 parent ffff: protocol ip flower skip_sw src_ip 192.85.1.3 action police rate 100Mbit burst 1000
+
+tc filter add dev swp0 protocol ip parent ffff: flower skip_sw src_ip 192.85.1.2 action drop
+
+
+error: tc filter add dev swp0 protocol 802.1Q parent ffff: flower skip_sw src_mac 00:10:94:00:00:02 action drop
+
+
+
+[root@OpenIL-LS1028ARDB:~]# tc filter list dev swp0 parent ffff:
+filter protocol 802.1Q pref 49150 flower
+filter protocol 802.1Q pref 49150 flower handle 0x1
+  src_mac 00:10:94:00:00:02
+  skip_sw
+        action order 1: gact action drop
+         random type none pass val 0
+         index 3 ref 1 bind 1
+
+filter protocol 802.1Q pref 49151 flower
+filter protocol 802.1Q pref 49151 flower handle 0x1
+  src_mac 00:10:94:00:00:02
+  skip_sw
+        action order 1: gact action drop
+         random type none pass val 0
+         index 2 ref 1 bind 1
+
+filter protocol ip pref 49152 flower
+filter protocol ip pref 49152 flower handle 0x1
+  eth_type ipv4
+  src_ip 192.85.1.2
+  skip_sw
+        action order 1: gact action drop
+         random type none pass val 0
+         index 1 ref 1 bind 1
+
+
+
+
+
+
+[root@OpenIL-LS1028ARDB:~]# ifconfig
+eno0      Link encap:Ethernet  HWaddr 82:1A:25:AC:FC:B8
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+eno2      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          inet addr:169.254.68.159  Bcast:169.254.255.255  Mask:255.255.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1532  Metric:1
+          RX packets:10004071 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:172 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:1560646431 (1.4 GiB)  TX bytes:50808 (49.6 KiB)
+
+eth2      Link encap:Ethernet  HWaddr 00:0E:C6:C9:5E:0F
+          inet addr:192.168.3.170  Bcast:192.168.3.255  Mask:255.255.252.0
+          inet6 addr: fe80::454a:4b68:d5be:876a/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:11044 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:36 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:1225786 (1.1 MiB)  TX bytes:6548 (6.3 KiB)
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+swp0      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          inet addr:169.254.24.63  Bcast:169.254.255.255  Mask:255.255.0.0
+          inet6 addr: fe80::97d9:8601:e8b5:db5b/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:10004010 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:90 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:1100441100 (1.0 GiB)  TX bytes:25767 (25.1 KiB)
+
+swp1      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+swp2      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+swp3      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+
+
+
+[root@OpenIL-LS1028ARDB:~]# ifconfig
+eno0      Link encap:Ethernet  HWaddr 82:1A:25:AC:FC:B8
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+eno2      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          inet addr:169.254.68.159  Bcast:169.254.255.255  Mask:255.255.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1532  Metric:1
+          RX packets:10013972 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:174 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:1562191202 (1.4 GiB)  TX bytes:51534 (50.3 KiB)
+
+eth2      Link encap:Ethernet  HWaddr 00:0E:C6:C9:5E:0F
+          inet addr:192.168.3.170  Bcast:192.168.3.255  Mask:255.255.252.0
+          inet6 addr: fe80::454a:4b68:d5be:876a/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:11196 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:36 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:1246533 (1.1 MiB)  TX bytes:6548 (6.3 KiB)
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+swp0      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          inet addr:169.254.24.63  Bcast:169.254.255.255  Mask:255.255.0.0
+          inet6 addr: fe80::97d9:8601:e8b5:db5b/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:10013910 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:91 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:1101530100 (1.0 GiB)  TX bytes:26122 (25.5 KiB)
+
+swp1      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+swp2      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+swp3      Link encap:Ethernet  HWaddr DA:42:9F:45:DE:43
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+[root@OpenIL-LS1028ARDB:~]#
+
+
+
+nxf24402@star:~$ bft map -m 'LS1028ARDB-4_QSGMII1,spirent1g' -c
+Mapped:          LS1028ARDB-4_QSGMII1 -> spirent1g (resource)
+name: LS1028ARDB-4 | ip: 192.168.2.42 | mac: 00:e0:0c:00:16:xx
+LS1028ARDB-4_QSGMII1        Spirent_2:2
+LS1028ARDB-4_QSGMII2        MRV6_2:27
+LS1028ARDB-4_SD             Sandisk_16G
+LS1028ARDB-4_SGMII1         MRV6_3:34
+LS1028ARDB-4_USB            Sandisk_16G
+LS1028ARDB-4_USBETH         NW_1:17
+LS1028ARDB-4_serial0        OG_3:15
+
+
+whb@whb-OptiPlex-790:linux-OpenIL-v5.4.3$ git diff
+diff --git a/configs/nxp_ls1028ardb-64b_defconfig b/configs/nxp_ls1028ardb-64b_defconfig
+index c66b69b2f..75cc33065 100644
+--- a/configs/nxp_ls1028ardb-64b_defconfig
++++ b/configs/nxp_ls1028ardb-64b_defconfig
+@@ -35,8 +35,8 @@ BR2_TARGET_UBOOT_ENVIMAGE_SIZE="0x2000"
+ # Kernel
+ BR2_LINUX_KERNEL=y
+ BR2_LINUX_KERNEL_CUSTOM_GIT=y
+-BR2_LINUX_KERNEL_CUSTOM_REPO_URL="ssh://git@bitbucket.sw.nxp.com/dnind/industry-linux.git"
+-BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="LSDK-19.09-V4.19"
++BR2_LINUX_KERNEL_CUSTOM_REPO_URL="ssh://git@bitbucket.sw.nxp.com/~nxf24402/industry-linux-5.4.3.git"
++BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION="OpenIL-v5.4.3"
+ BR2_LINUX_KERNEL_USE_ARCH_DEFAULT_CONFIG=y
+ BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(LINUX_DIR)/arch/arm64/configs/lsdk.config board/nxp/ls1028ardb/linux.config board/nxp/common/linux-4_9-docker.config board/nxp/common/linux-4_9-xenomai.config"
+ BR2_LINUX_KERNEL_DTS_SUPPORT=y
+whb@whb-OptiPlex-790:linux-OpenIL-v5.4.3$
+whb@whb-OptiPlex-790:linux-OpenIL-v5.4.3$
+whb@whb-OptiPlex-790:linux-OpenIL-v5.4.3$ git remote -vv
+origin  ssh://git@bitbucket.sw.nxp.com/dnind/openil.git (fetch)
+origin  ssh://git@bitbucket.sw.nxp.com/dnind/openil.git (push)
+
+disable igh_ethercat !!!!!!!!!!!!!!!
+
+https://cdn.kernel.org/pub/linux/utils/rt-tests/older/rt-tests-1.6.tar.gz
+
+>>> rt-tests 1.6 Downloading
+--2020-03-05 15:00:41--  https://cdn.kernel.org/pub/linux/utils/rt-tests/rt-tests-1.6.tar.xz
+Resolving apac.nics.nxp.com (apac.nics.nxp.com)... 92.121.140.44, 92.121.140.43
+Connecting to apac.nics.nxp.com (apac.nics.nxp.com)|92.121.140.44|:8080... connected.
+Proxy request sent, awaiting response... 404 Not Found
+2020-03-05 15:00:41 ERROR 404: Not Found.
+
+
+--2020-03-05 15:00:41--  http://sources.buildroot.net/rt-tests-1.6.tar.xz
+Resolving apac.nics.nxp.com (apac.nics.nxp.com)... 92.121.140.44, 92.121.140.43
+Connecting to apac.nics.nxp.com (apac.nics.nxp.com)|92.121.140.44|:8080... connected.
+Proxy request sent, awaiting response... 404 Not Found
+2020-03-05 15:00:42 ERROR 404: Not Found.
+
+
+
+ 
+
+ 
+
+
+

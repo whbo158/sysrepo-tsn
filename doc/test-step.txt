@@ -1,0 +1,58 @@
+
+1. connect to star server
+
+	ssh ${USERNAME}@10.192.208.10
+
+2. reserve board in boardfarm
+
+	bft query -b ls1028ardb
+	bft reserve ls1028ardb-4
+
+3. map port with testcenter
+
+	bft port -l ls1028ardb-4
+	bft map -m 'LS1028ARDB-4_QSGMII1,spirent1g' -c 
+
+	result:
+	$ bft map -m 'LS1028ARDB-4_QSGMII1,spirent1g' -c
+	Mapped:          LS1028ARDB-4_QSGMII1 -> spirent1g (resource)
+	name: LS1028ARDB-4 | ip: 192.168.2.42 | mac: 00:e0:0c:00:16:xx
+	LS1028ARDB-4_QSGMII1        Spirent_2:6
+	LS1028ARDB-4_QSGMII2        MRV6_2:27
+	LS1028ARDB-4_SD             Sandisk_16G
+	LS1028ARDB-4_SGMII1         MRV6_3:34
+	LS1028ARDB-4_USB            Sandisk_16G
+	LS1028ARDB-4_USBETH         NW_1:17
+	LS1028ARDB-4_serial0        OG_3:15
+	
+	Note: QSGMII1--swp0, QSGMII2--swp1
+
+4. connect board in boardfarm
+
+	bft connect ls1028ardb-4
+	
+5. reset board and update sdcard
+
+	=> usb start
+	=> setenv ethact asix_eth
+	=> ping 192.168.2.1
+	
+	=> tftpboot 82000000 ${USERNAME}/sdcard.img  // tftpboot 82000000 nxf24402/sdcard.img
+	=> mmc erase 0 0x200000  // (file size in bytes / 512)
+	=> mmc write 82000000 0 0x200000
+
+	=> qixis_reset sd 
+	
+6. test filter
+	# tc qdisc add dev swp0 ingress
+	# tc filter add dev swp0 protocol ip parent ffff: flower skip_sw src_ip 192.85.1.2 action drop
+	
+	# tc filter list dev swp0 parent ffff:
+	filter protocol ip pref 49152 flower
+	filter protocol ip pref 49152 flower handle 0x1
+	  eth_type ipv4
+	  src_ip 192.85.1.2
+	  skip_sw
+			action order 1: gact action drop
+			 random type none pass val 0
+			 index 1 ref 1 bind 1

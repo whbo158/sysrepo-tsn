@@ -3,6 +3,47 @@ question:
 1. ip, should add if_name?
 2. 
 
+
+$ sudo apt install -y git cmake build-essential bison autoconf dh-autoreconf flex
+$ sudo apt install -y libavl-dev libprotobuf-c-dev protobuf-c-compiler zlib1g-dev
+$ sudo apt install -y libgcrypt20-dev libssh-dev libev-dev libpcre3-dev
+
+https://linux.nxdi.nxp.com/patchwork/patch/69361/ 
+https://linux.nxdi.nxp.com/patchwork/patch/69363/ 
+
+bridge vlan add vid ${vid} dev ${port} ${flags} 
+FW: police action support on ocelot flower driver 
+
+https://www.kernel.org/doc/html/latest/networking/dsa/dsa.html
+
+Documentation/networking/dsa/sja1105.rst 
+
+https://linux.nxdi.nxp.com/patchwork/project/linux-devel/list/?page=2
+
+http://man7.org/linux/man-pages/man8/tc.8.html
+
+[‎2020/‎3/‎30 17:45]  Xiaoliang Yang:  
+tc qdisc add dev swp0 ingress
+tc filter add dev swp0 \
+     protocol 802.1Q \
+     parent ffff: \
+     flower \
+     skip_sw \
+     vlan_id XXX \
+     vlan_prio 6 \
+     action vlan \
+     modify id 0 priority 5 
+
+https://jira.sw.nxp.com/browse/QLINUX-13645 
+ 
+ 
+ Usage example:
+#tc qdisc add dev eth3 ingress
+#tc filter add dev eth3 protocol 802.1Q parent ffff: flower skip_sw src_mac 02:25:d0:e2:18:50 action drop
+#tc filter add dev eth3 parent ffff: protocol ip flower skip_sw src_ip 192.168.2.1 action police rate 100Mbit burst 10000
+#tc filter list dev eth3 parent ffff:
+#tc filter del dev eth3 parent ffff: pref 49150
+
 export DIR="drivers/net/dsa/ net/dsa/ drivers/net/ethernet/mscc/"
 
 ndo_setup_tc
@@ -243,6 +284,8 @@ sudo sysrepoctl -i ./yang/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-preemption
 sudo sysrepoctl -i ./yang/standard/ieee/draft/802.1/Qcw/ieee802-dot1q-sched.yang
 
 ip link add name switch type bridge
+ip link del dev switch
+
 ip link set switch up
 ip link set swp0 master switch && ip link set swp0 up
 ip link set swp1 master switch && ip link set swp1 up
@@ -291,7 +334,7 @@ sudo ifconfig vlan88 up
 
 ip link add name switch0 type bridge
 
-ip link add name vethmy0 type veth peer name vethmy1
+sudo ip link add name vethmy0 type veth peer name vethmy1
 
 sudo vconfig add vethmy0 100
 sudo brctl addbr wmybr0
