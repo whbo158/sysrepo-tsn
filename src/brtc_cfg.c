@@ -57,44 +57,6 @@ static struct item_cfg sitem_conf;
 static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
 
-static int set_inet_vlan(char *ifname, int vid, bool addflag)
-{
-	int ret = 0;
-	int sockfd = 0;
-	struct vlan_ioctl_args ifr;
-	size_t max_len = sizeof(ifr.device1);
-
-	if (!ifname)
-		return -1;
-
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0) {
-		PRINT("create socket failed! ret:%d\n", sockfd);
-		return -2;
-	}
-
-	memset(&ifr, 0, sizeof(ifr));
-	ifr.u.VID = vid;
-
-	if (addflag) {
-		ifr.cmd = ADD_VLAN_CMD;
-		snprintf(ifr.device1, max_len, "%s", ifname);
-	} else {
-		ifr.cmd = DEL_VLAN_CMD;
-		snprintf(ifr.device1, max_len, "%s.%d", ifname, vid);
-	}
-
-	ret = ioctl(sockfd, SIOCSIFVLAN, &ifr);
-	close(sockfd);
-	if (ret < 0) {
-		PRINT("ioctl error! ret:%d, need root account!\n", ret);
-		PRINT("Note: this operation needs root permission!\n");
-		return -3;
-	}
-
-	return 0;
-}
-
 static int change_mac_format(char *pbuf)
 {
 	int i = 0;
@@ -115,13 +77,8 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 {
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
-	char *index = NULL;
-	uint8_t u8_val = 0;
-	uint32_t u32_val = 0;
-	uint64_t u64_val = 0;
 	char *strval = NULL;
 	char *nodename = NULL;
-	char err_msg[MSG_MAX_LEN] = {0};
 
 	if (!session || !value || !conf)
 		return rc;

@@ -118,50 +118,6 @@ int set_inet_mac(char *ifname, uint8_t *buf, int len)
 	return set_inet_cfg(ifname, SIOCSIFHWADDR, buf, len);
 }
 
-static int set_inet_updown(char *ifname, bool upflag)
-{
-	int ret = 0;
-	int sockfd = 0;
-	struct ifreq ifr = {0};
-	struct sockaddr_in *sin = NULL;
-
-	if (!ifname)
-		return -1;
-
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0)	{
-		PRINT("create socket failed! ret:%d\n", sockfd);
-		return -2;
-	}
-
-	memset(&ifr, 0, sizeof(ifr));
-	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "%s", ifname);
-
-	ret = ioctl(sockfd, SIOCGIFFLAGS, &ifr);
-	if (ret < 0) {
-		PRINT("get interface flag failed! ret:%d\n", ret);
-		return -3;
-	}
-
-	sin = (struct sockaddr_in *)&ifr.ifr_addr;
-	sin->sin_family = AF_INET;
-
-	if (upflag)
-		ifr.ifr_flags |= IFF_UP;
-	else
-		ifr.ifr_flags &= ~IFF_UP;
-
-	ret = ioctl(sockfd, SIOCSIFFLAGS, &ifr);
-	close(sockfd);
-	if (ret < 0) {
-		PRINT("ioctl error! ret:%d, need root account!\n", ret);
-		PRINT("Note: this operation needs root permission!\n");
-		return -4;
-	}
-
-	return 0;
-}
-
 int convert_mac_address(char *str, uint8_t *pbuf, int buflen)
 {
 	int i = 0;
@@ -200,18 +156,12 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 			struct item_cfg *conf)
 {
 	int rc = SR_ERR_OK;
-	sr_xpath_ctx_t xp_ctx = {0};
-	char *index = NULL;
-	uint8_t u8_val = 0;
-	uint32_t u32_val = 0;
-	uint64_t u64_val = 0;
+	sr_xpath_ctx_t xp_ctx = {0};;
 	char *strval = NULL;
 	char *nodename = NULL;
-	char err_msg[MSG_MAX_LEN] = {0};
 
 	if (!session || !value || !conf)
 		return rc;
-
 
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
@@ -347,11 +297,8 @@ cleanup:
 
 static int set_config(sr_session_ctx_t *session, bool abort)
 {
-	int i = 0;
 	int rc = SR_ERR_OK;
-	char *ifname = NULL;
 	uint8_t mac[IFHWADDRLEN];
-	struct sub_item_cfg *ipv4 = NULL;
 	struct item_cfg *conf = &sitem_conf;
 
 	if (abort) {
