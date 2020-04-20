@@ -115,13 +115,8 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 {
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
-	char *index = NULL;
-	uint8_t u8_val = 0;
-	uint32_t u32_val = 0;
-	uint64_t u64_val = 0;
 	char *strval = NULL;
 	char *nodename = NULL;
-	char err_msg[MSG_MAX_LEN] = {0};
 
 	if (!session || !value || !conf)
 		return rc;

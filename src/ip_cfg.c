@@ -201,13 +201,8 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 {
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
-	char *index = NULL;
-	uint8_t u8_val = 0;
-	uint32_t u32_val = 0;
-	uint64_t u64_val = 0;
 	char *strval = NULL;
 	char *nodename = NULL;
-	char err_msg[MSG_MAX_LEN] = {0};
 	struct sub_item_cfg *ipv4 = NULL;
 
 	if (!session || !value || !conf)
@@ -290,7 +285,6 @@ cleanup:
 
 static int parse_config(sr_session_ctx_t *session, const char *path)
 {
-	int i = 0;
 	int rc = SR_ERR_OK;
 	sr_change_oper_t oper;
 	char *ifname = NULL;
