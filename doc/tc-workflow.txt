@@ -41,6 +41,33 @@ BR2_TARGET_ROOTFS_CPIO_UIMAGE
 
 make qoriq-sysrepo-tsn
 
+
+=>tftp 81000000 u-boot-with-spl-pbl.bin
+=>mmc erase 8 0x500
+=>mmc write 0x81000000 8 0x500
+#then reset the board
+=>setenv bootargs 'root=/dev/ram0 rw ramdisk_size=50000000 console=ttyS0,115200  cma=64M@0x0-0xb0000000;'
+=>saveenv
+=>tftp 83000000 uImage
+=>tftp 88000000 rootfs.cpio.uboot
+=>tftp 8f000000 ls1021a-tsn.dtb
+=>bootm 83000000 88000000 8f000000
+
+BR2_PACKAGE_QORIQ_SYSREPO_TSN
+
+make qoriq-sysrepo-tsn
+
+# sysrepo-tsn
+
+BR2_PACKAGE_QORIQ_SYSREPO_TSN=y
+
+# basic packages and tools
+BR2_PACKAGE_MTD=y
+BR2_PACKAGE_MTD_MTD_DEBUG=y
+
+https://netopeer.liberouter.org/doc/sysrepo/master/index.html#datastores
+
+
 1. net/core/rtnetlink.c
 static int __net_init rtnetlink_net_init(struct net *net)
 {
