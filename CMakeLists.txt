@@ -41,16 +41,10 @@ set(SOURCES
 		src/main.c
 		src/common.c
 		src/qbv.c
-		src/qbu.c
-		src/cb_streamid.c
-		src/qci.c
-		src/qci_sf.c
-		src/qci_sg.c
-		src/qci_fm.c
+		src/brtc_cfg.c
 		src/ip_cfg.c
 		src/mac_cfg.c
 		src/vlan_cfg.c
-		src/brtc_cfg.c
 		src/file_mon.c)
 
 find_package(PkgConfig)

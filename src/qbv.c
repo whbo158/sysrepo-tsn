@@ -302,7 +302,6 @@ void clr_qbv(sr_val_t *value, struct sr_qbv_conf *qbvconf)
 					      &xp_ctx)))
 			qbvconf->qbvconf_ptr->maxsdu = 0;
 	}
-
 }
 
 int parse_qbv(sr_session_ctx_t *session, sr_val_t *value,
