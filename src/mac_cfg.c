@@ -156,7 +156,7 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 			struct item_cfg *conf)
 {
 	int rc = SR_ERR_OK;
-	sr_xpath_ctx_t xp_ctx = {0};;
+	sr_xpath_ctx_t xp_ctx = {0};
 	char *strval = NULL;
 	char *nodename = NULL;
 
