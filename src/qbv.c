@@ -29,6 +29,8 @@
 #include "main.h"
 #include "qbv.h"
 
+#define SYSREPO_TSN_TC
+
 static bool stc_cfg_flag;
 static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
@@ -187,7 +189,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 		printf("ok. cmd:%s\n", stc_cmd);
 	} else {
 		printf("failed! ret:0x%X cmd:%s\n", sysret, stc_cmd);
-		rc = SR_ERR_INVAL_ARG;
+		//rc = SR_ERR_INVAL_ARG;
 	}
 
 	snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
@@ -554,11 +556,13 @@ int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
-#if SYSREPO_TSN_TC
+#ifdef SYSREPO_TSN_TC
 	stc_cfg_flag = true;
 #else
 	stc_cfg_flag = false;
 #endif
+
+	printf("%s event:%d\n", __func__, event);
 
 	/* Only process called by gate-parameters is enough */
 	if (sr_xpath_node_name_eq(path, "ieee802-dot1q-sched:max-sdu-table"))

@@ -443,12 +443,14 @@ int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	char xpath[XPATH_MAX_LEN] = {0};
 
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
+	printf("%s event:%d\n", __func__, event);
 
 	switch (event) {
 	case SR_EV_CHANGE:
 		rc = parse_config(session, xpath);
 		break;
 	case SR_EV_ENABLED:
+		rc = parse_config(session, xpath);
 		break;
 	case SR_EV_DONE:
 		rc = set_config(session, false);

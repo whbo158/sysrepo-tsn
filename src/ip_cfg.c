@@ -411,6 +411,7 @@ int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 		rc = parse_config(session, xpath);
 		break;
 	case SR_EV_ENABLED:
+		rc = parse_config(session, xpath);
 		break;
 	case SR_EV_DONE:
 		rc = set_config(session, false);

@@ -8,7 +8,7 @@
 		    <type>edge-relay-component</type>
 			<bridge-vlan>
 				<vlan>
-					<vid>160</vid>
+					<vid>162</vid>
 					<name>vethmy0</name>
 				</vlan>
 			</bridge-vlan>

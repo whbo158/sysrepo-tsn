@@ -142,8 +142,9 @@ int main(int argc, char **argv)
 		goto cleanup;
 	}
 
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	/* Subscribe to QBV subtree */
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE;
+	//opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE;
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
 	strncat(path, QBV_GATE_PARA_XPATH, XPATH_MAX_LEN - strlen(path));
 	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
@@ -215,7 +216,7 @@ int main(int argc, char **argv)
 					 NULL, 0, opts, &bridge_subscription);
 #endif
 
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE;
+//	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE;
 
 	/* Subscribe to IP_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);

@@ -3,13 +3,13 @@
 	<bridge>
 		<name>switch</name>
 		<bridge-type>provider-edge-bridge</bridge-type>
-		<address>d6-ad-62-c1-68-ad</address>
+		<address>d6-ad-62-c2-69-ad</address>
 		<component>
 	        <name>eno0</name>
 	  	    <type>edge-relay-component</type>
 		    <brtc:traffic-control>
 	    		<brtc:tc-flower-table>
-	    	    	<brtc:tc-flower-id>1</brtc:tc-flower-id>
+	    	    	<brtc:tc-flower-id>3</brtc:tc-flower-id>
 	    		    <brtc:qdisc>
 	    	    	    <brtc:action>add</brtc:action>
 	    	    	    <brtc:interface>swp10</brtc:interface>
@@ -22,7 +22,7 @@
 	    	    		<brtc:parent>ffff:</brtc:parent>
 	    	    		<brtc:filter_type>flower</brtc:filter_type>
 	    	    		<brtc:skip_type>skip_sw</brtc:skip_type>
-	    	    		<brtc:vlan_id>103</brtc:vlan_id>
+	    	    		<brtc:vlan_id>104</brtc:vlan_id>
 	    	    		<brtc:priority>6</brtc:priority>
 	    	    		<brtc:action_spec>vlan modify id 0 priority 5</brtc:action_spec>
 	    	        </brtc:filter>
