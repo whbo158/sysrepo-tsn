@@ -77,7 +77,6 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 		struct sr_qbv_conf *qbvconf)
 {
 	int i = 0;
-	int num_tc = 0;
 	int count = 1;
 	int offset = 0;
 	pid_t sysret = 0;
@@ -87,16 +86,13 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	uint32_t interval = 0;
 	uint64_t base_time = 0;
 	uint64_t cycle_time = 0;
+	int num_tc = QBV_TC_NUM;
 	uint64_t cycle_time_extension = 0;
 	struct tsn_qbv_entry *entry = NULL;
 	struct tsn_qbv_conf *pqbv = qbvconf->qbvconf_ptr;
 
-	num_tc = pqbv->admin.control_list_length;
-	if (num_tc == 0)
+	if (pqbv->admin.control_list_length == 0)
 		return rc;
-
-	if (num_tc > QBV_TC_NUM)
-		num_tc = QBV_TC_NUM;
 
 	tsn_config_clr_qbv_by_tc(qbvconf);
 
@@ -104,7 +100,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	cycle_time = pqbv->admin.cycle_time;
 	cycle_time_extension = pqbv->admin.cycle_time_extension;
 
-	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc replace ");
+	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc add ");
 
 	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
@@ -123,7 +119,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	snprintf(stc_subcmd, MAX_CMD_LEN, "queues ");
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
-	for (i = 0; i < QBV_TC_NUM; i++) {
+	for (i = 0; i < num_tc; i++) {
 		offset = i;
 		snprintf(stc_subcmd, MAX_CMD_LEN, "%d@%d ", count, offset);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
@@ -151,13 +147,13 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
-	for (i = 0; i < num_tc; i++) {
+	for (i = 0; i < pqbv->admin.control_list_length; i++) {
 		entry = pqbv->admin.control_list;
 
 		gate_mask = entry[i].gate_state;
 		interval = entry[i].time_interval;
 
-		snprintf(stc_subcmd, MAX_CMD_LEN, "sched-entry S %d %d ",
+		snprintf(stc_subcmd, MAX_CMD_LEN, "sched-entry S %X %d ",
 				gate_mask, interval);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}

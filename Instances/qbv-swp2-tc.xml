@@ -14,7 +14,7 @@
 			<sched:gate-enabled>true</sched:gate-enabled>
 			<sched:admin-gate-states>0</sched:admin-gate-states>
 			<sched:admin-base-time>
-				<sched:seconds>1200</sched:seconds>
+				<sched:seconds>1700</sched:seconds>
 				<sched:fractional-seconds>5000</sched:fractional-seconds>
 			</sched:admin-base-time>
 			<sched:admin-cycle-time>
@@ -28,7 +28,7 @@
 				<sched:index>0</sched:index>
 				<sched:operation-name>sched:set-gate-states</sched:operation-name>
 				<sched:sgs-params>
-					<sched:gate-states-value>5</sched:gate-states-value>
+					<sched:gate-states-value>1</sched:gate-states-value>
 					<sched:time-interval-value>5000</sched:time-interval-value>
 				</sched:sgs-params>
 			</sched:admin-control-list>
@@ -36,7 +36,7 @@
 				<sched:index>1</sched:index>
 				<sched:operation-name>sched:set-gate-states</sched:operation-name>
 				<sched:sgs-params>
-					<sched:gate-states-value>7</sched:gate-states-value>
+					<sched:gate-states-value>2</sched:gate-states-value>
 					<sched:time-interval-value>6000</sched:time-interval-value>
 				</sched:sgs-params>
 			</sched:admin-control-list>
@@ -44,7 +44,7 @@
 				<sched:index>2</sched:index>
 				<sched:operation-name>sched:set-gate-states</sched:operation-name>
 				<sched:sgs-params>
-					<sched:gate-states-value>8</sched:gate-states-value>
+					<sched:gate-states-value>4</sched:gate-states-value>
 					<sched:time-interval-value>6000</sched:time-interval-value>
 				</sched:sgs-params>
 			</sched:admin-control-list>
@@ -52,7 +52,7 @@
 				<sched:index>3</sched:index>
 				<sched:operation-name>sched:set-gate-states</sched:operation-name>
 				<sched:sgs-params>
-					<sched:gate-states-value>9</sched:gate-states-value>
+					<sched:gate-states-value>8</sched:gate-states-value>
 					<sched:time-interval-value>9000</sched:time-interval-value>
 				</sched:sgs-params>
 			</sched:admin-control-list>
