@@ -26,15 +26,12 @@
 #include <cjson/cJSON.h>
 
 #include "common.h"
-#include "main.h"
+//#include "main.h"
 #include "qbv.h"
 
 static bool stc_cfg_flag;
 static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
-static char sif_name[IF_NAME_MAX_LEN];
-
-static int tsn_config_clr_qbv_by_tc(struct sr_qbv_conf *qbvconf);
 
 struct tsn_qbv_conf *malloc_qbv_memory(void)
 {
@@ -212,6 +209,7 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 		qbvconf->qbvconf_ptr->admin.cycle_time = time;
 	}
 
+	printf("stc_cfg_flag:%d\n", stc_cfg_flag);
 	if (stc_cfg_flag)
 		return tsn_config_qbv_by_tc(session, ifname, qbvconf);
 #ifndef TEST_PLUGIN
@@ -246,7 +244,7 @@ void clr_qbv(sr_val_t *value, struct sr_qbv_conf *qbvconf)
 	if (!nodename)
 		return;
 
-	if (stc_cfg_flag && (strlen(sif_name) > 0))
+	if (stc_cfg_flag)
 		tsn_config_del_qbv_by_tc(qbvconf, sif_name);
 
 	if (!strcmp(nodename, "gate-enabled")) {
