@@ -173,7 +173,6 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 		rc = SR_ERR_INVAL_ARG;
 	}
 
-	stc_cfg_flag = false;
 	snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 
 	return rc;
@@ -328,10 +327,6 @@ int parse_qbv(sr_session_ctx_t *session, sr_val_t *value,
 		u8_val = value->data.uint8_val;
 		qbvconf->qbvconf_ptr->admin.gate_states = u8_val;
 
-		if (u8_val == 0)
-			stc_cfg_flag = true;
-		else
-			stc_cfg_flag = false;
 	} else if (!strcmp(nodename, "admin-control-list-length")) {
 		u32_val = value->data.uint32_val;
 		qbvconf->qbvconf_ptr->admin.control_list_length = u32_val;
@@ -565,6 +560,12 @@ int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
+
+#if SYSREPO_TSN_TC
+	stc_cfg_flag = true;
+#else
+	stc_cfg_flag = false;
+#endif
 
 	/* Only process called by gate-parameters is enough */
 	if (sr_xpath_node_name_eq(path, "ieee802-dot1q-sched:max-sdu-table"))

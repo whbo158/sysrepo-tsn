@@ -103,6 +103,10 @@ if (NOT CHMOD_EXECUTABLE)
     message(FATAL_ERROR "Unable to find chmod, set CHMOD_EXECUTABLE manually.")
 endif()
 
+if (CONF_SYSREPO_TSN_TC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSYSREPO_TSN_TC")
+endif()
+
 # Command line options to be passed to `sysrepoctl` when working with modules
 # which should only be accessible by an administrator
 if (NOT SYSREPOCTL_ROOT_PERMS)
