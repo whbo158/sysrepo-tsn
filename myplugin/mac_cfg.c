@@ -201,17 +201,11 @@ static int parse_node(sr_session_ctx_t *session, sr_val_t *value,
 {
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
-	char *index = NULL;
-	uint8_t u8_val = 0;
-	uint32_t u32_val = 0;
-	uint64_t u64_val = 0;
 	char *strval = NULL;
 	char *nodename = NULL;
-	char err_msg[MSG_MAX_LEN] = {0};
 
 	if (!session || !value || !conf)
 		return rc;
-
 
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
@@ -347,11 +341,8 @@ cleanup:
 
 static int set_config(sr_session_ctx_t *session, bool abort)
 {
-	int i = 0;
 	int rc = SR_ERR_OK;
-	char *ifname = NULL;
 	uint8_t mac[IFHWADDRLEN];
-	struct sub_item_cfg *ipv4 = NULL;
 	struct item_cfg *conf = &sitem_conf;
 
 	if (abort) {
