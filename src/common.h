@@ -64,7 +64,8 @@
 #include <linux/if_vlan.h>
 #include <linux/sockios.h>
 
-#define PRINT printf("%s-%d: ", __func__, __LINE__);printf
+//#define PRINT printf("%s-%d: ", __func__, __LINE__);printf
+#define PRINT printf
 
 enum apply_status {
 	APPLY_NONE = 0,

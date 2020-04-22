@@ -562,8 +562,6 @@ int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	stc_cfg_flag = false;
 #endif
 
-	printf("%s event:%d\n", __func__, event);
-
 	/* Only process called by gate-parameters is enough */
 	if (sr_xpath_node_name_eq(path, "ieee802-dot1q-sched:max-sdu-table"))
 		return rc;

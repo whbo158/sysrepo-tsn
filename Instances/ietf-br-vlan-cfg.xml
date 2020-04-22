@@ -3,7 +3,7 @@
 	<bridge>
 		<name>switch</name>
 		<bridge-type>provider-edge-bridge</bridge-type>
-		<address>d6-ad-62-c2-69-ad</address>
+		<address>d6-ad-62-c2-39-ae</address>
 		<component>
 	        <name>eno0</name>
 	  	    <type>edge-relay-component</type>
