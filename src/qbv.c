@@ -36,8 +36,6 @@ static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
 static char sif_name[IF_NAME_MAX_LEN];
 
-static int tsn_config_clr_qbv_by_tc(struct sr_qbv_conf *qbvconf);
-
 struct tsn_qbv_conf *malloc_qbv_memory(void)
 {
 	struct tsn_qbv_conf *qbvconf_ptr;

@@ -24,7 +24,7 @@
 #define XPATH_MAX_LEN		300
 #define IF_NAME_MAX_LEN		20
 #define NODE_NAME_MAX_LEN	80
-#define MSG_MAX_LEN		100
+#define MSG_MAX_LEN		400
 
 #define TEST_PLUGIN
 
