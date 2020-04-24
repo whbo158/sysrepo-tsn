@@ -337,6 +337,7 @@ static int show_config(struct item_cfg *conf)
 
 static int set_config(sr_session_ctx_t *session, bool abort)
 {
+	pid_t sysret = 0;
 	int rc = SR_ERR_OK;
 	struct item_cfg *conf = &sitem_conf;
 
@@ -360,8 +361,11 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 
 	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc %s dev %s %s\n",
 		conf->qdisc.action, conf->qdisc.ifname, conf->qdisc.block);
-	printf("qdisc: %s\n", stc_cmd);
-	system(stc_cmd);
+	sysret = system(stc_cmd);
+	if ((sysret != -1) && WIFEXITED(sysret) && (WEXITSTATUS(sysret) == 0))
+		printf("qdisc: %s\n", stc_cmd);
+	else
+		return SR_ERR_INVAL_ARG;
 
 	snprintf(stc_cmd, MAX_CMD_LEN, "tc filter %s dev %s ",
 		conf->filter.action, conf->filter.ifname);
@@ -430,8 +434,11 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 				conf->filter.action_spec);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
-	printf("filter: %s\n", stc_cmd);
-	system(stc_cmd);
+	sysret = system(stc_cmd);
+	if ((sysret != -1) && WIFEXITED(sysret) && (WEXITSTATUS(sysret) == 0))
+		printf("filter: %s\n", stc_cmd);
+	else
+		return SR_ERR_INVAL_ARG;
 
 	return rc;
 }
@@ -447,12 +454,15 @@ int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	switch (event) {
 	case SR_EV_CHANGE:
 		rc = parse_config(session, xpath);
+		if (rc == SR_ERR_OK)
+			rc = set_config(session, false);
 		break;
 	case SR_EV_ENABLED:
 		rc = parse_config(session, xpath);
+		if (rc == SR_ERR_OK)
+			rc = set_config(session, false);
 		break;
 	case SR_EV_DONE:
-		rc = set_config(session, false);
 		break;
 	case SR_EV_ABORT:
 		rc = set_config(session, true);

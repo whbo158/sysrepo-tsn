@@ -211,6 +211,7 @@ cleanup:
 
 static int set_config(sr_session_ctx_t *session, bool abort)
 {
+	int ret = 0;
 	int rc = SR_ERR_OK;
 	struct item_cfg *conf = &sitem_conf;
 
@@ -222,7 +223,10 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	if (!conf->valid)
 		return rc;
 
-	set_inet_vlan(conf->ifname, conf->vid, true);
+	ret = set_inet_vlan(conf->ifname, conf->vid, true);
+	if (ret != 0)
+		return SR_ERR_INVAL_ARG;
+
 	PRINT("set_inet_vlan ifname:%s vid:%d\n", conf->ifname, conf->vid);
 
 	return rc;
@@ -239,12 +243,15 @@ int vlan_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	switch (event) {
 	case SR_EV_CHANGE:
 		rc = parse_config(session, xpath);
+		if (rc == SR_ERR_OK)
+			rc = set_config(session, false);
 		break;
 	case SR_EV_ENABLED:
 		rc = parse_config(session, xpath);
+		if (rc == SR_ERR_OK)
+			rc = set_config(session, false);
 		break;
 	case SR_EV_DONE:
-		rc = set_config(session, false);
 		break;
 	case SR_EV_ABORT:
 		rc = set_config(session, true);

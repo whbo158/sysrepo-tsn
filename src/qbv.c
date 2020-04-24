@@ -185,12 +185,11 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	sysret = system(stc_cmd);
 	if ((sysret != -1) && WIFEXITED(sysret) && (WEXITSTATUS(sysret) == 0)) {
 		printf("ok. cmd:%s\n", stc_cmd);
+		snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 	} else {
 		printf("failed! ret:0x%X cmd:%s\n", sysret, stc_cmd);
-		//rc = SR_ERR_INVAL_ARG;
+		rc = SR_ERR_INVAL_ARG;
 	}
-
-	snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 
 	return rc;
 }

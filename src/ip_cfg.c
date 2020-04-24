@@ -357,6 +357,7 @@ cleanup:
 static int set_config(sr_session_ctx_t *session, bool abort)
 {
 	int i = 0;
+	int ret = 0;
 	int rc = SR_ERR_OK;
 	char *ifname = NULL;
 	struct sub_item_cfg *ipv4 = NULL;
@@ -384,12 +385,18 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 		ifname = conf->ifname;
 
 		if (ipv4->ip.s_addr) {
-			set_inet_ip(conf->ifname, &ipv4->ip);
+			ret = set_inet_ip(conf->ifname, &ipv4->ip);
+			if (ret != 0)
+				return SR_ERR_INVAL_ARG;
+
 			PRINT("ip %s-%s\n", ifname, inet_ntoa(ipv4->ip));
 		}
 
 		if (ipv4->mask.s_addr) {
-			set_inet_mask(conf->ifname, &ipv4->mask);
+			ret = set_inet_mask(conf->ifname, &ipv4->mask);
+			if (ret != 0)
+				return SR_ERR_INVAL_ARG;
+
 			PRINT("mask %s-%s\n", ifname, inet_ntoa(ipv4->mask));
 		}
 	}
@@ -409,12 +416,15 @@ int ip_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	switch (event) {
 	case SR_EV_CHANGE:
 		rc = parse_config(session, xpath);
+		if (rc == SR_ERR_OK)
+			rc = set_config(session, false);
 		break;
 	case SR_EV_ENABLED:
 		rc = parse_config(session, xpath);
+		if (rc == SR_ERR_OK)
+			rc = set_config(session, false);
 		break;
 	case SR_EV_DONE:
-		rc = set_config(session, false);
 		break;
 	case SR_EV_ABORT:
 		rc = set_config(session, true);
