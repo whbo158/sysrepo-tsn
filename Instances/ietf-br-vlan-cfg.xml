@@ -31,7 +31,7 @@
 			<bridge-vlan>
 				<vlan>
 					<vid>149</vid>
-					<name>vethmy0</name>
+					<name>swp2</name>
 				</vlan>
 			</bridge-vlan>
 		</component>

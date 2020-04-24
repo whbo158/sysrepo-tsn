@@ -59,7 +59,7 @@ static int set_inet_vlan(char *ifname, int vid, bool addflag)
 	ret = ioctl(sockfd, SIOCSIFVLAN, &ifr);
 	close(sockfd);
 	if (ret < 0) {
-		PRINT("ioctl error! ret:%d!\n", ret);
+		PRINT("%s ioctl error! ret:%d\n", __func__, ret);
 		return -3;
 	}
 

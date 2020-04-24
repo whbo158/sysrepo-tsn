@@ -119,7 +119,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 	ret = ioctl(sockfd, req, &ifr);
 	close(sockfd);
 	if (ret < 0) {
-		PRINT("ioctl error! ret:%d!\n", ret);
+		PRINT("%s ioctl error! ret:%d\n", __func__, ret);
 		return -4;
 	}
 
