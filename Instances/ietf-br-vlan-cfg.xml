@@ -3,7 +3,7 @@
 	<bridge>
 		<name>br0</name>
 		<bridge-type>provider-edge-bridge</bridge-type>
-		<address>d6-ad-62-c2-49-ae</address>
+		<address>d6-ad-62-c8-49-ae</address>
 		<component>
 	        <name>eno0</name>
 	  	    <type>edge-relay-component</type>
@@ -28,12 +28,6 @@
 	    	        </brtc:filter>
 	    		</brtc:tc-flower-table>
 		    </brtc:traffic-control>
-			<bridge-vlan>
-				<vlan>
-					<vid>149</vid>
-					<name>swp2</name>
-				</vlan>
-			</bridge-vlan>
 		</component>
 	</bridge>
 </bridges>

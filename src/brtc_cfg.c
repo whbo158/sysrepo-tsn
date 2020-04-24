@@ -57,43 +57,6 @@ static struct item_cfg sitem_conf;
 static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
 
-static int set_inet_vlan(char *ifname, int vid, bool addflag)
-{
-	int ret = 0;
-	int sockfd = 0;
-	struct vlan_ioctl_args ifr;
-	size_t max_len = sizeof(ifr.device1);
-
-	if (!ifname)
-		return -1;
-
-	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0) {
-		PRINT("create socket failed! ret:%d\n", sockfd);
-		return -2;
-	}
-
-	memset(&ifr, 0, sizeof(ifr));
-	ifr.u.VID = vid;
-
-	if (addflag) {
-		ifr.cmd = ADD_VLAN_CMD;
-		snprintf(ifr.device1, max_len, "%s", ifname);
-	} else {
-		ifr.cmd = DEL_VLAN_CMD;
-		snprintf(ifr.device1, max_len, "%s.%d", ifname, vid);
-	}
-
-	ret = ioctl(sockfd, SIOCSIFVLAN, &ifr);
-	close(sockfd);
-	if (ret < 0) {
-		PRINT("%s ioctl error! ret:%d\n", __func__, ret);
-		return -3;
-	}
-
-	return 0;
-}
-
 static int change_mac_format(char *pbuf)
 {
 	int i = 0;
@@ -360,11 +323,8 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 
 	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc %s dev %s %s\n",
 		conf->qdisc.action, conf->qdisc.ifname, conf->qdisc.block);
-	sysret = system(stc_cmd);
-	if ((sysret != -1) && WIFEXITED(sysret) && (WEXITSTATUS(sysret) == 0))
-		printf("qdisc: %s\n", stc_cmd);
-	else
-		return SR_ERR_INVAL_ARG;
+	system(stc_cmd);
+	printf("qdisc: %s\n", stc_cmd);
 
 	snprintf(stc_cmd, MAX_CMD_LEN, "tc filter %s dev %s ",
 		conf->filter.action, conf->filter.ifname);
@@ -435,9 +395,10 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	}
 	sysret = system(stc_cmd);
 	if ((sysret != -1) && WIFEXITED(sysret) && (WEXITSTATUS(sysret) == 0))
-		printf("filter: %s\n", stc_cmd);
+		rc = SR_ERR_OK;
 	else
-		return SR_ERR_INVAL_ARG;
+		rc = SR_ERR_INVAL_ARG;
+	printf("filter: %s\n", stc_cmd);
 
 	return rc;
 }
