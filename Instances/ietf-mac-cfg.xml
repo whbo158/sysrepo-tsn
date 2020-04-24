@@ -1,10 +1,8 @@
-<interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"
-	    xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0"
-	    xmlns:ip="urn:ietf:params:xml:ns:yang:ietf-ip">
-	<interface>
-		<name>vethmy0</name>
-		<enabled>true</enabled>
-		<type xmlns:ianaift="urn:ietf:params:xml:ns:yang:iana-if-type">ianaift:ethernetCsmacd</type>
-		<phys-address>d6:ad:62:c1:60:f8</phys-address>
-	</interface>
-</interfaces-state>
+<bridges xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge"
+	xmlns:brtc="urn:nxp:dn:storage:yang:nxp-bridge-vlan-tc-flower">
+	<bridge>
+		<name>br0</name>
+		<bridge-type>provider-edge-bridge</bridge-type>
+		<address>d6-ad-62-c5-49-ae</address>
+	</bridge>
+</bridges>
