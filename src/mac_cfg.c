@@ -105,8 +105,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 	ret = ioctl(sockfd, req, &ifr);
 	close(sockfd);
 	if (ret < 0) {
-		PRINT("ioctl error! ret:%d, need root account!\n", ret);
-		PRINT("Note: this operation needs root permission!\n");
+		PRINT("ioctl error! ret:%d!\n", ret);
 		return -4;
 	}
 

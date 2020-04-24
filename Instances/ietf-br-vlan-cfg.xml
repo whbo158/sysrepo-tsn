@@ -1,9 +1,9 @@
 <bridges xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge"
 	xmlns:brtc="urn:nxp:dn:storage:yang:nxp-bridge-vlan-tc-flower">
 	<bridge>
-		<name>switch</name>
+		<name>br0</name>
 		<bridge-type>provider-edge-bridge</bridge-type>
-		<address>d6-ad-62-c2-39-ae</address>
+		<address>d6-ad-62-c2-49-ae</address>
 		<component>
 	        <name>eno0</name>
 	  	    <type>edge-relay-component</type>
@@ -12,12 +12,12 @@
 	    	    	<brtc:tc-flower-id>3</brtc:tc-flower-id>
 	    		    <brtc:qdisc>
 	    	    	    <brtc:action>add</brtc:action>
-	    	    	    <brtc:interface>swp10</brtc:interface>
+	    	    	    <brtc:interface>swp2</brtc:interface>
 	    	    	    <brtc:block>ingress</brtc:block>
 	    	        </brtc:qdisc>
 	    		    <brtc:filter>
 	    	    	    <brtc:action>add</brtc:action>
-	    	    	    <brtc:interface>swp10</brtc:interface>
+	    	    	    <brtc:interface>swp2</brtc:interface>
 	    	    		<brtc:protocol>802.1Q</brtc:protocol>
 	    	    		<brtc:parent>ffff:</brtc:parent>
 	    	    		<brtc:filter_type>flower</brtc:filter_type>
