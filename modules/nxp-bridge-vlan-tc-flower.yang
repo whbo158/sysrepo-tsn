@@ -103,12 +103,12 @@ module nxp-bridge-vlan-tc-flower {
       enum delete {
         value 3;
         description
-          "link qdisc";
+          "delete qdisc";
       }
       enum get {
         value 4;
         description
-          "delete qdisc";
+          "get qdisc";
       }
     }
   }
