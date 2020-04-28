@@ -203,7 +203,7 @@ int main(int argc, char **argv)
 	strncat(path, IPV4_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
 	rc = sr_subtree_change_subscribe(session, path, ip_subtree_change_cb,
-					NULL, 0, opts, &inet_subscription);
+					NULL, 0, opts, &if_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error subscribe ip_subtree_change_cb: %s\n",
 			sr_strerror(rc));
