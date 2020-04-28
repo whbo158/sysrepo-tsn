@@ -3,6 +3,6 @@
 	<bridge>
 		<name>br0</name>
 		<bridge-type>provider-edge-bridge</bridge-type>
-		<address>d6-ad-62-c5-49-ae</address>
+		<address>d6-ad-62-c6-49-ae</address>
 	</bridge>
 </bridges>
