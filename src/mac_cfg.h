@@ -28,7 +28,7 @@
 #define BRIDGE_COMPONENT_XPATH (BRIDGE_XPATH "/component")
 #define BRIDGE_ADDR_XPATH (BRIDGE_XPATH "/address")
 
-int mac_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
-	const char *path, sr_event_t event, uint32_t id, void *private_ctx);
+int mac_subtree_change_cb(sr_session_ctx_t *session, const char *path,
+	sr_notif_event_t event, void *private_ctx);
 
 #endif

@@ -169,7 +169,7 @@ static int parse_item(sr_session_ctx_t *session, char *path,
 	sr_val_t *values = NULL;
 	char err_msg[MSG_MAX_LEN] = {0};
 
-	rc = sr_get_items(session, path, 0, &values, &count);
+	rc = sr_get_items(session, path, &values, &count);
 	if (rc == SR_ERR_NOT_FOUND) {
 		/*
 		 * If can't find any item, we should check whether this
@@ -403,8 +403,8 @@ static int set_config(sr_session_ctx_t *session, bool abort)
 	return rc;
 }
 
-int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
-	const char *path, sr_event_t event, uint32_t id, void *private_ctx)
+int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *path,
+		sr_notif_event_t event, void *private_ctx)
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0};
@@ -412,7 +412,7 @@ int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
 
 	switch (event) {
-	case SR_EV_CHANGE:
+	case SR_EV_VERIFY:
 		rc = parse_config(session, xpath);
 		if (rc == SR_ERR_OK)
 			rc = set_config(session, false);
@@ -422,7 +422,7 @@ int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
 		if (rc == SR_ERR_OK)
 			rc = set_config(session, false);
 		break;
-	case SR_EV_DONE:
+	case SR_EV_APPLY:
 		break;
 	case SR_EV_ABORT:
 		rc = set_config(session, true);

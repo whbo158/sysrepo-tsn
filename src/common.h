@@ -31,6 +31,8 @@
 #include <sysrepo.h>
 #include <stdbool.h>
 #include <sysrepo/values.h>
+#include <sysrepo/plugins.h>
+#include <sysrepo/trees.h>
 #include "sysrepo/xpath.h"
 #ifndef TEST_PLUGIN
 #include <tsn/genl_tsn.h> /* must ensure no stdbool.h was included before */
@@ -105,7 +107,7 @@ void close_tsn_socket(void);
 int errno2sp(int errtsn);
 uint64_t cal_base_time(struct base_time_s *basetime);
 uint64_t cal_cycle_time(struct cycle_time_s *cycletime);
-void print_ev_type(sr_event_t event);
+void print_ev_type(sr_notif_event_t event);
 void print_subtree_changes(sr_session_ctx_t *session, const char *path);
 int str_to_num(int type, char *str, uint64_t *num);
 void pri2num(char *pri_str, int8_t *pri_num);

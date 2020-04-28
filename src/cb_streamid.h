@@ -21,7 +21,9 @@
 #ifndef __CB_STREAMID_H_
 #define __CB_STREAMID_H_
 
-//#include <tsn/genl_tsn.h>
+#ifndef TEST_PLUGIN
+#include <tsn/genl_tsn.h>
+#endif
 #include "common.h"
 
 #define CB_STREAMID_XPATH "/ieee802-dot1q-cb-stream-identification:streams"
@@ -43,6 +45,6 @@ struct std_cb_stream_list {
 };
 
 int cb_streamid_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_event_t event, void *private_ctx);
+		sr_notif_event_t event, void *private_ctx);
 
 #endif
