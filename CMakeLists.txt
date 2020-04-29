@@ -56,14 +56,14 @@ set(SOURCES
 find_package(PkgConfig)
 
 # get sysrepo plugins directory
-if (NOT SRPD_PLUGINS_PATH)
+if (NOT SR_PLUGINS_DIR)
     if (PKG_CONFIG_FOUND)
-        execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} "--variable=SRPD_PLUGINS_PATH" "libsysrepo" OUTPUT_VARIABLE SRPD_PLUGINS_PATH)
-        string(STRIP ${SRPD_PLUGINS_PATH} SRPD_PLUGINS_PATH)
+        execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} "--variable=SR_PLUGINS_DIR" "libsysrepo" OUTPUT_VARIABLE SR_PLUGINS_DIR)
+        string(STRIP ${SR_PLUGINS_DIR} SR_PLUGINS_DIR)
     endif()
 endif()
-if (NOT SRPD_PLUGINS_PATH)
-    message(FATAL_ERROR "Cannot get sysrepo plugins directory due to missing pkg-config, set SRPD_PLUGINS_PATH manually.")
+if (NOT SR_PLUGINS_DIR)
+    message(FATAL_ERROR "Cannot get sysrepo plugins directory due to missing pkg-config, set SR_PLUGINS_DIR manually.")
 endif()
 
 # find programs
