@@ -240,7 +240,7 @@ int qbu_config(sr_session_ctx_t *session, const char *path, bool abort)
 			continue;
 
 		if (strcmp(ifname, ifname_bak)) {
-			snprintf(ifname_bak, IF_NAME_MAX_LEN, ifname);
+			snprintf(ifname_bak, IF_NAME_MAX_LEN, "%s", ifname);
 			snprintf(xpath, XPATH_MAX_LEN,
 				 "%s[name='%s']/%s:*//*", IF_XPATH, ifname,
 				 QBU_MODULE_NAME);

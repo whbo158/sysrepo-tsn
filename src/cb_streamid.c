@@ -50,7 +50,7 @@ struct std_cb_stream_list *new_stream_list_node(char *port, uint32_t index)
 
 	stream_list->stream_ptr = stream_ptr;
 	stream_list->apply_st = APPLY_NONE;
-	snprintf(stream_list->stream_ptr->port, IF_NAME_MAX_LEN, port);
+	snprintf(stream_list->stream_ptr->port, IF_NAME_MAX_LEN, "%s", port);
 	stream_list->stream_ptr->index = index;
 	stream_list->next = NULL;
 	stream_list->pre = NULL;
@@ -487,7 +487,7 @@ int get_streamid_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if ((!index) || !strncmp(index, index_bak, IF_NAME_MAX_LEN))
 			continue;
 
-		snprintf(index_bak, IF_NAME_MAX_LEN, index);
+		snprintf(index_bak, IF_NAME_MAX_LEN, "%s", index);
 
 		stream_id = strtoul(index, NULL, 0);
 		cpname = sr_xpath_key_value(value->xpath, "component",

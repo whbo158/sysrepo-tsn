@@ -103,7 +103,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 
 	ret = ioctl(sockfd, SIOCGIFFLAGS, &ifr);
 	if (ret < 0) {
-		PRINT("get interface flag failed! ret:%d\n", ret);
+		PRINT("%s:get interface flag error:%d\n", __func__, ret);
 		return -3;
 	}
 
@@ -157,7 +157,7 @@ static int set_inet_updown(char *ifname, bool upflag)
 
 	ret = ioctl(sockfd, SIOCGIFFLAGS, &ifr);
 	if (ret < 0) {
-		PRINT("get interface flag failed! ret:%d\n", ret);
+		PRINT("%s:get interface flag ret:%d\n", __func__, ret);
 		return -3;
 	}
 

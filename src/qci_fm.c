@@ -171,7 +171,7 @@ int get_fm_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if ((!fm_id) || !strncmp(fm_id, fmid_bak, IF_NAME_MAX_LEN))
 			continue;
 
-		snprintf(fmid_bak, IF_NAME_MAX_LEN, fm_id);
+		snprintf(fmid_bak, IF_NAME_MAX_LEN, "%s", fm_id);
 
 		fmid = strtoul(fm_id, NULL, 0);
 		cpname = sr_xpath_key_value(value->xpath, "component",

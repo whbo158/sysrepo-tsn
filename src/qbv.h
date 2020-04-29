@@ -132,7 +132,6 @@ struct tsn_qbv_conf {
 #define QBV_MAX_SDU_XPATH "/ieee802-dot1q-sched:max-sdu-table"
 #define QBV_MODULE_NAME "ieee802-dot1q-sched"
 
-
 struct sr_qbv_conf {
 	bool qbv_en;
 	struct tsn_qbv_conf *qbvconf_ptr;

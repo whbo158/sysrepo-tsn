@@ -45,8 +45,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <stdbool.h>
 #include <pthread.h>
 #include <signal.h>
 #include <ctype.h>

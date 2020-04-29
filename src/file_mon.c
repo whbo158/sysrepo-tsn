@@ -155,7 +155,7 @@ static void *file_monitor(void *arg)
 	pthread_cleanup_push(free, wds);
 
 	for (i = 0; i < file_clbks.callbacks_count; i++) {
-		snprintf(path, MAX_FILE_PATH_LEN,
+		snprintf(path, MAX_FILE_PATH_LEN, "%s",
 			 file_clbks.callbacks[i].f_path);
 
 		/* if the file not exits, create it */
@@ -200,7 +200,7 @@ static void *file_monitor(void *arg)
 				if (wds[i].wd == e->wd)
 					break;
 
-			snprintf(path, MAX_FILE_PATH_LEN,
+			snprintf(path, MAX_FILE_PATH_LEN, "%s",
 				 file_clbks.callbacks[i].f_path);
 			if (e->mask & IN_IGNORED) {
 				/* the file was removed or replaced */
