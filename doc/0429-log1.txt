@@ -1,0 +1,98 @@
+[root@OpenIL:~]# ./sysrepo-tsn 
+WHB SYSREPO-TSN
+
+
+
+1. ip
+
+ip link add name swp2 type veth peer name swp3
+
+edit-config --target running --config=ietf-ip-cfg.xml ===
+edit-config --config=ietf-ip-cfg.xml running
+
+WARN: config_qbu_per_port sr_get_items: Item not found
+ip swp2-192.168.82.129
+mask swp2-255.255.255.0
+
+
+[root@OpenIL:~]# ifconfig swp2
+swp2      Link encap:Ethernet  HWaddr 1A:E6:D9:43:49:B1  
+          inet addr:192.168.82.129  Bcast:192.168.82.255  Mask:255.255.255.0
+          UP BROADCAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+
+
+2. mac
+
+ip link add name br0 type bridge
+
+edit-config --target running --config=ietf-mac-cfg.xml ===
+edit-config --config=ietf-mac-cfg.xml running
+
+
+set_inet_mac ifname:br0 mac:d6-ad-62-c6-49-ae
+
+[root@OpenIL:~]# ifconfig br0
+br0       Link encap:Ethernet  HWaddr D6:AD:62:C6:49:AE  
+          BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+3. vlan
+
+edit-config --target running --config=ietf-vlan-cfg.xml ===
+edit-config --config=ietf-vlan-cfg.xml running
+
+set_inet_vlan ioctl error! ret:-1
+set_inet_vlan ifname:swp2 vid:162
+set_inet_mac ifname:br0 mac:d6-ad-69-c6-63-ad
+WARN: parse_item sr_get_items: Item not found
+
+
+swp2.162  Link encap:Ethernet  HWaddr 1A:E6:D9:43:49:B1  
+          BROADCAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+4. br_tc
+edit-config --target running --config=ietf-br-vlan-cfg.xml  ===
+edit-config --config=ietf-br-vlan-cfg.xml running
+
+set_inet_mac ifname:br0 mac:d6-ad-62-c8-49-ae
+RTNETLINK answers: No such file or directory
+qdisc: tc qdisc add dev swp2 ingress
+
+RTNETLINK answers: Invalid argument
+We have an error talking to the kernel
+filter: tc filter add dev swp2 parent ffff: protocol 802.1Q flower skip_sw vlan_id 104 vlan_prio 6 action vlan modify id 0 priority 5 
+
+
+5. qbv-tc
+edit-config --target running --config=qbv-swp2-tc.xml  ===
+edit-config --config=qbv-swp2-tc.xml running
+
+nlmsg type is 2 length 60
+got error reply. error NO. is 2
+Cannot find device "swp2"
+cmd:tc qdisc del dev swp2 parent root handle 100
+Unknown qdisc "taprio", hence option "num_tc" is unparsable
+failed! ret:0x100 cmd:tc qdisc add dev swp2 parent root handle 100 taprio num_tc 8 map 0 1 2 3 4 5 6 7 queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 base-time 1700000005000 sched-entry S 1 5000 sched-entry S 2 6000 sched-entry S 4 6000 sched-entry S 8 9000 flags 2
+WARN: config_qbu_per_port sr_get_items: Item not found
+nlmsg type is 2 length 60
+got error reply. error NO. is 2
+WARN: /ietf-interfaces:interfaces/interface[name='swp2']/ieee802-dot1q-preemption:*//* was deleted, disable this Instance.
+nlmsg type is 2 length 60
+got error reply. error NO. is 2
+fatal reply error,  errno -2
+nonfatal reply error: errno 11
+set qbu error, Resource temporarily unavailable!
+
+

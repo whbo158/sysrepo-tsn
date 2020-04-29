@@ -12,7 +12,7 @@ https://www.baidu.com/link?url=Go40Fsc-k-2DX4QfAqbHyCB7h1IfnZuaQ5MiEW4ZykubS3qSP
 
 tftp -g -r mymodules.tgz 10.193.20.33
 tftp -g -r npmodules.tgz 10.193.20.33
-date -s "2020-04-20 17:28:00"
+date -s "2020-04-29 13:13:00"
 
  Instances/ietf-br-vlan-cfg.xml | 6 +++---
  Instances/ietf-ip-cfg.xml      | 2 +-
@@ -48,7 +48,16 @@ setenv ethaddr "00:04:9f:ef:06:06";setenv ethprime "eTSEC1";setenv scsidevs "0"
 BR2_TARGET_ROOTFS_CPIO_UIMAGE
 
 make qoriq-sysrepo-tsn-reconfigure
+make sysrepo-tsn-reconfigure
 
+make netopeer2-keystored-reinstall
+
+ls output/host/etc/keystored/keys/
+
+edit-config --target running --config=ietf-ip-cfg.xml
+edit-config --target running --config=qbv-swp2-tc.xml
+
+edit-config --config=qbv-swp2-tc.xml running
 
 =>tftp 81000000 u-boot-with-spl-pbl.bin
 =>mmc erase 8 0x500
