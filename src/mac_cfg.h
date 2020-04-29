@@ -3,7 +3,7 @@
  * @author hongbo wang
  * @brief header file for mac_cfg.c.
  *
- * Copyright 2019-2020 NXP
+ * Copyright 2020 NXP
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #define BRIDGE_COMPONENT_XPATH (BRIDGE_XPATH "/component")
 #define BRIDGE_ADDR_XPATH (BRIDGE_XPATH "/address")
 
-int mac_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
-	const char *path, sr_event_t event, uint32_t id, void *private_ctx);
+int mac_subtree_change_cb(sr_session_ctx_t *session, const char *path,
+	sr_notif_event_t event, void *private_ctx);
 
 #endif

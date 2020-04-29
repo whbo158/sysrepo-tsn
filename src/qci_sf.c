@@ -282,7 +282,7 @@ int parse_sf_per_port_per_id(sr_session_ctx_t *session, bool abort)
 			continue;
 		}
 
-		rc = sr_get_items(session, xpath, 0, &values, &count);
+		rc = sr_get_items(session, xpath, &values, &count);
 		if (rc == SR_ERR_NOT_FOUND) {
 			rc = SR_ERR_OK;
 			cur_node = cur_node->next;
@@ -396,9 +396,8 @@ out:
 	return rc;
 }
 
-int qci_sf_subtree_change_cb(sr_session_ctx_t *session, const char *mod_name,
-		const char *path, sr_event_t event,
-		uint32_t id, void *private_ctx)
+int qci_sf_subtree_change_cb(sr_session_ctx_t *session, const char *path,
+		sr_notif_event_t event, void *private_ctx)
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
@@ -406,13 +405,13 @@ int qci_sf_subtree_change_cb(sr_session_ctx_t *session, const char *mod_name,
 	snprintf(xpath, XPATH_MAX_LEN, "%s%s//*", BRIDGE_COMPONENT_XPATH,
 		 QCISF_XPATH);
 	switch (event) {
-	case SR_EV_CHANGE:
+	case SR_EV_VERIFY:
 		rc = qci_sf_config(session, xpath, false);
 		break;
 	case SR_EV_ENABLED:
 		rc = qci_sf_config(session, xpath, false);
 		break;
-	case SR_EV_DONE:
+	case SR_EV_APPLY:
 		free_list(sf_list_head, QCI_T_SF);
 		sf_list_head = NULL;
 		break;

@@ -3,7 +3,7 @@
  * @author hongbo wang
  * @brief header file for brtc_cfg.c.
  *
- * Copyright 2019-2020 NXP
+ * Copyright 2020 NXP
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@
 
 #define _PARA(a, l, v) snprintf((a), (l), "%s", (v))
 
-int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *module_name,
-	const char *path, sr_event_t event, uint32_t id, void *private_ctx);
+int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *path,
+		sr_notif_event_t event, void *private_ctx);
 
 #endif
