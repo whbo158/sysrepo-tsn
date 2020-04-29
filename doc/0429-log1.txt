@@ -2,6 +2,20 @@
 WHB SYSREPO-TSN
 
 
+netconf> edit-config --config=ietf-ip-cfg.xml running
+
+  Result OK
+netconf> 
+netconf> 
+netconf> edit-config --config=ietf-mac-cfg.xml running
+
+  Result OK
+netconf> 
+netconf> 
+netconf> edit-config --config=ietf-vlan-cfg.xml running
+
+  Result OK
+
 
 1. ip
 
@@ -96,3 +110,22 @@ nonfatal reply error: errno 11
 set qbu error, Resource temporarily unavailable!
 
 
+
+
+edit-config --config=qbv-swp5-tc.xml running
+
+nlmsg type is 2 length 60
+got error reply. error NO. is 2
+Cannot find device "swp5"
+cmd:tc qdisc del dev swp5 parent root handle 100
+Unknown qdisc "taprio", hence option "num_tc" is unparsable
+failed! ret:0x100 cmd:tc qdisc add dev swp5 parent root handle 100 taprio num_tc 8 map 0 1 2 3 4 5 6 7 queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 base-time 2900000005000 sched-entry S 80 100000 sched-entry S 7F 400000 flags 2
+WARN: config_qbu_per_port sr_get_items: Item not found
+nlmsg type is 2 length 60
+got error reply. error NO. is 2
+WARN: /ietf-interfaces:interfaces/interface[name='swp5']/ieee802-dot1q-preemption:*//* was deleted, disable this Instance.
+nlmsg type is 2 length 60
+got error reply. error NO. is 2
+fatal reply error,  errno -2
+nonfatal reply error: errno 11
+set qbu error, Resource temporarily unavailable!
