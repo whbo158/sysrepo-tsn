@@ -1,0 +1,40 @@
+diff --git a/configs/nxp_ls1021atsn_defconfig b/configs/nxp_ls1021atsn_defconfig
+index 6470e5dec9..e9112125ce 100644
+--- a/configs/nxp_ls1021atsn_defconfig
++++ b/configs/nxp_ls1021atsn_defconfig
+@@ -225,6 +225,9 @@ BR2_PACKAGE_PERL_FEEDGNUPLOT=y
+ BR2_PACKAGE_PRL=y
+ BR2_PACKAGE_NODEJS_LBT=y
+ 
++# sysrepo-tsn
++BR2_PACKAGE_SYSREPO_TSN=y
++
+ BR2_PACKAGE_LIBOPEN62541=y
+ BR2_PACKAGE_OPEN62541_EXAMPLES=y
+ BR2_PACKAGE_OPC_SJA1105=y
+diff --git a/package/sysrepo-tsn/Config.in b/package/sysrepo-tsn/Config.in
+index a28c444509..8c4684b54d 100644
+--- a/package/sysrepo-tsn/Config.in
++++ b/package/sysrepo-tsn/Config.in
+@@ -7,3 +7,6 @@ select BR2_PACKAGE_YANG_MODEL
+ 
+ help
+ 	application to configure tsn feature based on sysrepo.
++
++config BR2_PACKAGE_SYSREPO_TSN_TC
++	bool "enable tc command to configure tsn"
+diff --git a/package/sysrepo-tsn/sysrepo-tsn.mk b/package/sysrepo-tsn/sysrepo-tsn.mk
+index 8f8f94495a..dec62cb832 100644
+--- a/package/sysrepo-tsn/sysrepo-tsn.mk
++++ b/package/sysrepo-tsn/sysrepo-tsn.mk
+@@ -13,6 +13,10 @@ SYSREPO_TSN_DEPENDENCIES = netopeer2-server tsntool yang-model cjson
+ 
+ SYSREPO_TSN_MAKE_ENV = LD_LIBRARY_PATH=$(HOST_DIR)/usr/lib:$(HOST_DIR)/lib
+ 
++ifeq ($(BR2_PACKAGE_SYSREPO_TSN_TC),y)
++SYSREPO_TSN_CONF_OPTS += -DCONF_SYSREPO_TSN_TC=true
++endif
++
+ # copying models from standard model repo
+ define SYSREPO_TSN_COPY_BRIDGE_MODELS
+ 	$(INSTALL) -D -m 0755 $(BUILD_DIR)/yang-model-$(YANG_MODEL_VERSION)/standard/ietf/RFC/ietf-interfaces@2014-05-08.yang \

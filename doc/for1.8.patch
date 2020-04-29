@@ -1,0 +1,40 @@
+diff --git a/configs/nxp_ls1021atsn_defconfig b/configs/nxp_ls1021atsn_defconfig
+index cbeeed77df..fc39595d46 100644
+--- a/configs/nxp_ls1021atsn_defconfig
++++ b/configs/nxp_ls1021atsn_defconfig
+@@ -77,6 +77,9 @@ BR2_PACKAGE_QORIQ_PERL_FEEDGNUPLOT=y
+ BR2_PACKAGE_QORIQ_PRL=y
+ BR2_PACKAGE_QORIQ_NODEJS_LBT=y
+ 
++# sysrepo-tsn
++BR2_PACKAGE_QORIQ_SYSREPO_TSN=y
++
+ # basic packages and tools
+ BR2_PACKAGE_MTD=y
+ BR2_PACKAGE_MTD_MTD_DEBUG=y
+diff --git a/package/nxp/qoriq-sysrepo-tsn/Config.in b/package/nxp/qoriq-sysrepo-tsn/Config.in
+index 8c99b1b190..09e5f487e8 100644
+--- a/package/nxp/qoriq-sysrepo-tsn/Config.in
++++ b/package/nxp/qoriq-sysrepo-tsn/Config.in
+@@ -15,4 +15,7 @@ config BR2_PACKAGE_QORIQ_SYSREPO_TSN_VERSION
+ config BR2_PACKAGE_QORIQ_SYSREPO_TSN_SITE
+ 	string "qoriq-sysrepo-tsn site"
+ 
++config BR2_PACKAGE_QORIQ_SYSREPO_TSN_TC
++	bool "enable tc command to configure tsn"
++
+ endif
+diff --git a/package/nxp/qoriq-sysrepo-tsn/qoriq-sysrepo-tsn.mk b/package/nxp/qoriq-sysrepo-tsn/qoriq-sysrepo-tsn.mk
+index 03cb6ef2f0..843664233d 100644
+--- a/package/nxp/qoriq-sysrepo-tsn/qoriq-sysrepo-tsn.mk
++++ b/package/nxp/qoriq-sysrepo-tsn/qoriq-sysrepo-tsn.mk
+@@ -12,6 +12,9 @@ QORIQ_SYSREPO_TSN_LICENSE_FILES = LICENSE
+ QORIQ_SYSREPO_TSN_DEPENDENCIES = qoriq-netopeer2-server qoriq-tsntool qoriq-yang-model cjson
+ 
+ QORIQ_SYSREPO_TSN_MAKE_ENV = LD_LIBRARY_PATH=$(HOST_DIR)/usr/lib:$(HOST_DIR)/lib
++ifeq ($(BR2_PACKAGE_QORIQ_SYSREPO_TSN_TC),y)
++QORIQ_SYSREPO_TSN_CONF_OPTS += -DCONF_SYSREPO_TSN_TC=true
++endif
+ 
+ # copying models from standard model repo
+ define QORIQ_SYSREPO_TSN_COPY_BRIDGE_MODELS
