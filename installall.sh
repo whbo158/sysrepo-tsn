@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /home/whb/work/netopeer
+cd /home/whb/netopeer
 
 rm -fr libyang/build
 mkdir libyang/build

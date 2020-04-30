@@ -2,6 +2,9 @@
 WHB SYSREPO-TSN
 
 
+connect 10.193.20.80  --login root
+
+
 netconf> edit-config --config=ietf-ip-cfg.xml running
 
   Result OK
