@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 	sr_subscription_ctx_t *bridge_subscription = NULL;
 	char path[XPATH_MAX_LEN];
 	sr_subscr_options_t opts;
-
+printf("SYSREPO 0430\n");
 	exit_application = 0;
 
 	/* Check pid file */
