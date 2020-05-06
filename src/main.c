@@ -3,7 +3,7 @@
  * @author Xiaolin He
  * @brief Application to configure TSN function based on sysrepo datastore.
  *
- * Copyright 2019 NXP
+ * Copyright 2019-2020 NXP
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,10 +107,10 @@ void check_pid_file(void)
 int main(int argc, char **argv)
 {
 	int rc = SR_ERR_OK;
-	sr_conn_ctx_t *connection;
-	sr_session_ctx_t *session;
-	sr_subscription_ctx_t *if_subscription;
-	sr_subscription_ctx_t *bridge_subscription;
+	sr_conn_ctx_t *connection = NULL;
+	sr_session_ctx_t *session = NULL;
+	sr_subscription_ctx_t *if_subscription = NULL;
+	sr_subscription_ctx_t *bridge_subscription = NULL;
 	char path[XPATH_MAX_LEN];
 	sr_subscr_options_t opts;
 
@@ -154,8 +154,8 @@ int main(int argc, char **argv)
 
 	/* Subscribe to QBV subtree */
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
-	strncat(path, QBV_GATE_PARA_XPATH, XPATH_MAX_LEN);
+	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
+	strncat(path, QBV_GATE_PARA_XPATH, XPATH_MAX_LEN - strlen(path));
 	rc = sr_subtree_change_subscribe(session, path, qbv_subtree_change_cb,
 					 NULL, 0, opts, &if_subscription);
 	if (rc != SR_ERR_OK) {
@@ -165,8 +165,8 @@ int main(int argc, char **argv)
 	}
 
 	/* Subscribe to QBV subtree */
-	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
-	strncat(path, QBV_MAX_SDU_XPATH, XPATH_MAX_LEN);
+	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
+	strncat(path, QBV_MAX_SDU_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
 	rc = sr_subtree_change_subscribe(session, path, qbv_subtree_change_cb,
 					 NULL, 0, opts, &if_subscription);
@@ -177,8 +177,8 @@ int main(int argc, char **argv)
 	}
 
 	/* Subscribe to QBU subtree */
-	snprintf(path, XPATH_MAX_LEN, IF_XPATH);
-	strncat(path, QBU_XPATH, XPATH_MAX_LEN);
+	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
+	strncat(path, QBU_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
 	rc = sr_subtree_change_subscribe(session, path, qbu_subtree_change_cb,
 					 NULL, 0, opts, &if_subscription);
@@ -200,32 +200,32 @@ int main(int argc, char **argv)
 	}
 
 	/* Subscribe to CB-StreamID subtree */
-	snprintf(path, XPATH_MAX_LEN, BRIDGE_COMPONENT_XPATH);
-	strncat(path, CB_STREAMID_XPATH, XPATH_MAX_LEN);
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
+	strncat(path, CB_STREAMID_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
 	rc = sr_subtree_change_subscribe(session, path,
 					 cb_streamid_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
 
 	/* Subscribe to QCI-Stream-Filter subtree */
-	snprintf(path, XPATH_MAX_LEN, BRIDGE_COMPONENT_XPATH);
-	strncat(path, QCISF_XPATH, XPATH_MAX_LEN);
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
+	strncat(path, QCISF_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
 	rc = sr_subtree_change_subscribe(session, path,
 					 qci_sf_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
 
 	/* Subscribe to QCI-Stream-Gate subtree */
-	snprintf(path, XPATH_MAX_LEN, BRIDGE_COMPONENT_XPATH);
-	strncat(path, QCISG_XPATH, XPATH_MAX_LEN);
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
+	strncat(path, QCISG_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
 	rc = sr_subtree_change_subscribe(session, path,
 					 qci_sg_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
 
 	/* Subscribe to QCI-Flow-Meter subtree */
-	snprintf(path, XPATH_MAX_LEN, BRIDGE_COMPONENT_XPATH);
-	strncat(path, QCIFM_XPATH, XPATH_MAX_LEN);
+	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
+	strncat(path, QCIFM_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
 	rc = sr_subtree_change_subscribe(session, path,
 					 qci_fm_subtree_change_cb,
