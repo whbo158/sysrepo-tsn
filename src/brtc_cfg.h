@@ -1,9 +1,9 @@
 /**
- * @file qbv.h
- * @author Xiaolin He
- * @brief header file for qbv.c.
+ * @file brtc_cfg.h
+ * @author hongbo wang
+ * @brief header file for brtc_cfg.c.
  *
- * Copyright 2019 NXP
+ * Copyright 2020 NXP
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,30 +18,25 @@
  * limitations under the License.
  */
 
-#ifndef __QBV_H_
-#define __QBV_H_
+#ifndef __BRTC_CFG_H__
+#define __BRTC_CFG_H__
 
-#include <tsn/genl_tsn.h>
 #include "common.h"
 
-#define QBV_TC_NUM (8)
+#define BR_VLAN_XPATH ("/bridge-vlan")
+#define BR_TC_XPATH ("/nxp-bridge-vlan-tc-flower:traffic-control")
+#define MAX_VLAN_LEN (16)
+#define MAX_PARA_LEN (32)
+#define MAX_ACTION_LEN (128)
 #define MAX_CMD_LEN (512)
-#define SUB_PARA_LEN (64)
 
-#define QBV_GATE_PARA_XPATH "/ieee802-dot1q-sched:gate-parameters"
-#define QBV_MAX_SDU_XPATH "/ieee802-dot1q-sched:max-sdu-table"
-#define QBV_MODULE_NAME "ieee802-dot1q-sched"
+#define SUB_ITEM_NONE		(0)
+#define SUB_ITEM_QDISC		(1)
+#define SUB_ITEM_FILTER		(2)
 
-struct sr_qbv_conf {
-	bool qbv_en;
-	struct tsn_qbv_conf *qbvconf_ptr;
-	bool cycletime_f;
-	bool basetime_f;
-	struct cycle_time_s cycletime;
-	struct base_time_s basetime;
-};
+#define _PARA(a, l, v) snprintf((a), (l), "%s", (v))
 
-int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *path,
+int brtc_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 		sr_notif_event_t event, void *private_ctx);
 
 #endif
