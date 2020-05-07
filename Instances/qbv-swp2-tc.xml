@@ -14,7 +14,7 @@
 			<sched:gate-enabled>true</sched:gate-enabled>
 			<sched:admin-gate-states>0</sched:admin-gate-states>
 			<sched:admin-base-time>
-				<sched:seconds>1700</sched:seconds>
+				<sched:seconds>1200</sched:seconds>
 				<sched:fractional-seconds>5000</sched:fractional-seconds>
 			</sched:admin-base-time>
 			<sched:admin-cycle-time>

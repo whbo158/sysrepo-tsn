@@ -27,6 +27,8 @@
 #define QBV_TC_NUM (8)
 #define MAX_CMD_LEN (512)
 #define SUB_PARA_LEN (64)
+#define MAX_IF_NUM (64)
+#define BASE_HANDLE (100)
 
 #define QBV_GATE_PARA_XPATH "/ieee802-dot1q-sched:gate-parameters"
 #define QBV_MAX_SDU_XPATH "/ieee802-dot1q-sched:max-sdu-table"

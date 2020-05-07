@@ -34,6 +34,54 @@ static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
 static char sif_name[IF_NAME_MAX_LEN];
 
+struct muti_iftab {
+	char name[IF_NAME_MAX_LEN];
+};
+
+static int smuti_ifnum;
+static struct muti_iftab smuti_iftab[MAX_IF_NUM];
+
+static int tsn_get_if_handle(char *if_name)
+{
+	int i = 0;
+
+	if (!if_name)
+		return -1;
+
+	if (!smuti_ifnum)
+		return BASE_HANDLE;
+
+	for (i = 0; i < smuti_ifnum; i++) {
+		if (!strncmp(if_name, smuti_iftab[i].name, IF_NAME_MAX_LEN))
+			return BASE_HANDLE + i + 1;
+	}
+
+	return BASE_HANDLE;
+}
+
+static int tsn_add_if_name(char *if_name)
+{
+	int handle = 0;
+	char *pname = NULL;
+
+	if (!if_name)
+		return -1;
+
+	handle = tsn_get_if_handle(if_name);
+	if (handle > BASE_HANDLE) {
+		return handle;
+	}
+
+	if (smuti_ifnum >= MAX_IF_NUM)
+		return -2;
+
+	pname = smuti_iftab[smuti_ifnum].name;
+	snprintf(pname, IF_NAME_MAX_LEN, "%s", if_name);
+	smuti_ifnum++;
+
+	return smuti_ifnum - 1;
+}
+
 struct tsn_qbv_conf *malloc_qbv_memory(void)
 {
 	struct tsn_qbv_conf *qbvconf_ptr;
@@ -74,8 +122,13 @@ void free_qbv_memory(struct tsn_qbv_conf *qbvconf_ptr)
 static int tsn_config_del_qbv_by_tc(struct sr_qbv_conf *qbvconf, char *ifname)
 {
 	int rc = SR_ERR_OK;
+	int handle = 0;
 
 	if (!ifname)
+		return rc;
+
+	handle = tsn_get_if_handle(ifname);
+	if (handle <= BASE_HANDLE)
 		return rc;
 
 	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc del ");
@@ -83,7 +136,7 @@ static int tsn_config_del_qbv_by_tc(struct sr_qbv_conf *qbvconf, char *ifname)
 	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
-	snprintf(stc_subcmd, MAX_CMD_LEN, "parent root handle 100");
+	snprintf(stc_subcmd, MAX_CMD_LEN, "parent root handle %d", handle);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
 	system(stc_cmd);
@@ -97,6 +150,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 {
 	int i = 0;
 	int count = 1;
+	int handle = 0;
 	int offset = 0;
 	pid_t sysret = 0;
 	int rc = SR_ERR_OK;
@@ -113,6 +167,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	if (pqbv->admin.control_list_length == 0)
 		return rc;
 
+	tsn_add_if_name(ifname);
 	tsn_config_del_qbv_by_tc(qbvconf, ifname);
 
 	base_time = pqbv->admin.base_time;
@@ -124,10 +179,11 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
-	snprintf(stc_subcmd, MAX_CMD_LEN, "parent root handle 100 taprio ");
+	handle = tsn_get_if_handle(ifname);
+	snprintf(stc_subcmd, MAX_CMD_LEN, "parent root handle %d ", handle);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
-	snprintf(stc_subcmd, MAX_CMD_LEN, "num_tc %d map ", num_tc);
+	snprintf(stc_subcmd, MAX_CMD_LEN, "taprio num_tc %d map ", num_tc);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
 	for (i = 0; i < num_tc; i++) {
@@ -243,8 +299,10 @@ void clr_qbv(sr_val_t *value, struct sr_qbv_conf *qbvconf)
 	if (!nodename)
 		return;
 
-	if (stc_cfg_flag && (strlen(sif_name) > 0))
+	if (stc_cfg_flag && (strlen(sif_name) > 0)) {
 		tsn_config_del_qbv_by_tc(qbvconf, sif_name);
+		memset(sif_name, 0, sizeof(sif_name));
+	}
 
 	if (!strcmp(nodename, "gate-enabled")) {
 		qbvconf->qbv_en = false;
@@ -485,7 +543,8 @@ int config_qbv_per_port(sr_session_ctx_t *session, char *path, bool abort,
 			goto cleanup;
 	}
 config_qbv:
-	init_tsn_socket();
+	if (!stc_cfg_flag)
+		init_tsn_socket();
 	rc = tsn_config_qbv(session, ifname, &qbvconf);
 	close_tsn_socket();
 
@@ -538,10 +597,12 @@ int qbv_config(sr_session_ctx_t *session, const char *path, bool abort)
 			if (rc != SR_ERR_OK)
 				break;
 		}
+
 	}
 	if (rc == SR_ERR_NOT_FOUND)
 		rc = SR_ERR_OK;
 cleanup:
+
 	return rc;
 }
 
