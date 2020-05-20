@@ -117,8 +117,23 @@ int main(int argc, char **argv)
 	sr_subscription_ctx_t *bridge_subscription = NULL;
 	char path[XPATH_MAX_LEN];
 	sr_subscr_options_t opts;
+	int daemonize = 1;
 
 	exit_application = 0;
+
+	if ((argc >= 2) && !strncmp(argv[1], "-d", 2)) {
+		printf("Enter Debug Mode!\n");
+		daemonize = 0;
+	}
+
+	/* daemonize */
+	if (daemonize == 1) {
+		if (daemon(0, 0) != 0) {
+			printf("Daemonizing sysrepo-tsn failed (%s)",
+					strerror(errno));
+			return rc;
+		}
+	}
 
 	/* Check pid file */
 	check_pid_file();
@@ -292,7 +307,7 @@ int main(int argc, char **argv)
 	signal(SIGINT, sigint_handler);
 	signal(SIGPIPE, SIG_IGN);
 	while (!exit_application)
-		sleep(1000);  /* Or do some more useful work... */
+		sleep(1);  /* Or do some more useful work... */
 
 cleanup:
 	destroy_tsn_mutex();
