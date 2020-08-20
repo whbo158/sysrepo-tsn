@@ -1,0 +1,7 @@
+/mnt/vda3/test_netconf/openil_1028/output/build/qoriq-sysrepo-tsn-v0.2/CMakeFiles/install/strip.dir
+/mnt/vda3/test_netconf/openil_1028/output/build/qoriq-sysrepo-tsn-v0.2/CMakeFiles/install/local.dir
+/mnt/vda3/test_netconf/openil_1028/output/build/qoriq-sysrepo-tsn-v0.2/CMakeFiles/install.dir
+/mnt/vda3/test_netconf/openil_1028/output/build/qoriq-sysrepo-tsn-v0.2/CMakeFiles/list_install_components.dir
+/mnt/vda3/test_netconf/openil_1028/output/build/qoriq-sysrepo-tsn-v0.2/CMakeFiles/rebuild_cache.dir
+/mnt/vda3/test_netconf/openil_1028/output/build/qoriq-sysrepo-tsn-v0.2/CMakeFiles/edit_cache.dir
+/mnt/vda3/test_netconf/openil_1028/output/build/qoriq-sysrepo-tsn-v0.2/CMakeFiles/sysrepo-tsn.dir
