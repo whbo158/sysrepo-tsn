@@ -234,6 +234,7 @@ int main(int argc, char **argv)
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, CB_STREAMID_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
+	printf("WHB streamid path:%s\n", path);
 	rc = sr_subtree_change_subscribe(session, path,
 					 cb_streamid_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
@@ -242,6 +243,7 @@ int main(int argc, char **argv)
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCISF_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
+	printf("WHB sfid path:%s\n", path);
 	rc = sr_subtree_change_subscribe(session, path,
 					 qci_sf_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
@@ -250,6 +252,7 @@ int main(int argc, char **argv)
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCISG_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
+	printf("WHB sgid path:%s\n", path);
 	rc = sr_subtree_change_subscribe(session, path,
 					 qci_sg_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
@@ -258,6 +261,7 @@ int main(int argc, char **argv)
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCIFM_XPATH, XPATH_MAX_LEN - strlen(path));
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
+	printf("WHB flowmeter path:%s\n", path);
 	rc = sr_subtree_change_subscribe(session, path,
 					 qci_fm_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);

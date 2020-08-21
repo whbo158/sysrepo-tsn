@@ -61,6 +61,7 @@
 #include <linux/sockios.h>
 
 #define PRINT printf
+#define SYSREPO_TSN_TC
 
 enum apply_status {
 	APPLY_NONE = 0,

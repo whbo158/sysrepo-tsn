@@ -112,7 +112,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 
 	if (pqbv->admin.control_list_length == 0)
 		return rc;
-
+printf("WHB %s ok\n", __func__);
 	tsn_config_del_qbv_by_tc(qbvconf, ifname);
 
 	base_time = pqbv->admin.base_time;
