@@ -5,11 +5,11 @@
          xmlns:qci-augment="urn:ieee:std:802.1Q:yang:ieee802-dot1q-qci-augment"
          xmlns:psfp="urn:ieee:std:802.1Q:yang:ieee802-dot1q-psfp">
 	<bridge>
-        <name>switch</name>
+        <name>br1</name>
 	<bridge-type>provider-edge-bridge</bridge-type>
-	<address>01-ab-00-12-12-01</address>
+	<address>d6-ad-62-c6-49-ae</address>
         <component>
-            <name>swp0</name>
+            <name>swp2</name>
 	    <type>edge-relay-component</type>
             <sfsg:stream-filters>
                 <sfsg:stream-filter-instance-table>
@@ -20,7 +20,6 @@
                     <sfsg:filter-specification-list>
                         <sfsg:index>1</sfsg:index>
                         <sfsg:maximum-sdu-size>800</sfsg:maximum-sdu-size>
-                        <sfsg:flow-meter-ref>68</sfsg:flow-meter-ref>
                         <sfsg:stream-blocked-due-to-oversize-frame-enabled>false</sfsg:stream-blocked-due-to-oversize-frame-enabled>
                     </sfsg:filter-specification-list>
                 </sfsg:stream-filter-instance-table>

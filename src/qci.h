@@ -78,6 +78,16 @@ struct std_qci_list {
 	};
 };
 
+struct tc_qci_stream_para {
+	uint64_t dmac;
+	uint64_t smac;
+	uint16_t vid;
+	uint16_t sport;
+	uint16_t dport;
+	struct in_addr i4_addr;
+	char ifname[IF_NAME_MAX_LEN];
+};
+
 struct std_qci_list *new_list_node(enum qci_type type, char *port,
 		uint32_t id);
 void del_list_node(struct std_qci_list *node, enum qci_type type);

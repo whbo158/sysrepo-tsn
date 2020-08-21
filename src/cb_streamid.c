@@ -30,6 +30,7 @@
 #include "common.h"
 #include "main.h"
 #include "cb_streamid.h"
+#include "qci.h"
 
 struct std_cb_stream_list *stream_head;
 
@@ -503,6 +504,9 @@ int get_streamid_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if (!cpname)
 			continue;
 
+		snprintf(sqci_stream_para.ifname, IF_NAME_MAX_LEN,
+			"%s", cpname);
+
 		if (!stream_head) {
 			stream_head = new_stream_list_node(cpname,
 							   stream_id);
@@ -719,6 +723,7 @@ static int cb_streamid_show_para(void)
 {
 	struct tc_qci_stream_para *para = &sqci_stream_para;
 
+	printf("ifname:%s\n", para->ifname);
 	printf("dmac:%lX\n", para->dmac);
 	printf("smac:%lX\n", para->smac);
 	printf("vid:%d\n", para->vid);
