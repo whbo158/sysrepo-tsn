@@ -33,6 +33,8 @@
 
 struct std_cb_stream_list *stream_head;
 
+static struct tc_qci_stream_para sqci_stream_para;
+
 struct std_cb_stream_list *new_stream_list_node(char *port, uint32_t index)
 {
 	struct std_cb_stream_list *stream_list;
@@ -335,6 +337,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			stream->cbconf.para.iid.dmac = u64_val;
 		else if (stream->cbconf.type == STREAMID_NULL)
 			stream->cbconf.para.nid.dmac = u64_val;
+		sqci_stream_para.dmac = u64_val;
 	} else if (!strcmp(nodename, "source-address")) {
 		rc = parse_mac_address(value->data.string_val, &u64_val,
 				       err_msg, value->xpath);
@@ -344,6 +347,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			goto out;
 		}
 		stream->cbconf.para.sid.smac = u64_val;
+		sqci_stream_para.smac = u64_val;
 	} else if (!strcmp(nodename, "vlan-tagged")) {
 		rc = parse_vlan_tag(session, value, &u8_val);
 		if (rc != SR_ERR_OK)
@@ -361,6 +365,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			stream->cbconf.para.sid.vid = u16_val;
 		else if (stream->cbconf.type == STREAMID_IP)
 			stream->cbconf.para.iid.vid = u16_val;
+		sqci_stream_para.vid = u16_val;
 	} else if (!strcmp(nodename, "down-dest-address")) {
 		rc = parse_mac_address(value->data.string_val, &u64_val,
 				       err_msg, value->xpath);
@@ -410,6 +415,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			rc = SR_ERR_INVAL_ARG;
 			goto out;
 		}
+		sqci_stream_para.i4_addr.s_addr = i4_addr.s_addr;
 	} else if (!strcmp(nodename, "ipv6-address")) {
 		struct in6_addr i6_addr;
 
@@ -432,8 +438,10 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			stream->cbconf.para.iid.npt = 3;
 	} else if (!strcmp(nodename, "source-port")) {
 		stream->cbconf.para.iid.dscp = value->data.uint16_val;
+		sqci_stream_para.sport = value->data.uint16_val;
 	} else if (!strcmp(nodename, "dest-port")) {
 		stream->cbconf.para.iid.dscp = value->data.uint16_val;
+		sqci_stream_para.dport = value->data.uint16_val;
 	}
 
 out:
@@ -707,6 +715,19 @@ out:
 	return rc;
 }
 
+static int cb_streamid_show_para(void)
+{
+	struct tc_qci_stream_para *para = &sqci_stream_para;
+
+	printf("dmac:%lX\n", para->dmac);
+	printf("smac:%lX\n", para->smac);
+	printf("vid:%d\n", para->vid);
+	printf("dport:%X\n", para->dport);
+	printf("sport:%X\n", para->sport);
+	printf("ip:%s\n", inet_ntoa(para->i4_addr));
+	return 0;
+}
+
 /************************************************************************
  *
  * Callback for CB-Stream-Identification configuration.
@@ -724,6 +745,7 @@ printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	switch (event) {
 	case SR_EV_VERIFY:
 		rc = cb_streamid_config(session, xpath, false);
+		cb_streamid_show_para();
 		break;
 	case SR_EV_ENABLED:
 		rc = cb_streamid_config(session, xpath, false);
