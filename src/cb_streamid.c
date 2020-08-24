@@ -739,13 +739,17 @@ int cb_streamid_get_para(char *buf, int len)
 	struct tc_qci_stream_para *para = &sqci_stream_para;
 
 	if (!para->set_flag)
-		return -1;
+		return 0;
 
 	cb_streamid_show_para();
 
-	para->set_flag = false;
-
 	return 1;
+}
+
+int cb_streamid_clear_para(void)
+{
+	memset(&sqci_stream_para, 0, sizeof(sqci_stream_para));
+	return 0;
 }
 
 /************************************************************************

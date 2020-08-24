@@ -233,24 +233,35 @@ static void *qci_monitor_thread(void *arg)
 	static char buf[MAX_CMD_LEN];
 	int buf_len = MAX_CMD_LEN;
 	int len = 0;
-	int ret = 0;
+	int st = 0;
+	int fm = 0;
+
+	cb_streamid_clear_para();
+	qci_fm_clear_para();
 
 	while (true) {
 		len = 0;
 		buf_len = MAX_CMD_LEN;
 
-		ret = cb_streamid_get_para(buf, buf_len);
-		if (ret <= 0)
-			continue;
+		st = cb_streamid_get_para(buf, buf_len);
+	//	if ( <= 0)
+	//		goto loop_tag;
 
-		len += ret;
 	//	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc del ");
 
-		ret = qci_fm_get_para(buf + ret, buf_len - len);
-		if (ret <= 0)
-			continue;
+		fm = qci_fm_get_para(buf, buf_len);
+	//	if (ret <= 0)
+	//		goto loop_tag;
+	//
+		if (!st || !fm)
+			goto loop_tag;
 
 		printf("qci thread ok!\n");
+
+		cb_streamid_clear_para();
+		qci_fm_clear_para();
+
+loop_tag:
 		sleep(1);
 	}
 

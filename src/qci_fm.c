@@ -412,13 +412,17 @@ int qci_fm_get_para(char *buf, int len)
 	struct tc_qci_policer_para *para = &sqci_policer_para;
 
 	if (!para->set_flag)
-		return -1;
+		return 0;
 
 	qci_fm_show_para();
 
-	para->set_flag = false;
-
 	return 1;
+}
+
+int qci_fm_clear_para(void)
+{
+	memset(&sqci_policer_para, 0, sizeof(sqci_policer_para));
+	return 0;
 }
 
 int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,

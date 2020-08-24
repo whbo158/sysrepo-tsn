@@ -115,8 +115,10 @@ int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 int qci_init_thread(void);
 
 int cb_streamid_get_para(char *buf, int len);
+int cb_streamid_clear_para(void);
 
 int qci_fm_get_para(char *buf, int len);
+int qci_fm_clear_para(void);
 
 
 #endif
