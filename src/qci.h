@@ -79,6 +79,7 @@ struct std_qci_list {
 };
 
 struct tc_qci_stream_para {
+	bool set_flag;
 	uint64_t dmac;
 	uint64_t smac;
 	uint16_t vid;
@@ -89,6 +90,7 @@ struct tc_qci_stream_para {
 };
 
 struct tc_qci_policer_para {
+	bool set_flag;
 	uint32_t eir;  /* unit: bits per second */
 	uint32_t ebs;  /* unit: bytes */
 	uint32_t cir;
@@ -109,4 +111,12 @@ int qci_sg_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 		sr_notif_event_t event, void *private_ctx);
 int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 		sr_notif_event_t event, void *private_ctx);
+
+int qci_init_thread(void);
+
+int cb_streamid_get_para(char *buf, int len);
+
+int qci_fm_get_para(char *buf, int len);
+
+
 #endif

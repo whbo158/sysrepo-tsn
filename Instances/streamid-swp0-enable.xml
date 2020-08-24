@@ -10,7 +10,7 @@
 		    <type>edge-relay-component</type>
 		    <stream:streams>
 			<stream:stream-identity-table>
-			    <stream:index>1</stream:index>
+			    <stream:index>2</stream:index>
 			    <stream:stream-id-enabled>true</stream:stream-id-enabled>
 			    <stream:stream-handle>1</stream:stream-handle>
 			    <stream:identification-type>null</stream:identification-type>

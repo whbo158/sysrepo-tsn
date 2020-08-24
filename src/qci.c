@@ -227,3 +227,46 @@ void add_node2list(struct std_qci_list *list, struct std_qci_list *node)
 
 	last->next = node;
 }
+
+static void *qci_monitor_thread(void *arg)
+{
+	static char buf[MAX_CMD_LEN];
+	int buf_len = MAX_CMD_LEN;
+	int len = 0;
+	int ret = 0;
+
+	while (true) {
+		len = 0;
+		buf_len = MAX_CMD_LEN;
+
+		ret = cb_streamid_get_para(buf, buf_len);
+		if (ret <= 0)
+			continue;
+
+		len += ret;
+	//	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc del ");
+
+		ret = qci_fm_get_para(buf + ret, buf_len - len);
+		if (ret <= 0)
+			continue;
+
+		printf("qci thread ok!\n");
+		sleep(1);
+	}
+
+	return NULL;
+}
+
+int qci_init_thread(void)
+{
+	int ret;
+	pthread_t qci_thread;
+
+	ret = pthread_create(&qci_thread, NULL, qci_monitor_thread, NULL);
+	if (ret != 0)
+		printf("Unable to create qci monitor thread\n");
+
+	pthread_detach(qci_thread);
+
+	return ret;
+}

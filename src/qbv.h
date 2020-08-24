@@ -25,7 +25,6 @@
 #include "common.h"
 
 #define QBV_TC_NUM (8)
-#define MAX_CMD_LEN (512)
 #define SUB_PARA_LEN (64)
 
 #define QBV_GATE_PARA_XPATH "/ieee802-dot1q-sched:gate-parameters"

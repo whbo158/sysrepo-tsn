@@ -45,7 +45,7 @@
                         </psfp:parameters>
                     </psfp:admin-control-list>
                     <psfp:admin-control-list>
-                        <psfp:index>1</psfp:index>
+                        <psfp:index>2</psfp:index>
                         <psfp:operation-name>psfp:set-gate-and-ipv</psfp:operation-name>
                         <psfp:parameters>
                             <psfp:gate-state-value>closed</psfp:gate-state-value>

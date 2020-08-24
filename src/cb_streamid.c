@@ -445,7 +445,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 		stream->cbconf.para.iid.dscp = value->data.uint16_val;
 		para->dport = value->data.uint16_val;
 	}
-
+	para->set_flag = true;
 out:
 	return rc;
 }
@@ -734,6 +734,20 @@ static int cb_streamid_show_para(void)
 	return 0;
 }
 
+int cb_streamid_get_para(char *buf, int len)
+{
+	struct tc_qci_stream_para *para = &sqci_stream_para;
+
+	if (!para->set_flag)
+		return -1;
+
+	cb_streamid_show_para();
+
+	para->set_flag = false;
+
+	return 1;
+}
+
 /************************************************************************
  *
  * Callback for CB-Stream-Identification configuration.
@@ -751,7 +765,6 @@ printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	switch (event) {
 	case SR_EV_VERIFY:
 		rc = cb_streamid_config(session, xpath, false);
-		cb_streamid_show_para();
 		break;
 	case SR_EV_ENABLED:
 		rc = cb_streamid_config(session, xpath, false);

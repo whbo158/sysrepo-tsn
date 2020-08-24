@@ -129,6 +129,7 @@ int parse_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 	} else if (!strcmp(nodename, "mark-all-frames-red-enable")) {
 		fmi->fmconf.mark_red_enable = value->data.bool_val;
 	}
+	para->set_flag = true;
 
 out:
 	return rc;
@@ -406,6 +407,20 @@ static int qci_fm_show_para(void)
 	return 0;
 }
 
+int qci_fm_get_para(char *buf, int len)
+{
+	struct tc_qci_policer_para *para = &sqci_policer_para;
+
+	if (!para->set_flag)
+		return -1;
+
+	qci_fm_show_para();
+
+	para->set_flag = false;
+
+	return 1;
+}
+
 int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 		sr_notif_event_t event, void *private_ctx)
 {
@@ -418,7 +433,6 @@ printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	switch (event) {
 	case SR_EV_VERIFY:
 		rc = qci_fm_config(session, xpath, false);
-		qci_fm_show_para();
 		break;
 	case SR_EV_ENABLED:
 		rc = qci_fm_config(session, xpath, false);
