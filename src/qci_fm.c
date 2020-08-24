@@ -414,6 +414,8 @@ int qci_fm_get_para(char *buf, int len)
 	if (!para->set_flag)
 		return 0;
 
+	snprintf(buf, len, "flow meter");
+
 	qci_fm_show_para();
 
 	return 1;

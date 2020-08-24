@@ -228,35 +228,32 @@ void add_node2list(struct std_qci_list *list, struct std_qci_list *node)
 	last->next = node;
 }
 
+static char cmd_buf[MAX_CMD_LEN];
+static char st_buf[MAX_CMD_LEN / 4];
+static char fm_buf[MAX_CMD_LEN / 4];
+
 static void *qci_monitor_thread(void *arg)
 {
-	static char buf[MAX_CMD_LEN];
-	int buf_len = MAX_CMD_LEN;
-	int len = 0;
-	int st = 0;
-	int fm = 0;
+	int st_ret = 0;
+	int fm_ret = 0;
 
 	cb_streamid_clear_para();
 	qci_fm_clear_para();
 
 	while (true) {
-		len = 0;
-		buf_len = MAX_CMD_LEN;
+		if (st_ret == 0)
+			st_ret = cb_streamid_get_para(st_buf, sizeof(st_buf));
 
-		st = cb_streamid_get_para(buf, buf_len);
-	//	if ( <= 0)
-	//		goto loop_tag;
+		if (fm_ret == 0)
+			fm_ret = qci_fm_get_para(fm_buf, sizeof(fm_buf));
 
-	//	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc del ");
-
-		fm = qci_fm_get_para(buf, buf_len);
-	//	if (ret <= 0)
-	//		goto loop_tag;
-	//
-		if (!st || !fm)
+		if (!st_ret || !fm_ret)
 			goto loop_tag;
 
 		printf("qci thread ok!\n");
+
+		st_ret = 0;
+		fm_ret = 0;
 
 		cb_streamid_clear_para();
 		qci_fm_clear_para();

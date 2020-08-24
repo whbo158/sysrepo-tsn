@@ -741,6 +741,8 @@ int cb_streamid_get_para(char *buf, int len)
 	if (!para->set_flag)
 		return 0;
 
+	snprintf(buf, len, "streamid");
+
 	cb_streamid_show_para();
 
 	return 1;
