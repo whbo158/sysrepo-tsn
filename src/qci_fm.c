@@ -32,6 +32,7 @@
 #include "qci.h"
 
 struct std_qci_list *fm_list_head;
+static struct tc_qci_policer_para sqci_policer_para;
 
 void clr_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 		struct std_fm *fmi)
@@ -67,6 +68,7 @@ void clr_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 int parse_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 		struct std_fm *fmi)
 {
+	struct tc_qci_policer_para *para = &sqci_policer_para;
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
 	char *nodename;
@@ -82,12 +84,16 @@ int parse_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 		fmi->enable = value->data.bool_val;
 	} else if (!strcmp(nodename, "committed-information-rate")) {
 		fmi->fmconf.cir = value->data.uint64_val / 1000;
+		para->cir = value->data.uint64_val;
 	} else if (!strcmp(nodename, "committed-burst-size")) {
 		fmi->fmconf.cbs = value->data.uint32_val;
+		para->cbs = value->data.uint32_val;
 	} else if (!strcmp(nodename, "excess-information-rate")) {
 		fmi->fmconf.eir = value->data.uint64_val / 1000;
+		para->eir = value->data.uint64_val;
 	} else if (!strcmp(nodename, "excess-burst-size")) {
 		fmi->fmconf.ebs = value->data.uint32_val;
+		para->ebs = value->data.uint32_val;
 	} else if (!strcmp(nodename, "coupling-flag")) {
 		num_str = value->data.enum_val;
 		if (!strcmp(num_str, "zero")) {
@@ -389,6 +395,17 @@ out:
 	return rc;
 }
 
+static int qci_fm_show_para(void)
+{
+	struct tc_qci_policer_para *para = &sqci_policer_para;
+
+	printf("eir:%d\n", para->eir);
+	printf("ebs:%d\n", para->ebs);
+	printf("cir:%d\n", para->cir);
+	printf("cbs:%d\n", para->cbs);
+	return 0;
+}
+
 int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 		sr_notif_event_t event, void *private_ctx)
 {
@@ -401,6 +418,7 @@ printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	switch (event) {
 	case SR_EV_VERIFY:
 		rc = qci_fm_config(session, xpath, false);
+		qci_fm_show_para();
 		break;
 	case SR_EV_ENABLED:
 		rc = qci_fm_config(session, xpath, false);

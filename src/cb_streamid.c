@@ -279,6 +279,7 @@ void clr_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 		struct std_cb_stream *stream)
 {
+	struct tc_qci_stream_para *para = &sqci_stream_para;
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
 	uint8_t u8_val = 0;
@@ -338,7 +339,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			stream->cbconf.para.iid.dmac = u64_val;
 		else if (stream->cbconf.type == STREAMID_NULL)
 			stream->cbconf.para.nid.dmac = u64_val;
-		sqci_stream_para.dmac = u64_val;
+		para->dmac = u64_val;
 	} else if (!strcmp(nodename, "source-address")) {
 		rc = parse_mac_address(value->data.string_val, &u64_val,
 				       err_msg, value->xpath);
@@ -348,7 +349,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			goto out;
 		}
 		stream->cbconf.para.sid.smac = u64_val;
-		sqci_stream_para.smac = u64_val;
+		para->smac = u64_val;
 	} else if (!strcmp(nodename, "vlan-tagged")) {
 		rc = parse_vlan_tag(session, value, &u8_val);
 		if (rc != SR_ERR_OK)
@@ -366,7 +367,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			stream->cbconf.para.sid.vid = u16_val;
 		else if (stream->cbconf.type == STREAMID_IP)
 			stream->cbconf.para.iid.vid = u16_val;
-		sqci_stream_para.vid = u16_val;
+		para->vid = u16_val;
 	} else if (!strcmp(nodename, "down-dest-address")) {
 		rc = parse_mac_address(value->data.string_val, &u64_val,
 				       err_msg, value->xpath);
@@ -416,7 +417,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			rc = SR_ERR_INVAL_ARG;
 			goto out;
 		}
-		sqci_stream_para.i4_addr.s_addr = i4_addr.s_addr;
+		para->i4_addr.s_addr = i4_addr.s_addr;
 	} else if (!strcmp(nodename, "ipv6-address")) {
 		struct in6_addr i6_addr;
 
@@ -439,10 +440,10 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 			stream->cbconf.para.iid.npt = 3;
 	} else if (!strcmp(nodename, "source-port")) {
 		stream->cbconf.para.iid.dscp = value->data.uint16_val;
-		sqci_stream_para.sport = value->data.uint16_val;
+		para->sport = value->data.uint16_val;
 	} else if (!strcmp(nodename, "dest-port")) {
 		stream->cbconf.para.iid.dscp = value->data.uint16_val;
-		sqci_stream_para.dport = value->data.uint16_val;
+		para->dport = value->data.uint16_val;
 	}
 
 out:

@@ -88,6 +88,13 @@ struct tc_qci_stream_para {
 	char ifname[IF_NAME_MAX_LEN];
 };
 
+struct tc_qci_policer_para {
+	uint32_t eir;  /* unit: bits per second */
+	uint32_t ebs;  /* unit: bytes */
+	uint32_t cir;
+	uint32_t cbs;
+};
+
 struct std_qci_list *new_list_node(enum qci_type type, char *port,
 		uint32_t id);
 void del_list_node(struct std_qci_list *node, enum qci_type type);
