@@ -91,11 +91,21 @@ struct tc_qci_stream_para {
 
 struct tc_qci_policer_para {
 	bool set_flag;
+	uint32_t id;
 	uint32_t eir;  /* unit: bits per second */
 	uint32_t ebs;  /* unit: bytes */
 	uint32_t cir;
 	uint32_t cbs;
 };
+
+struct tc_qci_gate_para {
+	bool set_flag;
+	uint32_t id;
+	bool qbv_en;
+	bool cycletime_f;
+	bool basetime_f;
+};
+
 
 struct std_qci_list *new_list_node(enum qci_type type, char *port,
 		uint32_t id);

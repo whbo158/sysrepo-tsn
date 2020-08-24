@@ -186,6 +186,7 @@ int get_fm_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if (!cpname)
 			continue;
 
+		sqci_policer_para.id = fmid;
 		if (!fm_list_head) {
 			fm_list_head = new_list_node(QCI_T_FM, cpname, fmid);
 			if (!fm_list_head) {
@@ -400,6 +401,7 @@ static int qci_fm_show_para(void)
 {
 	struct tc_qci_policer_para *para = &sqci_policer_para;
 
+	printf("id:%d\n", para->id);
 	printf("eir:%d\n", para->eir);
 	printf("ebs:%d\n", para->ebs);
 	printf("cir:%d\n", para->cir);
