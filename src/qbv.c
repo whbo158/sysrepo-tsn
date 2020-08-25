@@ -145,18 +145,18 @@ printf("WHB %s ok\n", __func__);
 	}
 
 	if (base_time > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "base-time %lld ", base_time);
+		snprintf(stc_subcmd, MAX_CMD_LEN, "base-time %ld ", base_time);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
 	if (cycle_time > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %lld ",
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %ld ",
 				cycle_time);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
 	if (cycle_time_extension > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %lld ",
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %ld ",
 				cycle_time_extension);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}

@@ -753,6 +753,8 @@ int cb_streamid_get_para(char *buf, int len)
 {
 	struct tc_qci_stream_para *para = &sqci_stream_para;
 	char sub_buf[SUB_CMD_LEN];
+	uint16_t vid = 0;
+	int pri = 0;
 
 	if (!para->set_flag || !buf || !len)
 		return 0;
@@ -787,6 +789,24 @@ int cb_streamid_get_para(char *buf, int len)
 	if (para->sport) {
 		snprintf(sub_buf, SUB_CMD_LEN, "src_port %d ", para->sport);
 		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	}
+
+	if (para->vid) {
+		if (para->vid < MAX_VLAN_ID) {
+			pri = 0;
+			vid = para->vid;
+		} else {
+			pri = (para->vid >> 13) & 0x07;
+			vid = para->vid & (MAX_VLAN_ID - 1);
+		}
+
+		snprintf(sub_buf, SUB_CMD_LEN, "vlan_id %d ", vid);
+		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+
+		if (pri > 0) {
+			snprintf(sub_buf, SUB_CMD_LEN, "vlan_prio %d ", pri);
+			strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		}
 	}
 
 	return (int)strlen(buf);

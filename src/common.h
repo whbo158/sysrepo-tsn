@@ -25,9 +25,6 @@
 #define IF_NAME_MAX_LEN		20
 #define NODE_NAME_MAX_LEN	80
 #define MSG_MAX_LEN		400
-#define MAX_CMD_LEN		(512)
-#define SUB_CMD_LEN		(64)
-#define SUB_PARA_LEN		(64)
 
 #include <sysrepo.h>
 #include <stdbool.h>
@@ -65,6 +62,11 @@
 
 #define PRINT printf
 #define SYSREPO_TSN_TC
+
+#define MAX_CMD_LEN		(512)
+#define SUB_CMD_LEN		(64)
+#define SUB_PARA_LEN		(64)
+#define MAX_VLAN_ID		(4096)
 
 enum apply_status {
 	APPLY_NONE = 0,
