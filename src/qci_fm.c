@@ -131,6 +131,7 @@ int parse_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 	} else if (!strcmp(nodename, "mark-all-frames-red-enable")) {
 		fmi->fmconf.mark_red_enable = value->data.bool_val;
 	}
+
 	para->set_flag = true;
 
 out:

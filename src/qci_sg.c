@@ -262,6 +262,8 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 		sgi->sgconf.block_octets_exceeded = value->data.bool_val;
 	}
 
+	para->set_flag = true;
+
 out:
 	return rc;
 }
@@ -544,6 +546,46 @@ int qci_sg_config(sr_session_ctx_t *session, const char *path, bool abort)
 	rc = config_sg(session);
 out:
 	return rc;
+}
+
+static int qci_sg_show_para(void)
+{
+	struct tc_qci_gates_para *para = &sqci_gates_para;
+	struct tc_qci_gate_acl *acl_list = para->acl_list;
+	int i = 0;
+
+	printf("id:%d\n", para->id);
+	printf("gate_state:%d\n", para->gate_state);
+	printf("base_time:%d\n", para->base_time);
+	printf("cycle_time:%d\n", para->cycle_time);
+	printf("acl_len:%d\n", para->acl_len);
+
+	for (i = 0; i < para->acl_len; i++) {
+		printf("%d: state:%d ipv:%d interval:%d\n",
+			i, acl_list[i].state, acl_list[i].ipv, acl_list[i].interval);
+	}
+
+	return 0;
+}
+
+int qci_sg_get_para(char *buf, int len)
+{
+	struct tc_qci_gates_para *para = &sqci_gates_para;
+
+	if (!para->set_flag)
+		return 0;
+
+	snprintf(buf, len, "gate");
+
+	qci_sg_show_para();
+
+	return 1;
+}
+
+int qci_sg_clear_para(void)
+{
+	memset(&sqci_gates_para, 0, sizeof(sqci_gates_para));
+	return 0;
 }
 
 int qci_sg_subtree_change_cb(sr_session_ctx_t *session, const char *path,

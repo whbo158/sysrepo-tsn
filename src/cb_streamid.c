@@ -445,7 +445,9 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 		stream->cbconf.para.iid.dscp = value->data.uint16_val;
 		para->dport = value->data.uint16_val;
 	}
+
 	para->set_flag = true;
+
 out:
 	return rc;
 }
