@@ -231,11 +231,13 @@ void add_node2list(struct std_qci_list *list, struct std_qci_list *node)
 static char cmd_buf[MAX_CMD_LEN];
 static char st_buf[MAX_CMD_LEN / 4];
 static char fm_buf[MAX_CMD_LEN / 4];
+static char sg_buf[MAX_CMD_LEN / 4];
 
 static void *qci_monitor_thread(void *arg)
 {
 	int st_ret = 0;
 	int fm_ret = 0;
+	int sg_ret = 0;
 
 	cb_streamid_clear_para();
 	qci_fm_clear_para();
@@ -247,16 +249,27 @@ static void *qci_monitor_thread(void *arg)
 		if (fm_ret == 0)
 			fm_ret = qci_fm_get_para(fm_buf, sizeof(fm_buf));
 
-		if (!st_ret || !fm_ret)
+		if (sg_ret == 0)
+			sg_ret = qci_fm_get_para(sg_buf, sizeof(sg_buf));
+
+		if (!st_ret || (!fm_ret && !sg_ret))
 			goto loop_tag;
 
+		memset(cmd_buf, 0, MAX_CMD_LEN);
+
+		if (sg_ret > 0)
+			strncat(cmd_buf, sg_buf, MAX_CMD_LEN - 1 - strlen(cmd_buf));
+
+		printf("cmd:%s\n", cmd_buf);
 		printf("qci thread ok!\n");
 
 		st_ret = 0;
 		fm_ret = 0;
+		sg_ret = 0;
 
 		cb_streamid_clear_para();
 		qci_fm_clear_para();
+		qci_sg_clear_para();
 
 loop_tag:
 		sleep(1);

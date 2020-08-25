@@ -556,8 +556,8 @@ static int qci_sg_show_para(void)
 
 	printf("id:%d\n", para->id);
 	printf("gate_state:%d\n", para->gate_state);
-	printf("base_time:%d\n", para->base_time);
-	printf("cycle_time:%d\n", para->cycle_time);
+	printf("base_time:%ld\n", para->base_time);
+	printf("cycle_time:%ld\n", para->cycle_time);
 	printf("acl_len:%d\n", para->acl_len);
 
 	for (i = 0; i < para->acl_len; i++) {
@@ -571,15 +571,39 @@ static int qci_sg_show_para(void)
 int qci_sg_get_para(char *buf, int len)
 {
 	struct tc_qci_gates_para *para = &sqci_gates_para;
+	struct tc_qci_gate_acl *acl = para->acl_list;
+	char sub_buf[SUB_CMD_LEN];
+	int i = 0;
 
-	if (!para->set_flag)
+	if (!para->set_flag || !buf || !len)
 		return 0;
-
-	snprintf(buf, len, "gate");
 
 	qci_sg_show_para();
 
-	return 1;
+	snprintf(buf, MAX_CMD_LEN, "action gate index %d ", para->id);
+
+	snprintf(sub_buf, SUB_CMD_LEN, "base-time %ld ", para->base_time);
+	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+
+	if (para->cycle_time) {
+		snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %ld ", para->base_time);
+		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	}
+
+	for (i = 0; i < para->acl_len; i++) {
+		acl = para->acl_list + i;
+
+		if (acl->state)
+			snprintf(sub_buf, SUB_CMD_LEN, "sched-entry OPEN ");
+		else
+			snprintf(sub_buf, SUB_CMD_LEN, "sched-entry CLOSE ");
+		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+
+		snprintf(sub_buf, SUB_CMD_LEN, "%d %d -1 ", acl->interval, acl->ipv);
+		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	}
+
+	return (int)strlen(buf);
 }
 
 int qci_sg_clear_para(void)

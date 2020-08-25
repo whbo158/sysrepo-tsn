@@ -144,7 +144,9 @@ int main(int argc, char **argv)
 	/* Init tsn mutex */
 	init_tsn_mutex();
 
+#ifdef SYSREPO_TSN_TC
 	qci_init_thread();
+#endif
 
 	/* Connect to sysrepo */
 	rc = sr_connect("netconf-tsn", SR_CONN_DEFAULT, &connection);
