@@ -487,8 +487,7 @@ int config_qbv_per_port(sr_session_ctx_t *session, char *path, bool abort,
 			goto cleanup;
 	}
 config_qbv:
-	if (!stc_cfg_flag)
-		init_tsn_socket();
+	init_tsn_socket();
 	rc = tsn_config_qbv(session, ifname, &qbvconf);
 	close_tsn_socket();
 

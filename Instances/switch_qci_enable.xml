@@ -30,8 +30,12 @@
                     <sfsg:gate-enable>true</sfsg:gate-enable>
                     <sfsg:admin-gate-states>open</sfsg:admin-gate-states>
                     <sfsg:admin-ipv>wildcard</sfsg:admin-ipv>
-                    <psfp:admin-control-list-length>2</psfp:admin-control-list-length>
-                    <psfp:admin-cycle-time>
+		    <psfp:admin-control-list-length>2</psfp:admin-control-list-length>
+		    <psfp:admin-base-time>
+			    <psfp:seconds>100</psfp:seconds>
+			    <psfp:nanoseconds>5000</psfp:nanoseconds>
+		    </psfp:admin-base-time>
+		    <psfp:admin-cycle-time>
 			<psfp:numerator>16000</psfp:numerator>
 			<psfp:denominator>1000000000</psfp:denominator>
 		    </psfp:admin-cycle-time>

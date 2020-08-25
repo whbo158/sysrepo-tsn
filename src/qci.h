@@ -98,12 +98,20 @@ struct tc_qci_policer_para {
 	uint32_t cbs;
 };
 
-struct tc_qci_gate_para {
+struct tc_qci_gate_acl {
+	uint32_t interval;
+	int8_t ipv;
+	bool state;
+};
+
+struct tc_qci_gates_para {
 	bool set_flag;
+	bool gate_state;
 	uint32_t id;
-	bool qbv_en;
-	bool cycletime_f;
-	bool basetime_f;
+	uint64_t base_time;
+	uint64_t cycle_time;
+	uint32_t acl_len;
+	struct tc_qci_gate_acl acl_list[SUB_PARA_LEN];
 };
 
 

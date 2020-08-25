@@ -41,6 +41,9 @@
 
 struct std_qci_list *sg_list_head;
 
+static bool stc_cfg_flag;
+static struct tc_qci_gates_para sqci_gates_para;
+
 void clr_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 		struct std_sg *sgi)
 {
@@ -134,6 +137,8 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 	char *index;
 	char err_msg[MSG_MAX_LEN] = {0};
 	struct tsn_qci_psfp_gcl *entry = sgi->sgconf.admin.gcl;
+	struct tc_qci_gates_para *para = &sqci_gates_para;
+	struct tc_qci_gate_acl *acl_list = para->acl_list;
 
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
@@ -159,11 +164,13 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 			rc = SR_ERR_INVAL_ARG;
 			goto out;
 		}
+		para->gate_state = sgi->sgconf.admin.gate_states;
 	} else if (!strcmp(nodename, "admin-ipv")) {
 		pri2num(value->data.enum_val, &sgi->sgconf.admin.init_ipv);
 	} else if (!strcmp(nodename, ADMIN_CTR_LIST_LEN)) {
 		u8_val = (uint8_t)value->data.int32_val;
 		sgi->sgconf.admin.control_list_length = u8_val;
+		para->acl_len = u8_val;
 	} else if (!strcmp(nodename, "gate-state-value")) {
 		sr_xpath_recover(&xp_ctx);
 		index = sr_xpath_key_value(value->xpath,
@@ -184,6 +191,9 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 			rc = SR_ERR_INVAL_ARG;
 			goto out;
 		}
+
+		if (u64_val < SUB_PARA_LEN)
+			acl_list[u64_val].state = (entry + u64_val)->gate_state;
 	} else if (!strcmp(nodename, "ipv-value")) {
 		sr_xpath_recover(&xp_ctx);
 		index = sr_xpath_key_value(value->xpath,
@@ -194,6 +204,8 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 			goto out;
 
 		pri2num(value->data.enum_val, &(entry + u64_val)->ipv);
+		if (u64_val < SUB_PARA_LEN)
+			acl_list[u64_val].ipv = (entry + u64_val)->ipv;
 	} else if (!strcmp(nodename, "time-interval-value")) {
 		sr_xpath_recover(&xp_ctx);
 		index = sr_xpath_key_value(value->xpath,
@@ -204,6 +216,8 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 			goto out;
 
 		(entry + u64_val)->time_interval = value->data.uint32_val;
+		if (u64_val < SUB_PARA_LEN)
+			acl_list[u64_val].interval = value->data.uint32_val;
 	} else if (!strcmp(nodename, "interval-octet-max")) {
 		sr_xpath_recover(&xp_ctx);
 		index = sr_xpath_key_value(value->xpath,
@@ -461,6 +475,7 @@ int config_sg(sr_session_ctx_t *session)
 	char xpath[XPATH_MAX_LEN] = {0,};
 	uint64_t time;
 	struct tsn_qci_psfp_sgi_conf *sgi;
+	struct tc_qci_gates_para *para = &sqci_gates_para;
 
 	init_tsn_socket();
 	while (cur_node) {
@@ -468,11 +483,17 @@ int config_sg(sr_session_ctx_t *session)
 		if (cur_node->sg_ptr->basetime_f) {
 			time = cal_base_time(&cur_node->sg_ptr->basetime);
 			sgi->admin.base_time = time;
+			para->base_time = time;
 		}
 		if (cur_node->sg_ptr->cycletime_f) {
 			time = cal_cycle_time(&cur_node->sg_ptr->cycletime);
 			sgi->admin.cycle_time = time;
+			para->cycle_time = time;
 		}
+
+		if (stc_cfg_flag)
+			goto loop_tag;
+
 		/* set new stream gates configuration */
 		rc = tsn_qci_psfp_sgi_set(cur_node->sg_ptr->port,
 					  cur_node->sg_ptr->sg_handle,
@@ -492,6 +513,7 @@ int config_sg(sr_session_ctx_t *session)
 		} else {
 			cur_node->apply_st = APPLY_SET_SUC;
 		}
+loop_tag:
 		if (cur_node->next == NULL)
 			break;
 		cur_node = cur_node->next;
@@ -529,6 +551,12 @@ int qci_sg_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
+
+#ifdef SYSREPO_TSN_TC
+	stc_cfg_flag = true;
+#else
+	stc_cfg_flag = false;
+#endif
 
 printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	snprintf(xpath, XPATH_MAX_LEN, "%s%s//*", BRIDGE_COMPONENT_XPATH,

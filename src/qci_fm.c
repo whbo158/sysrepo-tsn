@@ -32,6 +32,8 @@
 #include "qci.h"
 
 struct std_qci_list *fm_list_head;
+
+static bool stc_cfg_flag;
 static struct tc_qci_policer_para sqci_policer_para;
 
 void clr_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
@@ -392,7 +394,8 @@ int qci_fm_config(sr_session_ctx_t *session, const char *path, bool abort)
 	if (rc != SR_ERR_OK)
 		goto out;
 
-	rc = config_fm(session);
+	if (!stc_cfg_flag)
+		rc = config_fm(session);
 out:
 	return rc;
 }
@@ -435,7 +438,13 @@ int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
-printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
+#ifdef SYSREPO_TSN_TC
+	stc_cfg_flag = true;
+#else
+	stc_cfg_flag = false;
+#endif
+
+	printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	snprintf(xpath, XPATH_MAX_LEN, "%s%s//*", BRIDGE_COMPONENT_XPATH,
 		 QCIFM_XPATH);
 	switch (event) {

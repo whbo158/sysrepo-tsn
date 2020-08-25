@@ -26,6 +26,7 @@
 #define NODE_NAME_MAX_LEN	80
 #define MSG_MAX_LEN		400
 #define MAX_CMD_LEN		(512)
+#define SUB_PARA_LEN		(64)
 
 #include <sysrepo.h>
 #include <stdbool.h>
