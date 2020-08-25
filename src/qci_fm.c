@@ -424,7 +424,7 @@ int qci_fm_get_para(char *buf, int len)
 
 	qci_fm_show_para();
 
-	snprintf(buf, MAX_CMD_LEN, "action police index %d \n", para->id);
+	snprintf(buf, len, "action police index %d \n", para->id);
 
 	if (para->eir > MBPS) {
 		eir = para->eir / MBPS;
@@ -436,10 +436,10 @@ int qci_fm_get_para(char *buf, int len)
 		eir = para->eir;
 		snprintf(sub_buf, SUB_CMD_LEN, "rate %dbit ", eir);
 	}
-	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 	snprintf(sub_buf, SUB_CMD_LEN, "burst %d ", para->ebs);
-	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 	return (int)strlen(buf);
 }

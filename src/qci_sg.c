@@ -580,14 +580,14 @@ int qci_sg_get_para(char *buf, int len)
 
 	qci_sg_show_para();
 
-	snprintf(buf, MAX_CMD_LEN, "action gate index %d ", para->id);
+	snprintf(buf, len, "action gate index %d ", para->id);
 
 	snprintf(sub_buf, SUB_CMD_LEN, "base-time %ld ", para->base_time);
-	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 	if (para->cycle_time) {
 		snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %ld ", para->base_time);
-		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
 	for (i = 0; i < para->acl_len; i++) {
@@ -597,10 +597,10 @@ int qci_sg_get_para(char *buf, int len)
 			snprintf(sub_buf, SUB_CMD_LEN, "sched-entry OPEN ");
 		else
 			snprintf(sub_buf, SUB_CMD_LEN, "sched-entry CLOSE ");
-		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 		snprintf(sub_buf, SUB_CMD_LEN, "%d %d -1 ", acl->interval, acl->ipv);
-		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
 	return (int)strlen(buf);

@@ -20,12 +20,6 @@
 					<stream:vlan-tagged>all</stream:vlan-tagged>
 					<stream:vlan-id>5</stream:vlan-id>
 				</stream:null-stream-identification-params>
-
-				<stream:source-mac-and-vlan-identification-params>
-                                        <stream:source-address>11-22-33-44-55-66</stream:source-address>
-                                        <stream:vlan-tagged>all</stream:vlan-tagged>
-                                        <stream:vlan-id>20</stream:vlan-id>
-                                </stream:source-mac-and-vlan-identification-params>
 			    </stream:parameters>
 			</stream:stream-identity-table>
 		    </stream:streams>

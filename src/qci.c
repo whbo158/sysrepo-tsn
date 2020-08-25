@@ -228,10 +228,10 @@ void add_node2list(struct std_qci_list *list, struct std_qci_list *node)
 	last->next = node;
 }
 
-static char cmd_buf[MAX_CMD_LEN];
-static char st_buf[MAX_CMD_LEN / 4];
-static char fm_buf[MAX_CMD_LEN / 4];
-static char sg_buf[MAX_CMD_LEN / 4];
+static char cmd_buf[MAX_CMD_LEN * 4];
+static char st_buf[MAX_CMD_LEN];
+static char fm_buf[MAX_CMD_LEN];
+static char sg_buf[MAX_CMD_LEN];
 
 static void *qci_monitor_thread(void *arg)
 {
@@ -255,16 +255,16 @@ static void *qci_monitor_thread(void *arg)
 		if (!st_ret || (!fm_ret && !sg_ret))
 			goto loop_tag;
 
-		memset(cmd_buf, 0, MAX_CMD_LEN);
+		memset(cmd_buf, 0, sizeof(cmd_buf));
 
 		if (st_ret > 0)
-			strncat(cmd_buf, st_buf, MAX_CMD_LEN - 1 - strlen(cmd_buf));
+			strncat(cmd_buf, st_buf, sizeof(cmd_buf) - 1 - strlen(cmd_buf));
 
 		if (sg_ret > 0)
-			strncat(cmd_buf, sg_buf, MAX_CMD_LEN - 1 - strlen(cmd_buf));
+			strncat(cmd_buf, sg_buf, sizeof(cmd_buf) - 1 - strlen(cmd_buf));
 
 		if (fm_ret > 0)
-			strncat(cmd_buf, fm_buf, MAX_CMD_LEN - 1 - strlen(cmd_buf));
+			strncat(cmd_buf, fm_buf, sizeof(cmd_buf) - 1 - strlen(cmd_buf));
 
 		printf("cmd:%s\n", cmd_buf);
 		printf("qci thread ok!\n");

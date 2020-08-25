@@ -744,6 +744,7 @@ static inline void mac_u64_to_str(uint64_t mac, char *buf, int len)
 
 	for (i = 0; i < 6; i++) {
 		macs[i] = (mac >> offset) & 0xFF;
+		offset -= 8;
 	}
 	snprintf(buf, len, "%02X:%02X:%02X:%02X:%02X:%02X ",
 		macs[0], macs[1], macs[2], macs[3], macs[4], macs[5]);
@@ -761,34 +762,34 @@ int cb_streamid_get_para(char *buf, int len)
 
 	cb_streamid_show_para();
 
-	snprintf(buf, MAX_CMD_LEN, "tc qdisc add dev %s ingress;\n", para->ifname);
+	snprintf(buf, len, "tc qdisc add dev %s ingress\n", para->ifname);
 
 	snprintf(sub_buf, SUB_CMD_LEN, "tc filter add dev %s ", para->ifname);
-	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 	snprintf(sub_buf, SUB_CMD_LEN, "protocol 802.1Q parent ffff: flower skip_sw ");
-	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 	if (para->dmac) {
-		strncat(buf, "dst_mac ", MAX_CMD_LEN - 1 - strlen(buf));
+		strncat(buf, "dst_mac ", len - 1 - strlen(buf));
 		mac_u64_to_str(para->dmac, sub_buf, SUB_CMD_LEN);
-		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
 	if (para->smac) {
-		strncat(buf, "src_mac ", MAX_CMD_LEN - 1 - strlen(buf));
+		strncat(buf, "src_mac ", len - 1 - strlen(buf));
 		mac_u64_to_str(para->dmac, sub_buf, SUB_CMD_LEN);
-		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
 	if (para->dport) {
 		snprintf(sub_buf, SUB_CMD_LEN, "dst_port %d ", para->dport);
-		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
 	if (para->sport) {
 		snprintf(sub_buf, SUB_CMD_LEN, "src_port %d ", para->sport);
-		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
 	if (para->vid) {
@@ -802,12 +803,12 @@ int cb_streamid_get_para(char *buf, int len)
 
 		if (vid > 0) {
 			snprintf(sub_buf, SUB_CMD_LEN, "vlan_id %d ", vid);
-			strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+			strncat(buf, sub_buf, len - 1 - strlen(buf));
 		}
 
 		if (pri > 0) {
 			snprintf(sub_buf, SUB_CMD_LEN, "vlan_prio %d ", pri);
-			strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+			strncat(buf, sub_buf, len - 1 - strlen(buf));
 		}
 	}
 
