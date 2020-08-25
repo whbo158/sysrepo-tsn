@@ -257,6 +257,9 @@ static void *qci_monitor_thread(void *arg)
 
 		memset(cmd_buf, 0, MAX_CMD_LEN);
 
+		if (st_ret > 0)
+			strncat(cmd_buf, st_buf, MAX_CMD_LEN - 1 - strlen(cmd_buf));
+
 		if (sg_ret > 0)
 			strncat(cmd_buf, sg_buf, MAX_CMD_LEN - 1 - strlen(cmd_buf));
 

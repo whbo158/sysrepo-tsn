@@ -736,18 +736,60 @@ static int cb_streamid_show_para(void)
 	return 0;
 }
 
+static inline void mac_u64_to_str(uint64_t mac, char *buf, int len)
+{
+	uint8_t macs[6];
+	int offset = 40;
+	int i = 0;
+
+	for (i = 0; i < 6; i++) {
+		macs[i] = (mac >> offset) & 0xFF;
+	}
+	snprintf(buf, len, "%02X:%02X:%02X:%02X:%02X:%02X ",
+		macs[0], macs[1], macs[2], macs[3], macs[4], macs[5]);
+}
+
 int cb_streamid_get_para(char *buf, int len)
 {
 	struct tc_qci_stream_para *para = &sqci_stream_para;
+	char sub_buf[SUB_CMD_LEN];
 
-	if (!para->set_flag)
+	if (!para->set_flag || !buf || !len)
 		return 0;
-
-	snprintf(buf, len, "streamid");
 
 	cb_streamid_show_para();
 
-	return 1;
+	snprintf(buf, MAX_CMD_LEN, "tc qdisc add dev %s ingress;\n", para->ifname);
+
+	snprintf(sub_buf, SUB_CMD_LEN, "tc filter add dev %s ", para->ifname);
+	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+
+	snprintf(sub_buf, SUB_CMD_LEN, "protocol 802.1Q parent ffff: flower skip_sw ");
+	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+
+	if (para->dmac) {
+		strncat(buf, "dst_mac ", MAX_CMD_LEN - 1 - strlen(buf));
+		mac_u64_to_str(para->dmac, sub_buf, SUB_CMD_LEN);
+		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	}
+
+	if (para->smac) {
+		strncat(buf, "src_mac ", MAX_CMD_LEN - 1 - strlen(buf));
+		mac_u64_to_str(para->dmac, sub_buf, SUB_CMD_LEN);
+		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	}
+
+	if (para->dport) {
+		snprintf(sub_buf, SUB_CMD_LEN, "dst_port %d ", para->dport);
+		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	}
+
+	if (para->sport) {
+		snprintf(sub_buf, SUB_CMD_LEN, "src_port %d ", para->sport);
+		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+	}
+
+	return (int)strlen(buf);
 }
 
 int cb_streamid_clear_para(void)
