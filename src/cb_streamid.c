@@ -800,8 +800,10 @@ int cb_streamid_get_para(char *buf, int len)
 			vid = para->vid & (MAX_VLAN_ID - 1);
 		}
 
-		snprintf(sub_buf, SUB_CMD_LEN, "vlan_id %d ", vid);
-		strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		if (vid > 0) {
+			snprintf(sub_buf, SUB_CMD_LEN, "vlan_id %d ", vid);
+			strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+		}
 
 		if (pri > 0) {
 			snprintf(sub_buf, SUB_CMD_LEN, "vlan_prio %d ", pri);

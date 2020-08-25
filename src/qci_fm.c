@@ -416,15 +416,32 @@ static int qci_fm_show_para(void)
 int qci_fm_get_para(char *buf, int len)
 {
 	struct tc_qci_policer_para *para = &sqci_policer_para;
+	char sub_buf[SUB_CMD_LEN];
+	uint32_t eir = 0;
 
-	if (!para->set_flag)
+	if (!para->set_flag || !buf || !len)
 		return 0;
-
-	snprintf(buf, len, "flow meter");
 
 	qci_fm_show_para();
 
-	return 1;
+	snprintf(buf, MAX_CMD_LEN, "action police index %d \n", para->id);
+
+	if (para->eir > MBPS) {
+		eir = para->eir / MBPS;
+		snprintf(sub_buf, SUB_CMD_LEN, "rate %dmbit ", eir);
+	} else if (para->eir > KBPS) {
+		eir = para->eir / KBPS;
+		snprintf(sub_buf, SUB_CMD_LEN, "rate %dkbit ", eir);
+	} else {
+		eir = para->eir;
+		snprintf(sub_buf, SUB_CMD_LEN, "rate %dbit ", eir);
+	}
+	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+
+	snprintf(sub_buf, SUB_CMD_LEN, "burst %d ", para->ebs);
+	strncat(buf, sub_buf, MAX_CMD_LEN - 1 - strlen(buf));
+
+	return (int)strlen(buf);
 }
 
 int qci_fm_clear_para(void)

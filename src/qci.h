@@ -114,6 +114,8 @@ struct tc_qci_gates_para {
 	struct tc_qci_gate_acl acl_list[SUB_PARA_LEN];
 };
 
+#define KBPS (1000)
+#define MBPS (1000 * 1000)
 
 struct std_qci_list *new_list_node(enum qci_type type, char *port,
 		uint32_t id);

@@ -246,11 +246,11 @@ static void *qci_monitor_thread(void *arg)
 		if (st_ret == 0)
 			st_ret = cb_streamid_get_para(st_buf, sizeof(st_buf));
 
+		if (sg_ret == 0)
+			sg_ret = qci_sg_get_para(sg_buf, sizeof(sg_buf));
+
 		if (fm_ret == 0)
 			fm_ret = qci_fm_get_para(fm_buf, sizeof(fm_buf));
-
-		if (sg_ret == 0)
-			sg_ret = qci_fm_get_para(sg_buf, sizeof(sg_buf));
 
 		if (!st_ret || (!fm_ret && !sg_ret))
 			goto loop_tag;
@@ -263,16 +263,19 @@ static void *qci_monitor_thread(void *arg)
 		if (sg_ret > 0)
 			strncat(cmd_buf, sg_buf, MAX_CMD_LEN - 1 - strlen(cmd_buf));
 
+		if (fm_ret > 0)
+			strncat(cmd_buf, fm_buf, MAX_CMD_LEN - 1 - strlen(cmd_buf));
+
 		printf("cmd:%s\n", cmd_buf);
 		printf("qci thread ok!\n");
 
-		st_ret = 0;
 		fm_ret = 0;
 		sg_ret = 0;
+		st_ret = 0;
 
-		cb_streamid_clear_para();
 		qci_fm_clear_para();
 		qci_sg_clear_para();
+		cb_streamid_clear_para();
 
 loop_tag:
 		sleep(1);
