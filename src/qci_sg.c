@@ -149,6 +149,7 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 		sgi->enable = value->data.bool_val;
 	} else if (!strcmp(nodename, "stream-gate-instance-id")) {
 		sgi->sg_handle = value->data.uint32_val;
+		para->id = value->data.uint32_val;
 	} else if (!strcmp(nodename, "admin-gate-states")) {
 		num_str = value->data.enum_val;
 		if (!strcmp(num_str, "open")) {
@@ -586,7 +587,7 @@ int qci_sg_get_para(char *buf, int len)
 	strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 	if (para->cycle_time) {
-		snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %ld ", para->base_time);
+		snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %ld ", para->cycle_time);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
