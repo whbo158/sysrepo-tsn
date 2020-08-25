@@ -235,6 +235,7 @@ static char sg_buf[MAX_CMD_LEN];
 
 static void *qci_monitor_thread(void *arg)
 {
+	int buf_len = sizeof(cmd_buf);
 	int st_ret = 0;
 	int fm_ret = 0;
 	int sg_ret = 0;
@@ -255,16 +256,16 @@ static void *qci_monitor_thread(void *arg)
 		if (!st_ret || (!fm_ret && !sg_ret))
 			goto loop_tag;
 
-		memset(cmd_buf, 0, sizeof(cmd_buf));
+		memset(cmd_buf, 0, buf_len);
 
 		if (st_ret > 0)
-			strncat(cmd_buf, st_buf, sizeof(cmd_buf) - 1 - strlen(cmd_buf));
+			strncat(cmd_buf, st_buf, buf_len - 1 - strlen(cmd_buf));
 
 		if (sg_ret > 0)
-			strncat(cmd_buf, sg_buf, sizeof(cmd_buf) - 1 - strlen(cmd_buf));
+			strncat(cmd_buf, sg_buf, buf_len - 1 - strlen(cmd_buf));
 
 		if (fm_ret > 0)
-			strncat(cmd_buf, fm_buf, sizeof(cmd_buf) - 1 - strlen(cmd_buf));
+			strncat(cmd_buf, fm_buf, buf_len - 1 - strlen(cmd_buf));
 
 		printf("cmd:%s\n", cmd_buf);
 		printf("qci thread ok!\n");
