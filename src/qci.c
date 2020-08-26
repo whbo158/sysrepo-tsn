@@ -236,6 +236,7 @@ static char sg_buf[MAX_CMD_LEN];
 static void *qci_monitor_thread(void *arg)
 {
 	int buf_len = sizeof(cmd_buf);
+	char *cmd = NULL;
 	pid_t sysret = 0;
 	int st_ret = 0;
 	int fm_ret = 0;
@@ -268,15 +269,19 @@ static void *qci_monitor_thread(void *arg)
 		if (fm_ret > 0)
 			strncat(cmd_buf, fm_buf, buf_len - 1 - strlen(cmd_buf));
 
-		printf("cmd:%s\n", cmd_buf);
-#if 0
-		sysret = system(cmd_buf);
-		if ((sysret != -1) && WIFEXITED(sysret) && (WEXITSTATUS(sysret) == 0)) {
-			printf("ok. cmd:%s\n", cmd_buf);
-		} else {
-			printf("failed! ret:0x%X cmd:%s\n", sysret, cmd_buf);
-		}
+		cmd = strtok(cmd_buf, ";");
+		while (cmd) {
+			printf("cmd:-%s-\n", cmd);
+#if 1
+			sysret = system(cmd);
+			if (SYSCALL_OK(sysret)) {
+				printf("ok. cmd:%s\n", cmd);
+			} else {
+				printf("failed! ret:0x%X cmd:%s\n", sysret, cmd);
+			}
 #endif
+			cmd = strtok(NULL, ";");
+		}
 		printf("qci thread ok!\n");
 
 		fm_ret = 0;

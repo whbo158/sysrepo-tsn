@@ -181,7 +181,7 @@ printf("WHB %s ok\n", __func__);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 
 	sysret = system(stc_cmd);
-	if ((sysret != -1) && WIFEXITED(sysret) && (WEXITSTATUS(sysret) == 0)) {
+	if (SYSCALL_OK(sysret)) {
 		printf("ok. cmd:%s\n", stc_cmd);
 		snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 	} else {

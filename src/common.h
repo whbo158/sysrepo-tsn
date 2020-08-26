@@ -68,6 +68,8 @@
 #define SUB_PARA_LEN		(64)
 #define MAX_VLAN_ID		(4096)
 
+#define SYSCALL_OK(r) (((r) != -1) && WIFEXITED(r) && (WEXITSTATUS(r) == 0))
+
 enum apply_status {
 	APPLY_NONE = 0,
 	APPLY_PARSE_SUC,

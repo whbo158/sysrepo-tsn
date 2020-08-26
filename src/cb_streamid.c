@@ -764,7 +764,7 @@ int cb_streamid_get_para(char *buf, int len)
 
 	cb_streamid_show_para();
 
-	snprintf(buf, len, "tc qdisc add dev %s ingress\n", para->ifname);
+	snprintf(buf, len, "tc qdisc add dev %s ingress;", para->ifname);
 
 	snprintf(sub_buf, SUB_CMD_LEN, "tc filter add dev %s ", para->ifname);
 	strncat(buf, sub_buf, len - 1 - strlen(buf));
