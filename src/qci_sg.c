@@ -125,6 +125,21 @@ void clr_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 	}
 }
 
+static struct tc_qci_gate_entry *qci_gate_find_entry(uint32_t id)
+{
+	struct tc_qci_gates_para *para = &sqci_gates_para;
+	struct tc_qci_gate_entry *gate = NULL;
+	int i = 0;
+
+	for (i = 0; i < para->entry_cnt; i++) {
+		gate = para->entry + i;
+		if (gate->id == id)
+			return gate;
+	}
+
+	return NULL;
+}
+
 int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 		struct std_sg *sgi)
 {
@@ -138,18 +153,25 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 	char err_msg[MSG_MAX_LEN] = {0};
 	struct tsn_qci_psfp_gcl *entry = sgi->sgconf.admin.gcl;
 	struct tc_qci_gates_para *para = &sqci_gates_para;
-	struct tc_qci_gate_acl *acl_list = para->acl_list;
+	struct tc_qci_gate_entry *gate = NULL;
+	struct tc_qci_gate_acl *acl = NULL;
 
 	sr_xpath_recover(&xp_ctx);
 	nodename = sr_xpath_node_name(value->xpath);
 	if (!nodename)
 		goto out;
 
+	gate = qci_gate_find_entry(sgi->sg_id);
+	if (stc_cfg_flag && !gate)
+		goto out;
+
+	acl = gate->acl;
+
 	if (!strcmp(nodename, "gate-enable")) {
 		sgi->enable = value->data.bool_val;
 	} else if (!strcmp(nodename, "stream-gate-instance-id")) {
 		sgi->sg_handle = value->data.uint32_val;
-		para->id = value->data.uint32_val;
+		printf("SGID:%d==%d==%d\n", gate->id, sgi->sg_id, value->data.uint32_val);
 	} else if (!strcmp(nodename, "admin-gate-states")) {
 		num_str = value->data.enum_val;
 		if (!strcmp(num_str, "open")) {
@@ -165,13 +187,13 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 			rc = SR_ERR_INVAL_ARG;
 			goto out;
 		}
-		para->gate_state = sgi->sgconf.admin.gate_states;
+		gate->gate_state = sgi->sgconf.admin.gate_states;
 	} else if (!strcmp(nodename, "admin-ipv")) {
 		pri2num(value->data.enum_val, &sgi->sgconf.admin.init_ipv);
 	} else if (!strcmp(nodename, ADMIN_CTR_LIST_LEN)) {
 		u8_val = (uint8_t)value->data.int32_val;
 		sgi->sgconf.admin.control_list_length = u8_val;
-		para->acl_len = u8_val;
+		gate->acl_len = MIN(u8_val, SUB_PARA_LEN);
 	} else if (!strcmp(nodename, "gate-state-value")) {
 		sr_xpath_recover(&xp_ctx);
 		index = sr_xpath_key_value(value->xpath,
@@ -194,7 +216,7 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 		}
 
 		if (u64_val < SUB_PARA_LEN)
-			acl_list[u64_val].state = (entry + u64_val)->gate_state;
+			acl[u64_val].state = (entry + u64_val)->gate_state;
 	} else if (!strcmp(nodename, "ipv-value")) {
 		sr_xpath_recover(&xp_ctx);
 		index = sr_xpath_key_value(value->xpath,
@@ -206,7 +228,7 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 
 		pri2num(value->data.enum_val, &(entry + u64_val)->ipv);
 		if (u64_val < SUB_PARA_LEN)
-			acl_list[u64_val].ipv = (entry + u64_val)->ipv;
+			acl[u64_val].ipv = (entry + u64_val)->ipv;
 	} else if (!strcmp(nodename, "time-interval-value")) {
 		sr_xpath_recover(&xp_ctx);
 		index = sr_xpath_key_value(value->xpath,
@@ -218,7 +240,7 @@ int parse_qci_sg(sr_session_ctx_t *session, sr_val_t *value,
 
 		(entry + u64_val)->time_interval = value->data.uint32_val;
 		if (u64_val < SUB_PARA_LEN)
-			acl_list[u64_val].interval = value->data.uint32_val;
+			acl[u64_val].interval = value->data.uint32_val;
 	} else if (!strcmp(nodename, "interval-octet-max")) {
 		sr_xpath_recover(&xp_ctx);
 		index = sr_xpath_key_value(value->xpath,
@@ -285,6 +307,8 @@ int get_sg_per_port_per_id(sr_session_ctx_t *session, const char *path)
 	uint32_t sgid = 0;
 	struct std_qci_list *cur_node = NULL;
 	char sgid_bak[IF_NAME_MAX_LEN] = "unknown";
+	struct tc_qci_gates_para *para = &sqci_gates_para;
+	int cnt = 0;
 
 	rc = sr_get_changes_iter(session, path, &it);
 
@@ -320,6 +344,9 @@ int get_sg_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if (!cpname)
 			continue;
 
+		if (cnt < SUB_PARA_LEN)
+			para->entry[cnt++].id = sgid;
+
 		if (!sg_list_head) {
 			sg_list_head = new_list_node(QCI_T_SG, cpname, sgid);
 			if (!sg_list_head) {
@@ -348,6 +375,8 @@ int get_sg_per_port_per_id(sr_session_ctx_t *session, const char *path)
 			add_node2list(sg_list_head, cur_node);
 		}
 	}
+	para->entry_cnt = cnt;
+
 	if (rc == SR_ERR_NOT_FOUND)
 		rc = SR_ERR_OK;
 
@@ -478,7 +507,6 @@ int config_sg(sr_session_ctx_t *session)
 	char xpath[XPATH_MAX_LEN] = {0,};
 	uint64_t time;
 	struct tsn_qci_psfp_sgi_conf *sgi;
-	struct tc_qci_gates_para *para = &sqci_gates_para;
 
 	init_tsn_socket();
 	while (cur_node) {
@@ -486,12 +514,10 @@ int config_sg(sr_session_ctx_t *session)
 		if (cur_node->sg_ptr->basetime_f) {
 			time = cal_base_time(&cur_node->sg_ptr->basetime);
 			sgi->admin.base_time = time;
-			para->base_time = time;
 		}
 		if (cur_node->sg_ptr->cycletime_f) {
 			time = cal_cycle_time(&cur_node->sg_ptr->cycletime);
 			sgi->admin.cycle_time = time;
-			para->cycle_time = time;
 		}
 
 		if (stc_cfg_flag)
@@ -528,6 +554,36 @@ cleanup:
 	return rc;
 }
 
+static int qci_sg_update_time(void)
+{
+	struct std_qci_list *cur_node = sg_list_head;
+	struct tc_qci_gate_entry *gate = NULL;
+	struct std_sg *sg_ptr;
+	uint64_t time;
+
+	while (cur_node) {
+		sg_ptr = cur_node->sg_ptr;
+
+		gate = qci_gate_find_entry(sg_ptr->sg_id);
+		if (!gate)
+			break;
+
+		if (sg_ptr->basetime_f) {
+			time = cal_base_time(&sg_ptr->basetime);
+			gate->base_time = time;
+		}
+
+		if (sg_ptr->cycletime_f) {
+			time = cal_cycle_time(&sg_ptr->cycletime);
+			gate->cycle_time = time;
+		}
+
+		cur_node = cur_node->next;
+	}
+
+	return SR_ERR_OK;
+}
+
 int qci_sg_config(sr_session_ctx_t *session, const char *path, bool abort)
 {
 	int rc = SR_ERR_OK;
@@ -544,7 +600,10 @@ int qci_sg_config(sr_session_ctx_t *session, const char *path, bool abort)
 	if (rc != SR_ERR_OK)
 		goto out;
 
-	rc = config_sg(session);
+	if (stc_cfg_flag)
+		rc = qci_sg_update_time();
+	else
+		rc = config_sg(session);
 out:
 	return rc;
 }
@@ -552,18 +611,26 @@ out:
 static int qci_sg_show_para(void)
 {
 	struct tc_qci_gates_para *para = &sqci_gates_para;
-	struct tc_qci_gate_acl *acl_list = para->acl_list;
+	struct tc_qci_gate_entry *gate = NULL;
+	struct tc_qci_gate_acl *acl = NULL;
 	int i = 0;
+	int j = 0;
 
-	printf("id:%d\n", para->id);
-	printf("gate_state:%d\n", para->gate_state);
-	printf("base_time:%ld\n", para->base_time);
-	printf("cycle_time:%ld\n", para->cycle_time);
-	printf("acl_len:%d\n", para->acl_len);
+	for (i = 0; i < para->entry_cnt; i++) {
+		gate = para->entry + i;
 
-	for (i = 0; i < para->acl_len; i++) {
-		printf("%d: state:%d ipv:%d interval:%d\n",
-			i, acl_list[i].state, acl_list[i].ipv, acl_list[i].interval);
+		printf("id:%d\n", gate->id);
+		printf("gate_state:%d\n", gate->gate_state);
+		printf("base_time:%ld\n", gate->base_time);
+		printf("cycle_time:%ld\n", gate->cycle_time);
+		printf("acl_len:%d\n", gate->acl_len);
+
+		for (j = 0; j < gate->acl_len; j++) {
+			acl = gate->acl + j;
+
+			printf("%d-%d: state:%d ipv:%d interval:%d\n",
+					i, j, acl->state, acl->ipv, acl->interval);
+		}
 	}
 
 	return 0;
@@ -572,36 +639,43 @@ static int qci_sg_show_para(void)
 int qci_sg_get_para(char *buf, int len)
 {
 	struct tc_qci_gates_para *para = &sqci_gates_para;
-	struct tc_qci_gate_acl *acl = para->acl_list;
+	struct tc_qci_gate_entry *gate = NULL;
+	struct tc_qci_gate_acl *acl = NULL;
 	char sub_buf[SUB_CMD_LEN];
 	int i = 0;
+	int j = 0;
 
 	if (!para->set_flag || !buf || !len)
 		return 0;
 
 	qci_sg_show_para();
 
-	snprintf(buf, len, "action gate index %d ", para->id);
+	for (i = 0; i < para->entry_cnt; i++) {
+		gate = para->entry + i;
 
-	snprintf(sub_buf, SUB_CMD_LEN, "base-time %ld ", para->base_time);
-	strncat(buf, sub_buf, len - 1 - strlen(buf));
-
-	if (para->cycle_time) {
-		snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %ld ", para->cycle_time);
-		strncat(buf, sub_buf, len - 1 - strlen(buf));
-	}
-
-	for (i = 0; i < para->acl_len; i++) {
-		acl = para->acl_list + i;
-
-		if (acl->state)
-			snprintf(sub_buf, SUB_CMD_LEN, "sched-entry OPEN ");
-		else
-			snprintf(sub_buf, SUB_CMD_LEN, "sched-entry CLOSE ");
+		snprintf(sub_buf, len, "action gate index %d ", gate->id);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
-		snprintf(sub_buf, SUB_CMD_LEN, "%d %d -1 ", acl->interval, acl->ipv);
+		snprintf(sub_buf, SUB_CMD_LEN, "base-time %ld ", gate->base_time);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
+
+		if (gate->cycle_time) {
+			snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %ld ", gate->cycle_time);
+			strncat(buf, sub_buf, len - 1 - strlen(buf));
+		}
+
+		for (j = 0; j < gate->acl_len; j++) {
+			acl = gate->acl + j;
+
+			if (acl->state)
+			      snprintf(sub_buf, SUB_CMD_LEN, "sched-entry OPEN ");
+			else
+			      snprintf(sub_buf, SUB_CMD_LEN, "sched-entry CLOSE ");
+			strncat(buf, sub_buf, len - 1 - strlen(buf));
+
+			snprintf(sub_buf, SUB_CMD_LEN, "%d %d -1 ", acl->interval, acl->ipv);
+			strncat(buf, sub_buf, len - 1 - strlen(buf));
+		}
 	}
 
 	return (int)strlen(buf);

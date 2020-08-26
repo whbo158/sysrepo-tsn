@@ -109,14 +109,19 @@ struct tc_qci_gate_acl {
 	uint32_t interval;
 };
 
-struct tc_qci_gates_para {
-	bool set_flag;
+struct tc_qci_gate_entry {
 	uint32_t id;
 	bool gate_state;
 	uint64_t base_time;
 	uint64_t cycle_time;
 	uint32_t acl_len;
-	struct tc_qci_gate_acl acl_list[SUB_PARA_LEN];
+	struct tc_qci_gate_acl acl[SUB_PARA_LEN];
+};
+
+struct tc_qci_gates_para {
+	bool set_flag;
+	int entry_cnt;
+	struct tc_qci_gate_entry entry[SUB_PARA_LEN];
 };
 
 #define KBPS (1000)

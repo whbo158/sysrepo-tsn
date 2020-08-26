@@ -67,7 +67,7 @@ void clr_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 		fmi->fmconf.mark_red_enable = false;
 }
 
-static struct tc_qci_policer_entry *qci_fm_para_entry(uint32_t id)
+static struct tc_qci_policer_entry *qci_fm_find_entry(uint32_t id)
 {
 	struct tc_qci_policer_para *para = &sqci_policer_para;
 	struct tc_qci_policer_entry *entry = NULL;
@@ -98,7 +98,7 @@ int parse_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 	if (!nodename)
 		goto out;
 
-	entry = qci_fm_para_entry(fmi->fm_id);
+	entry = qci_fm_find_entry(fmi->fm_id);
 	if (stc_cfg_flag && !entry)
 		goto out;
 
