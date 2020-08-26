@@ -34,6 +34,7 @@
 
 struct std_cb_stream_list *stream_head;
 
+static bool stc_cfg_flag;
 static struct tc_qci_stream_para sqci_stream_para;
 
 struct std_cb_stream_list *new_stream_list_node(char *port, uint32_t index)
@@ -717,7 +718,8 @@ int cb_streamid_config(sr_session_ctx_t *session, const char *path, bool abort)
 	if (rc != SR_ERR_OK)
 		goto out;
 
-	rc = config_streamid(session);
+	if (!stc_cfg_flag)
+		rc = config_streamid(session);
 out:
 	return rc;
 }
@@ -831,6 +833,12 @@ int cb_streamid_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
+
+#ifdef SYSREPO_TSN_TC
+	stc_cfg_flag = true;
+#else
+	stc_cfg_flag = false;
+#endif
 
 printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	snprintf(xpath, XPATH_MAX_LEN, "%s/%s:*//*", BRIDGE_COMPONENT_XPATH,
