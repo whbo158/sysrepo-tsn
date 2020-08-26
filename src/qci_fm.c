@@ -67,10 +67,26 @@ void clr_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 		fmi->fmconf.mark_red_enable = false;
 }
 
+static struct tc_qci_policer_entry *qci_fm_para_entry(uint32_t id)
+{
+	struct tc_qci_policer_para *para = &sqci_policer_para;
+	struct tc_qci_policer_entry *entry = NULL;
+	int i = 0;
+
+	for (i = 0; i < para->entry_cnt; i++) {
+		entry = para->entry + i;
+		if (entry->id == id)
+			return entry;
+	}
+
+	return NULL;
+}
+
 int parse_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 		struct std_fm *fmi)
 {
 	struct tc_qci_policer_para *para = &sqci_policer_para;
+	struct tc_qci_policer_entry *entry = NULL;
 	int rc = SR_ERR_OK;
 	sr_xpath_ctx_t xp_ctx = {0};
 	char *nodename;
@@ -82,20 +98,24 @@ int parse_qci_fm(sr_session_ctx_t *session, sr_val_t *value,
 	if (!nodename)
 		goto out;
 
+	entry = qci_fm_para_entry(fmi->fm_id);
+	if (stc_cfg_flag && !entry)
+		goto out;
+
 	if (!strcmp(nodename, "ieee802-dot1q-qci-augment:flow-meter-enabled")) {
 		fmi->enable = value->data.bool_val;
 	} else if (!strcmp(nodename, "committed-information-rate")) {
 		fmi->fmconf.cir = value->data.uint64_val / 1000;
-		para->cir = value->data.uint64_val;
+		entry->cir = value->data.uint64_val;
 	} else if (!strcmp(nodename, "committed-burst-size")) {
 		fmi->fmconf.cbs = value->data.uint32_val;
-		para->cbs = value->data.uint32_val;
+		entry->cbs = value->data.uint32_val;
 	} else if (!strcmp(nodename, "excess-information-rate")) {
 		fmi->fmconf.eir = value->data.uint64_val / 1000;
-		para->eir = value->data.uint64_val;
+		entry->eir = value->data.uint64_val;
 	} else if (!strcmp(nodename, "excess-burst-size")) {
 		fmi->fmconf.ebs = value->data.uint32_val;
-		para->ebs = value->data.uint32_val;
+		entry->ebs = value->data.uint32_val;
 	} else if (!strcmp(nodename, "coupling-flag")) {
 		num_str = value->data.enum_val;
 		if (!strcmp(num_str, "zero")) {
@@ -154,6 +174,8 @@ int get_fm_per_port_per_id(sr_session_ctx_t *session, const char *path)
 	uint32_t fmid = 0;
 	struct std_qci_list *cur_node = NULL;
 	char fmid_bak[IF_NAME_MAX_LEN] = "unknown";
+	struct tc_qci_policer_para *para = &sqci_policer_para;
+	int cnt = 0;
 
 	rc = sr_get_changes_iter(session, path, &it);
 
@@ -189,7 +211,7 @@ int get_fm_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if (!cpname)
 			continue;
 
-		sqci_policer_para.id = fmid;
+		para->entry[cnt++].id = fmid;
 		if (!fm_list_head) {
 			fm_list_head = new_list_node(QCI_T_FM, cpname, fmid);
 			if (!fm_list_head) {
@@ -218,6 +240,8 @@ int get_fm_per_port_per_id(sr_session_ctx_t *session, const char *path)
 			add_node2list(fm_list_head, cur_node);
 		}
 	}
+	para->entry_cnt = cnt;
+
 	if (rc == SR_ERR_NOT_FOUND)
 		rc = SR_ERR_OK;
 
@@ -404,42 +428,56 @@ out:
 static int qci_fm_show_para(void)
 {
 	struct tc_qci_policer_para *para = &sqci_policer_para;
+	struct tc_qci_policer_entry *entry = NULL;
+	int i = 0;
 
-	printf("id:%d\n", para->id);
-	printf("eir:%d\n", para->eir);
-	printf("ebs:%d\n", para->ebs);
-	printf("cir:%d\n", para->cir);
-	printf("cbs:%d\n", para->cbs);
+	for (i = 0; i < para->entry_cnt; i++) {
+		entry = para->entry + i;
+
+		printf("[%d]id:%d\n", i, entry->id);
+		printf("eir:%d\n", entry->eir);
+		printf("ebs:%d\n", entry->ebs);
+		printf("cir:%d\n", entry->cir);
+		printf("cbs:%d\n", entry->cbs);
+	}
+
 	return 0;
 }
 
 int qci_fm_get_para(char *buf, int len)
 {
 	struct tc_qci_policer_para *para = &sqci_policer_para;
+	struct tc_qci_policer_entry *entry = NULL;
 	char sub_buf[SUB_CMD_LEN];
 	uint32_t eir = 0;
+	int i = 0;
 
 	if (!para->set_flag || !buf || !len)
 		return 0;
 
 	qci_fm_show_para();
 
-	snprintf(buf, len, "action police index %d ", para->id);
+	for (i = 0; i < para->entry_cnt; i++) {
+		entry = para->entry + i;
 
-	if (para->eir > MBPS) {
-		eir = para->eir / MBPS;
-		snprintf(sub_buf, SUB_CMD_LEN, "rate %dmbit ", eir);
-	} else if (para->eir > KBPS) {
-		eir = para->eir / KBPS;
-		snprintf(sub_buf, SUB_CMD_LEN, "rate %dkbit ", eir);
-	} else {
-		eir = para->eir;
-		snprintf(sub_buf, SUB_CMD_LEN, "rate %dbit ", eir);
+		snprintf(sub_buf, len, "action police index %d ", entry->id);
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
+
+		if (entry->eir > MBPS) {
+			eir = entry->eir / MBPS;
+			snprintf(sub_buf, SUB_CMD_LEN, "rate %dmbit ", eir);
+		} else if (entry->eir > KBPS) {
+			eir = entry->eir / KBPS;
+			snprintf(sub_buf, SUB_CMD_LEN, "rate %dkbit ", eir);
+		} else {
+			eir = entry->eir;
+			snprintf(sub_buf, SUB_CMD_LEN, "rate %dbit ", eir);
+		}
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
+
+		snprintf(sub_buf, SUB_CMD_LEN, "burst %d ", entry->ebs);
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
-	strncat(buf, sub_buf, len - 1 - strlen(buf));
-
-	snprintf(sub_buf, SUB_CMD_LEN, "burst %d ", para->ebs);
-	strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 	return (int)strlen(buf);
 }

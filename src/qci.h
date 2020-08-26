@@ -89,13 +89,18 @@ struct tc_qci_stream_para {
 	char ifname[IF_NAME_MAX_LEN];
 };
 
-struct tc_qci_policer_para {
-	bool set_flag;
+struct tc_qci_policer_entry {
 	uint32_t id;
 	uint32_t eir;  /* unit: bits per second */
 	uint32_t ebs;  /* unit: bytes */
 	uint32_t cir;
 	uint32_t cbs;
+};
+
+struct tc_qci_policer_para {
+	bool set_flag;
+	int entry_cnt;
+	struct tc_qci_policer_entry entry[SUB_PARA_LEN];
 };
 
 struct tc_qci_gate_acl {

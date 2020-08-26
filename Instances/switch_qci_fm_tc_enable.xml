@@ -29,12 +29,23 @@
             </stream:streams>
             <psfp:flow-meters>
                 <psfp:flow-meter-instance-table>
-                    <psfp:flow-meter-instance-id>1</psfp:flow-meter-instance-id>
+                    <psfp:flow-meter-instance-id>5</psfp:flow-meter-instance-id>
                     <qci-augment:flow-meter-enabled>true</qci-augment:flow-meter-enabled>
                     <psfp:committed-information-rate>100000000</psfp:committed-information-rate>
                     <psfp:committed-burst-size>5000</psfp:committed-burst-size>
                     <psfp:excess-information-rate>100000000</psfp:excess-information-rate>
                     <psfp:excess-burst-size>4000</psfp:excess-burst-size>
+                    <psfp:coupling-flag>one</psfp:coupling-flag>
+                    <psfp:color-mode>color-blind</psfp:color-mode>
+                    <psfp:drop-on-yellow>true</psfp:drop-on-yellow>
+                </psfp:flow-meter-instance-table>
+                <psfp:flow-meter-instance-table>
+                    <psfp:flow-meter-instance-id>3</psfp:flow-meter-instance-id>
+                    <qci-augment:flow-meter-enabled>true</qci-augment:flow-meter-enabled>
+                    <psfp:committed-information-rate>300000000</psfp:committed-information-rate>
+                    <psfp:committed-burst-size>6000</psfp:committed-burst-size>
+                    <psfp:excess-information-rate>200000000</psfp:excess-information-rate>
+                    <psfp:excess-burst-size>8000</psfp:excess-burst-size>
                     <psfp:coupling-flag>one</psfp:coupling-flag>
                     <psfp:color-mode>color-blind</psfp:color-mode>
                     <psfp:drop-on-yellow>true</psfp:drop-on-yellow>
