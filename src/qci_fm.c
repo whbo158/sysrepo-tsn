@@ -424,7 +424,7 @@ int qci_fm_get_para(char *buf, int len)
 
 	qci_fm_show_para();
 
-	snprintf(buf, len, "action police index %d \n", para->id);
+	snprintf(buf, len, "action police index %d ", para->id);
 
 	if (para->eir > MBPS) {
 		eir = para->eir / MBPS;
