@@ -211,7 +211,9 @@ int get_fm_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if (!cpname)
 			continue;
 
-		para->entry[cnt++].id = fmid;
+		if (cnt < SUB_PARA_LEN)
+			para->entry[cnt++].id = fmid;
+
 		if (!fm_list_head) {
 			fm_list_head = new_list_node(QCI_T_FM, cpname, fmid);
 			if (!fm_list_head) {
