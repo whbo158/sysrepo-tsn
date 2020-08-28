@@ -29,7 +29,6 @@
 #include "main.h"
 #include "qbv.h"
 
-static bool stc_del_flag;
 static bool stc_cfg_flag;
 static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
@@ -72,30 +71,6 @@ void free_qbv_memory(struct tsn_qbv_conf *qbvconf_ptr)
 	free(qbvconf_ptr);
 }
 
-static int tsn_config_del_qbv_by_tc(struct sr_qbv_conf *qbvconf, char *ifname)
-{
-	int rc = SR_ERR_OK;
-
-	if (!ifname)
-		return rc;
-
-	if (!stc_del_flag)
-		return rc;
-
-	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc del ");
-
-	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
-	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
-
-	snprintf(stc_subcmd, MAX_CMD_LEN, "parent root handle 100");
-	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
-
-	system(stc_cmd);
-	printf("cmd:%s\n", stc_cmd);
-
-	return rc;
-}
-
 static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 		struct sr_qbv_conf *qbvconf)
 {
@@ -117,13 +92,12 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	if (pqbv->admin.control_list_length == 0)
 		return rc;
 printf("WHB %s ok\n", __func__);
-	tsn_config_del_qbv_by_tc(qbvconf, ifname);
 
 	base_time = pqbv->admin.base_time;
 	cycle_time = pqbv->admin.cycle_time;
 	cycle_time_extension = pqbv->admin.cycle_time_extension;
 
-	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc add ");
+	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc replace ");
 
 	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
 	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
@@ -186,7 +160,6 @@ printf("WHB %s ok\n", __func__);
 
 	sysret = system(stc_cmd);
 	if (SYSCALL_OK(sysret)) {
-		stc_del_flag = true;
 		printf("ok. cmd:%s\n", stc_cmd);
 		snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 	} else {
@@ -248,10 +221,8 @@ void clr_qbv(sr_val_t *value, struct sr_qbv_conf *qbvconf)
 	if (!nodename)
 		return;
 
-	if (stc_cfg_flag && (strlen(sif_name) > 0)) {
-		tsn_config_del_qbv_by_tc(qbvconf, sif_name);
+	if (stc_cfg_flag && (strlen(sif_name) > 0))
 		memset(sif_name, 0, sizeof(sif_name));
-	}
 
 	if (!strcmp(nodename, "gate-enabled")) {
 		qbvconf->qbv_en = false;

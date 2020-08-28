@@ -12,7 +12,7 @@
 		</sched:max-sdu-table>
 		<sched:gate-parameters>
 			<sched:gate-enabled>true</sched:gate-enabled>
-			<sched:admin-gate-states>127</sched:admin-gate-states>
+			<sched:admin-gate-states>128</sched:admin-gate-states>
 			<sched:config-change>true</sched:config-change>
 			<sched:admin-control-list-length>3</sched:admin-control-list-length>
 			<sched:admin-control-list>
