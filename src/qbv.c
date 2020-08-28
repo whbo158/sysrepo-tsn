@@ -81,6 +81,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	int rc = SR_ERR_OK;
 	uint32_t clockid = 0;
 	uint32_t gate_mask = 0;
+	char *host_name = NULL;
 	uint32_t interval = 0;
 	uint64_t base_time = 0;
 	uint64_t cycle_time = 0;
@@ -92,6 +93,10 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	if (pqbv->admin.control_list_length == 0)
 		return rc;
 printf("WHB %s ok\n", __func__);
+
+	host_name = get_host_name();
+	if (host_name && strstr(host_name, "IMX8MMEVK"))
+		num_tc = 5;
 
 	base_time = pqbv->admin.base_time;
 	cycle_time = pqbv->admin.cycle_time;

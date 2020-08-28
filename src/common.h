@@ -114,4 +114,6 @@ void print_subtree_changes(sr_session_ctx_t *session, const char *path);
 int str_to_num(int type, char *str, uint64_t *num);
 void pri2num(char *pri_str, int8_t *pri_num);
 bool is_del_oper(sr_session_ctx_t *session, char *path);
+char *get_host_name(void);
+
 #endif
