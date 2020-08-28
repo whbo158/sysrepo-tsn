@@ -642,6 +642,8 @@ int qci_sg_get_para(char *buf, int len)
 	struct tc_qci_gate_entry *gate = NULL;
 	struct tc_qci_gate_acl *acl = NULL;
 	char sub_buf[SUB_CMD_LEN];
+	char *host_name = NULL;
+	char *if_name = NULL;
 	int i = 0;
 	int j = 0;
 
@@ -676,6 +678,13 @@ int qci_sg_get_para(char *buf, int len)
 			snprintf(sub_buf, SUB_CMD_LEN, "%d %d -1 ", acl->interval, acl->ipv);
 			strncat(buf, sub_buf, len - 1 - strlen(buf));
 		}
+	}
+
+	if_name = get_interface_name();
+	host_name = get_host_name();
+	if (host_name && strstr(host_name, "LS1028ATSN") && (!strcmp(if_name, "sw0p0"))) {
+		snprintf(sub_buf, SUB_CMD_LEN, "action trap ");
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
 	return (int)strlen(buf);

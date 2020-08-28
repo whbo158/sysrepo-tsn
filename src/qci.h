@@ -153,5 +153,7 @@ int qci_fm_clear_para(void);
 int qci_sg_get_para(char *buf, int len);
 int qci_sg_clear_para(void);
 
+char *get_interface_name(void);
+
 
 #endif

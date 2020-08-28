@@ -37,6 +37,11 @@ struct std_cb_stream_list *stream_head;
 static bool stc_cfg_flag;
 static struct tc_qci_stream_para sqci_stream_para;
 
+char *get_interface_name(void)
+{
+	return sqci_stream_para.ifname;
+}
+
 struct std_cb_stream_list *new_stream_list_node(char *port, uint32_t index)
 {
 	struct std_cb_stream_list *stream_list;
