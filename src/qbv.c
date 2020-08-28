@@ -29,6 +29,7 @@
 #include "main.h"
 #include "qbv.h"
 
+static bool stc_del_flag;
 static bool stc_cfg_flag;
 static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
@@ -76,6 +77,9 @@ static int tsn_config_del_qbv_by_tc(struct sr_qbv_conf *qbvconf, char *ifname)
 	int rc = SR_ERR_OK;
 
 	if (!ifname)
+		return rc;
+
+	if (!stc_del_flag)
 		return rc;
 
 	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc del ");
@@ -182,6 +186,7 @@ printf("WHB %s ok\n", __func__);
 
 	sysret = system(stc_cmd);
 	if (SYSCALL_OK(sysret)) {
+		stc_del_flag = true;
 		printf("ok. cmd:%s\n", stc_cmd);
 		snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 	} else {
