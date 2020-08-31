@@ -190,7 +190,6 @@ printf("WHB %s ok\n", __func__);
 		snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 	} else {
 		printf("ret:0x%X cmd:%s\n", sysret, stc_cmd);
-		rc = SR_ERR_INVAL_ARG;
 	}
 
 	return rc;
@@ -215,13 +214,13 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 
 	if (stc_cfg_flag) {
 		if (qbvconf->qbv_en)
-			return tsn_config_qbv_by_tc(session, ifname, qbvconf);
+			rc = tsn_config_qbv_by_tc(session, ifname, qbvconf);
 		else
-			return tsn_config_del_qbv_by_tc(qbvconf, ifname);
-	}
-
-	rc = tsn_qos_port_qbv_set(ifname, qbvconf->qbvconf_ptr,
+			rc = tsn_config_del_qbv_by_tc(qbvconf, ifname);
+	} else {
+		rc = tsn_qos_port_qbv_set(ifname, qbvconf->qbvconf_ptr,
 				  qbvconf->qbv_en);
+	}
 
 	if (rc < 0) {
 		snprintf(xpath, XPATH_MAX_LEN, "%s[name='%s']/%s:*//*",
