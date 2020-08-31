@@ -277,7 +277,7 @@ static void *qci_monitor_thread(void *arg)
 			if (SYSCALL_OK(sysret)) {
 				printf("ok. cmd:%s\n", cmd);
 			} else {
-				printf("failed! ret:0x%X cmd:%s\n", sysret, cmd);
+				printf("ret:0x%X cmd:%s\n", sysret, cmd);
 			}
 #endif
 			cmd = strtok(NULL, ";");

@@ -168,7 +168,7 @@ printf("WHB %s ok\n", __func__);
 		printf("ok. cmd:%s\n", stc_cmd);
 		snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 	} else {
-		printf("failed! ret:0x%X cmd:%s\n", sysret, stc_cmd);
+		printf("ret:0x%X cmd:%s\n", sysret, stc_cmd);
 		rc = SR_ERR_INVAL_ARG;
 	}
 
