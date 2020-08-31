@@ -6,7 +6,7 @@
 	 xmlns:stream="urn:ieee:std:802.1Q:yang:ieee802-dot1q-stream-id"
          xmlns:psfp="urn:ieee:std:802.1Q:yang:ieee802-dot1q-psfp">
 	<bridge>
-        <name>br1</name>
+        <name>switch</name>
 	<bridge-type>provider-edge-bridge</bridge-type>
 	<address>d6-ad-62-c6-49-ae</address>
         <component>

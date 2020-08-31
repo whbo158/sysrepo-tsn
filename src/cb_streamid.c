@@ -302,6 +302,7 @@ int parse_cb_streamid(sr_session_ctx_t *session, sr_val_t *value,
 
 	if (!strcmp(nodename, "stream-id-enabled")) {
 		stream->enable = value->data.bool_val;
+		para->enable = value->data.bool_val;
 	} else if (!strcmp(nodename, "stream-handle")) {
 		stream->cbconf.handle = value->data.uint32_val;
 	} else if (!strcmp(nodename, "in-facing-output-port-list")) {
@@ -725,6 +726,7 @@ int cb_streamid_config(sr_session_ctx_t *session, const char *path, bool abort)
 
 	if (!stc_cfg_flag)
 		rc = config_streamid(session);
+
 out:
 	return rc;
 }
@@ -757,6 +759,24 @@ static inline void mac_u64_to_str(uint64_t mac, char *buf, int len)
 		macs[0], macs[1], macs[2], macs[3], macs[4], macs[5]);
 }
 
+int cb_streamid_del_tc_config(char *buf, int len)
+{
+	struct tc_qci_stream_para *para = &sqci_stream_para;
+	char sub_buf[SUB_CMD_LEN];
+
+	snprintf(buf, len, "tc filter del dev %s ingress;", para->ifname);
+
+	snprintf(sub_buf, SUB_CMD_LEN, "tc qdisc del dev %s ingress;", para->ifname);
+	strncat(buf, sub_buf, len - 1 - strlen(buf));
+
+	printf("cmd:%s\n", buf);
+	system(buf);
+
+	para->set_flag = false;
+
+	return 0;
+}
+
 int cb_streamid_get_para(char *buf, int len)
 {
 	struct tc_qci_stream_para *para = &sqci_stream_para;
@@ -768,6 +788,9 @@ int cb_streamid_get_para(char *buf, int len)
 		return 0;
 
 	cb_streamid_show_para();
+
+	if (!para->enable)
+		return cb_streamid_del_tc_config(buf, len);
 
 	snprintf(buf, len, "tc qdisc add dev %s ingress >/dev/null 2>&1;", para->ifname);
 

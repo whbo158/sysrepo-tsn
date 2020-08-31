@@ -2,7 +2,7 @@
 <bridges xmlns="urn:ieee:std:802.1Q:yang:ieee802-dot1q-bridge"
          xmlns:stream="urn:ieee:std:802.1Q:yang:ieee802-dot1q-stream-id">
 	<bridge>
-		<name>br1</name>
+		<name>switch</name>
 		<address>d6-ad-62-c5-49-ae</address>
 		<bridge-type>provider-bridge</bridge-type>
 		<component>

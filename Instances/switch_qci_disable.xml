@@ -14,6 +14,8 @@
                 <sfsg:stream-filter-instance-table>
                     <sfsg:stream-filter-instance-id>1</sfsg:stream-filter-instance-id>
                     <qci-augment:stream-filter-enabled>false</qci-augment:stream-filter-enabled>
+                    <sfsg:priority-spec>two</sfsg:priority-spec>
+                    <sfsg:stream-gate-ref>1</sfsg:stream-gate-ref>
                 </sfsg:stream-filter-instance-table>
             </sfsg:stream-filters>
             <sfsg:stream-gates>

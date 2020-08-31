@@ -80,6 +80,7 @@ struct std_qci_list {
 
 struct tc_qci_stream_para {
 	bool set_flag;
+	bool enable;
 	uint64_t dmac;
 	uint64_t smac;
 	uint16_t vid;
