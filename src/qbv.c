@@ -71,6 +71,27 @@ void free_qbv_memory(struct tsn_qbv_conf *qbvconf_ptr)
 	free(qbvconf_ptr);
 }
 
+static int tsn_config_del_qbv_by_tc(struct sr_qbv_conf *qbvconf, char *ifname)
+{
+	int rc = SR_ERR_OK;
+
+	if (!ifname)
+		return rc;
+
+	snprintf(stc_cmd, MAX_CMD_LEN, "tc qdisc del ");
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "dev %s ", ifname);
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	snprintf(stc_subcmd, MAX_CMD_LEN, "parent root handle 100");
+	strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
+
+	system(stc_cmd);
+	printf("cmd:%s\n", stc_cmd);
+
+	return rc;
+}
+
 static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 		struct sr_qbv_conf *qbvconf)
 {
@@ -192,8 +213,12 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 		qbvconf->qbvconf_ptr->admin.cycle_time = time;
 	}
 
-	if (stc_cfg_flag)
-		return tsn_config_qbv_by_tc(session, ifname, qbvconf);
+	if (stc_cfg_flag) {
+		if (qbvconf->qbv_en)
+			return tsn_config_qbv_by_tc(session, ifname, qbvconf);
+		else
+			return tsn_config_del_qbv_by_tc(qbvconf, ifname);
+	}
 
 	rc = tsn_qos_port_qbv_set(ifname, qbvconf->qbvconf_ptr,
 				  qbvconf->qbv_en);
