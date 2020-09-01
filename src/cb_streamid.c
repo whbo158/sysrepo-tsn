@@ -599,6 +599,7 @@ int parse_streamid_per_port_per_id(sr_session_ctx_t *session, bool abort)
 	size_t i;
 	char err_msg[MSG_MAX_LEN] = {0};
 	struct std_cb_stream_list *cur_node = stream_head;
+	struct tc_qci_stream_para *para = &sqci_stream_para;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
 	while (cur_node) {
@@ -626,13 +627,17 @@ int parse_streamid_per_port_per_id(sr_session_ctx_t *session, bool abort)
 			 */
 			if (is_del_oper(session, xpath)) {
 				printf("WARN: %s was deleted, disable %s",
-				       xpath, "this Instance.\n");
-				cur_node->stream_ptr->enable = false;
+							xpath, "this Instance.\n");
+				if (cur_node)
+				      cur_node->stream_ptr->enable = false;
+				para->enable = false;
+				para->set_flag = true;
 				rc = SR_ERR_OK;
 			} else {
 				printf("ERROR: %s sr_get_items: %s\n", __func__,
-				       sr_strerror(rc));
-				del_stream_list_node(cur_node);
+							sr_strerror(rc));
+				if (cur_node)
+					del_stream_list_node(cur_node);
 			}
 			continue;
 		} else if (rc != SR_ERR_OK) {
@@ -711,7 +716,6 @@ cleanup:
 int cb_streamid_config(sr_session_ctx_t *session, const char *path, bool abort)
 {
 	int rc = SR_ERR_OK;
-
 	if (!abort) {
 		rc = get_streamid_per_port_per_id(session, path);
 		if (rc != SR_ERR_OK)
@@ -874,6 +878,7 @@ int cb_streamid_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	snprintf(xpath, XPATH_MAX_LEN, "%s/%s:*//*", BRIDGE_COMPONENT_XPATH,
 		 CB_STREAMID_MODULE_NAME);
+
 	switch (event) {
 	case SR_EV_VERIFY:
 		rc = cb_streamid_config(session, xpath, false);

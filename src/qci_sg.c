@@ -458,11 +458,13 @@ int parse_sg_per_port_per_id(sr_session_ctx_t *session, bool abort)
 			if (is_del_oper(session, xpath)) {
 				printf("WARN: %s was deleted, disable %s",
 				       xpath, "this Instance.\n");
-				cur_node->sg_ptr->enable = false;
+				if (cur_node)
+					cur_node->sg_ptr->enable = false;
 			} else {
 				printf("WARN: %s sr_get_items: %s\n", __func__,
 				       sr_strerror(rc));
-				del_list_node(cur_node->pre, QCI_T_SG);
+				if (cur_node)
+					del_list_node(cur_node->pre, QCI_T_SG);
 			}
 			continue;
 		} else if (rc != SR_ERR_OK) {
