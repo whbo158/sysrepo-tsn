@@ -246,15 +246,22 @@ static void *qci_monitor_thread(void *arg)
 	qci_fm_clear_para();
 
 	while (true) {
-		if (st_ret == 0)
+		if (st_ret == 0) {
+			memset(st_buf, 0, sizeof(st_buf));
 			st_ret = cb_streamid_get_para(st_buf, sizeof(st_buf));
+		}
 
-		if (sg_ret == 0)
+		if (sg_ret == 0) {
+			memset(sg_buf, 0, sizeof(sg_buf));
 			sg_ret = qci_sg_get_para(sg_buf, sizeof(sg_buf));
+		}
 
-		if (fm_ret == 0)
+		if (fm_ret == 0) {
+			memset(fm_buf, 0, sizeof(fm_buf));
 			fm_ret = qci_fm_get_para(fm_buf, sizeof(fm_buf));
+		}
 
+		//printf("st_ret %d-%d-%d\n", st_ret, fm_ret, sg_ret);
 		if (!st_ret || (!fm_ret && !sg_ret))
 			goto loop_tag;
 
@@ -272,14 +279,14 @@ static void *qci_monitor_thread(void *arg)
 		cmd = strtok(cmd_buf, ";");
 		while (cmd) {
 			printf("cmd:-%s-\n", cmd);
-#if 1
+
 			sysret = system(cmd);
 			if (SYSCALL_OK(sysret)) {
 				printf("ok. cmd:%s\n", cmd);
 			} else {
 				printf("ret:0x%X cmd:%s\n", sysret, cmd);
 			}
-#endif
+
 			cmd = strtok(NULL, ";");
 		}
 		printf("qci thread ok!\n");
