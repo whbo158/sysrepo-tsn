@@ -14,7 +14,7 @@
 	    <type>edge-relay-component</type>
 	    <stream:streams>
                 <stream:stream-identity-table>
-                    <stream:index>2</stream:index>
+                    <stream:index>1</stream:index>
                     <stream:stream-id-enabled>true</stream:stream-id-enabled>
                     <stream:stream-handle>1</stream:stream-handle>
                     <stream:identification-type>null</stream:identification-type>
@@ -22,30 +22,19 @@
 	    	        <stream:null-stream-identification-params>
 	    	            <stream:dest-address>74-d0-2b-08-22-64</stream:dest-address>
 	    	            <stream:vlan-tagged>all</stream:vlan-tagged>
-	    	            <stream:vlan-id>16391</stream:vlan-id>
+	    	            <stream:vlan-id>1</stream:vlan-id>
 	    	        </stream:null-stream-identification-params>
                     </stream:parameters>
                 </stream:stream-identity-table>
             </stream:streams>
             <psfp:flow-meters>
                 <psfp:flow-meter-instance-table>
-                    <psfp:flow-meter-instance-id>5</psfp:flow-meter-instance-id>
+                    <psfp:flow-meter-instance-id>1</psfp:flow-meter-instance-id>
                     <qci-augment:flow-meter-enabled>true</qci-augment:flow-meter-enabled>
-                    <psfp:committed-information-rate>100000000</psfp:committed-information-rate>
+                    <psfp:committed-information-rate>20000000</psfp:committed-information-rate>
                     <psfp:committed-burst-size>5000</psfp:committed-burst-size>
-                    <psfp:excess-information-rate>100000000</psfp:excess-information-rate>
-                    <psfp:excess-burst-size>4000</psfp:excess-burst-size>
-                    <psfp:coupling-flag>one</psfp:coupling-flag>
-                    <psfp:color-mode>color-blind</psfp:color-mode>
-                    <psfp:drop-on-yellow>true</psfp:drop-on-yellow>
-                </psfp:flow-meter-instance-table>
-                <psfp:flow-meter-instance-table>
-                    <psfp:flow-meter-instance-id>3</psfp:flow-meter-instance-id>
-                    <qci-augment:flow-meter-enabled>true</qci-augment:flow-meter-enabled>
-                    <psfp:committed-information-rate>300000000</psfp:committed-information-rate>
-                    <psfp:committed-burst-size>6000</psfp:committed-burst-size>
-                    <psfp:excess-information-rate>200000000</psfp:excess-information-rate>
-                    <psfp:excess-burst-size>8000</psfp:excess-burst-size>
+                    <psfp:excess-information-rate>10000000</psfp:excess-information-rate>
+                    <psfp:excess-burst-size>10000</psfp:excess-burst-size>
                     <psfp:coupling-flag>one</psfp:coupling-flag>
                     <psfp:color-mode>color-blind</psfp:color-mode>
                     <psfp:drop-on-yellow>true</psfp:drop-on-yellow>
