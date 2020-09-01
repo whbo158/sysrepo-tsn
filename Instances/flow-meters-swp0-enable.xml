@@ -3,7 +3,7 @@
 	 xmlns:psfp="urn:ieee:std:802.1Q:yang:ieee802-dot1q-psfp"
 	 xmlns:qci-augment="urn:ieee:std:802.1Q:yang:ieee802-dot1q-qci-augment">
 	<bridge>
-		<name>br1</name>
+		<name>switch</name>
 		<bridge-type>provider-edge-bridge</bridge-type>
 		<address>d6-ad-62-c5-49-ae</address>
 		<component>

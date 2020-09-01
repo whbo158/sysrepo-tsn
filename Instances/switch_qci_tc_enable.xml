@@ -6,7 +6,7 @@
 	 xmlns:stream="urn:ieee:std:802.1Q:yang:ieee802-dot1q-stream-id"
          xmlns:psfp="urn:ieee:std:802.1Q:yang:ieee802-dot1q-psfp">
 	<bridge>
-        <name>br1</name>
+        <name>switch</name>
 	<bridge-type>provider-edge-bridge</bridge-type>
 	<address>d6-ad-62-c6-49-ae</address>
         <component>
@@ -27,19 +27,6 @@
                     </stream:parameters>
                 </stream:stream-identity-table>
             </stream:streams>
-            <sfsg:stream-filters>
-                <sfsg:stream-filter-instance-table>
-                    <sfsg:stream-filter-instance-id>1</sfsg:stream-filter-instance-id>
-                    <qci-augment:stream-filter-enabled>true</qci-augment:stream-filter-enabled>
-                    <sfsg:priority-spec>two</sfsg:priority-spec>
-                    <sfsg:stream-gate-ref>1</sfsg:stream-gate-ref>
-                    <sfsg:filter-specification-list>
-                        <sfsg:index>1</sfsg:index>
-                        <sfsg:maximum-sdu-size>800</sfsg:maximum-sdu-size>
-                        <sfsg:stream-blocked-due-to-oversize-frame-enabled>false</sfsg:stream-blocked-due-to-oversize-frame-enabled>
-                    </sfsg:filter-specification-list>
-                </sfsg:stream-filter-instance-table>
-            </sfsg:stream-filters>
             <sfsg:stream-gates>
                 <sfsg:stream-gate-instance-table>
                     <sfsg:stream-gate-instance-id>1</sfsg:stream-gate-instance-id>
