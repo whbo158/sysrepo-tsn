@@ -22,7 +22,7 @@
 	    	        <stream:null-stream-identification-params>
 	    	            <stream:dest-address>74-d0-2b-08-22-64</stream:dest-address>
 	    	            <stream:vlan-tagged>all</stream:vlan-tagged>
-	    	            <stream:vlan-id>5</stream:vlan-id>
+	    	            <stream:vlan-id>1</stream:vlan-id>
 	    	        </stream:null-stream-identification-params>
                     </stream:parameters>
                 </stream:stream-identity-table>
@@ -35,13 +35,9 @@
                     <sfsg:admin-ipv>wildcard</sfsg:admin-ipv>
 		    <psfp:admin-control-list-length>2</psfp:admin-control-list-length>
 		    <psfp:admin-base-time>
-			    <psfp:seconds>100</psfp:seconds>
-			    <psfp:nanoseconds>5000</psfp:nanoseconds>
+			    <psfp:seconds>0</psfp:seconds>
+			    <psfp:nanoseconds>0</psfp:nanoseconds>
 		    </psfp:admin-base-time>
-		    <psfp:admin-cycle-time>
-			<psfp:numerator>16000</psfp:numerator>
-			<psfp:denominator>1000000000</psfp:denominator>
-		    </psfp:admin-cycle-time>
                     <psfp:admin-control-list>
                         <psfp:index>0</psfp:index>
                         <psfp:operation-name>psfp:set-gate-and-ipv</psfp:operation-name>
