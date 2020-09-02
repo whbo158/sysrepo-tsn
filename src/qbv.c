@@ -117,7 +117,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 printf("WHB %s ok\n", __func__);
 
 	host_name = get_host_name();
-	if (host_name && strstr(host_name, "IMX8MMEVK"))
+	if (host_name && strstr(host_name, "IMX8MPEVK"))
 		num_tc = 5;
 
 	base_time = pqbv->admin.base_time;
