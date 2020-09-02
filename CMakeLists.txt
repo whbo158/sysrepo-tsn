@@ -114,6 +114,10 @@ if (CONF_SYSREPO_TSN_TC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSYSREPO_TSN_TC")
 endif()
 
+if (CONF_SYSREPO_TSN_AARCH64)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSYSREPO_TSN_AARCH64")
+endif()
+
 # Command line options to be passed to `sysrepoctl` when working with modules
 # which should only be accessible by an administrator
 if (NOT SYSREPOCTL_ROOT_PERMS)
