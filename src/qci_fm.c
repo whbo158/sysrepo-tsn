@@ -318,7 +318,6 @@ int parse_fm_per_port_per_id(sr_session_ctx_t *session, bool abort)
 		rc = sr_get_items(session, xpath, &values, &count);
 		if (rc == SR_ERR_NOT_FOUND) {
 			rc = SR_ERR_OK;
-			cur_node = cur_node->next;
 			/*
 			 * If can't find any item, we should check whether this
 			 * container was deleted.
@@ -326,14 +325,13 @@ int parse_fm_per_port_per_id(sr_session_ctx_t *session, bool abort)
 			if (is_del_oper(session, xpath)) {
 				printf("WARN: %s was deleted, disable %s",
 				       xpath, "this Instance.\n");
-				if (cur_node)
-					cur_node->fm_ptr->enable = false;
+				cur_node->fm_ptr->enable = false;
 			} else {
 				printf("WARN: %s sr_get_items: %s\n", __func__,
 				       sr_strerror(rc));
-				if (cur_node)
-					del_list_node(cur_node->pre, QCI_T_FM);
+				del_list_node(cur_node->pre, QCI_T_FM);
 			}
+			cur_node = cur_node->next;
 			continue;
 		} else if (rc != SR_ERR_OK) {
 			snprintf(err_msg, MSG_MAX_LEN,

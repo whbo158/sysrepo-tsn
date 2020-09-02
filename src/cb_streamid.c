@@ -620,7 +620,6 @@ int parse_streamid_per_port_per_id(sr_session_ctx_t *session, bool abort)
 		rc = sr_get_items(session, xpath, &values, &count);
 		if (rc == SR_ERR_NOT_FOUND) {
 			rc = SR_ERR_OK;
-			cur_node = cur_node->next;
 			/*
 			 * If can't find any item, we should check whether this
 			 * container was deleted.
@@ -628,17 +627,16 @@ int parse_streamid_per_port_per_id(sr_session_ctx_t *session, bool abort)
 			if (is_del_oper(session, xpath)) {
 				printf("WARN: %s was deleted, disable %s",
 							xpath, "this Instance.\n");
-				if (cur_node)
-				      cur_node->stream_ptr->enable = false;
+				cur_node->stream_ptr->enable = false;
 				para->enable = false;
 				para->set_flag = true;
 				rc = SR_ERR_OK;
 			} else {
 				printf("ERROR: %s sr_get_items: %s\n", __func__,
 							sr_strerror(rc));
-				if (cur_node)
-					del_stream_list_node(cur_node);
+				del_stream_list_node(cur_node);
 			}
+			cur_node = cur_node->next;
 			continue;
 		} else if (rc != SR_ERR_OK) {
 			snprintf(err_msg, MSG_MAX_LEN,
@@ -850,7 +848,7 @@ int cb_streamid_get_para(char *buf, int len)
 	}
 
 	if (!para->dmac && !para->smac && !para->dport && !para->sport && !para->vid) {
-		snprintf(sub_buf, SUB_CMD_LEN, "matchall ", pri);
+		snprintf(sub_buf, SUB_CMD_LEN, "matchall ");
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
