@@ -659,11 +659,19 @@ int qci_sg_get_para(char *buf, int len)
 		snprintf(sub_buf, len, "action gate index %d ", gate->id);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
+#ifdef SYSREPO_TSN_AARCH64
 		snprintf(sub_buf, SUB_CMD_LEN, "base-time %ld ", gate->base_time);
+#else
+		snprintf(sub_buf, SUB_CMD_LEN, "base-time %lld ", gate->base_time);
+#endif
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 		if (gate->cycle_time) {
+#ifdef SYSREPO_TSN_AARCH64
 			snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %ld ", gate->cycle_time);
+#else
+			snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %lld ", gate->cycle_time);
+#endif
 			strncat(buf, sub_buf, len - 1 - strlen(buf));
 		}
 

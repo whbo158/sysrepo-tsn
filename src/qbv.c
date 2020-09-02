@@ -34,6 +34,7 @@ static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
 static char sif_name[IF_NAME_MAX_LEN];
 
+
 struct tsn_qbv_conf *malloc_qbv_memory(void)
 {
 	struct tsn_qbv_conf *qbvconf_ptr;
@@ -149,19 +150,29 @@ printf("WHB %s ok\n", __func__);
 	}
 
 	if (base_time > 0) {
+#ifdef SYSREPO_TSN_AARCH64
 		snprintf(stc_subcmd, MAX_CMD_LEN, "base-time %ld ", base_time);
+#else
+		snprintf(stc_subcmd, MAX_CMD_LEN, "base-time %lld ", base_time);
+#endif
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
 	if (cycle_time > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %ld ",
-				cycle_time);
+#ifdef SYSREPO_TSN_AARCH64
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %ld ", cycle_time);
+#else
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %lld ", cycle_time);
+#endif
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
 	if (cycle_time_extension > 0) {
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %ld ",
-				cycle_time_extension);
+#ifdef SYSREPO_TSN_AARCH64
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %ld ", cycle_time_extension);
+#else
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %lld ", cycle_time_extension);
+#endif
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 

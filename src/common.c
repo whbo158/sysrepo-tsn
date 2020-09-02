@@ -346,3 +346,20 @@ bool is_del_oper(sr_session_ctx_t *session, char *path)
 		ret = true;
 	return ret;
 }
+
+static char shost_name[64];
+char *get_host_name(void)
+{
+	int ret = 0;
+
+	if (strlen(shost_name) == 0) {
+		ret = gethostname(shost_name, sizeof(shost_name));
+		if (ret) {
+			printf ("sysrepo-tsn gethostname error!\n");
+			return NULL;
+		}
+		printf("hostname:%s\n", shost_name);
+	}
+
+	return shost_name;
+}
