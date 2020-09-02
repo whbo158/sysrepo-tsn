@@ -849,6 +849,11 @@ int cb_streamid_get_para(char *buf, int len)
 		}
 	}
 
+	if (!para->dmac && !para->smac && !para->dport && !para->sport && !para->vid) {
+		snprintf(sub_buf, SUB_CMD_LEN, "matchall ", pri);
+		strncat(buf, sub_buf, len - 1 - strlen(buf));
+	}
+
 	return (int)strlen(buf);
 }
 
