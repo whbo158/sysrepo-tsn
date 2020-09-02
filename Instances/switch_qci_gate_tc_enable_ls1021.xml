@@ -22,7 +22,7 @@
 	    	        <stream:null-stream-identification-params>
 	    	            <stream:dest-address>74-d0-2b-08-22-64</stream:dest-address>
 	    	            <stream:vlan-tagged>all</stream:vlan-tagged>
-	    	            <stream:vlan-id>8193</stream:vlan-id>
+	    	            <stream:vlan-id>1</stream:vlan-id>
 	    	        </stream:null-stream-identification-params>
                     </stream:parameters>
                 </stream:stream-identity-table>
@@ -43,8 +43,8 @@
                         <psfp:operation-name>psfp:set-gate-and-ipv</psfp:operation-name>
                         <psfp:parameters>
                             <psfp:gate-state-value>open</psfp:gate-state-value>
-                            <psfp:ipv-value>two</psfp:ipv-value>
-                            <psfp:time-interval-value>200</psfp:time-interval-value>
+                            <psfp:ipv-value>wildcard</psfp:ipv-value>
+                            <psfp:time-interval-value>1200</psfp:time-interval-value>
                         </psfp:parameters>
                     </psfp:admin-control-list>
                 </sfsg:stream-gate-instance-table>

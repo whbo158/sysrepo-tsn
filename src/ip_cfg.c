@@ -104,7 +104,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 	ret = ioctl(sockfd, SIOCGIFFLAGS, &ifr);
 	if (ret < 0) {
 		PRINT("%s:get interface flag error:%d\n", __func__, ret);
-		return -3;
+		return 0;
 	}
 
 	if (req == SIOCSIFHWADDR) {
