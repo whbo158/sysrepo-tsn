@@ -34,7 +34,6 @@ static char stc_cmd[MAX_CMD_LEN];
 static char stc_subcmd[MAX_CMD_LEN];
 static char sif_name[IF_NAME_MAX_LEN];
 
-
 struct tsn_qbv_conf *malloc_qbv_memory(void)
 {
 	struct tsn_qbv_conf *qbvconf_ptr;
@@ -114,7 +113,6 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 
 	if (pqbv->admin.control_list_length == 0)
 		return rc;
-printf("WHB %s ok\n", __func__);
 
 	host_name = get_host_name();
 	if (host_name && strstr(host_name, "IMX8MPEVK"))
@@ -200,7 +198,8 @@ printf("WHB %s ok\n", __func__);
 		printf("ok. cmd:%s\n", stc_cmd);
 		snprintf(sif_name, IF_NAME_MAX_LEN, "%s", ifname);
 	} else {
-		printf("ret:0x%X cmd:%s\n", sysret, stc_cmd);
+		printf("failed! ret:0x%X cmd:%s\n", sysret, stc_cmd);
+		rc = SR_ERR_INVAL_ARG;
 	}
 
 	return rc;

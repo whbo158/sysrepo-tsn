@@ -104,7 +104,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 	ret = ioctl(sockfd, SIOCGIFFLAGS, &ifr);
 	if (ret < 0) {
 		PRINT("%s:get interface flag error:%d\n", __func__, ret);
-		return 0;
+		return -3;
 	}
 
 	if (req == SIOCSIFHWADDR) {
@@ -409,7 +409,7 @@ int ip_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0};
-printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
+
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
 
 	switch (event) {

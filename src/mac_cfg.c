@@ -90,7 +90,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 	ret = ioctl(sockfd, SIOCGIFFLAGS, &ifr);
 	if (ret < 0) {
 		PRINT("%s:get interface flag err:%d\n", __func__, ret);
-		return 0;
+		return -3;
 	}
 
 	if (req == SIOCSIFHWADDR) {
@@ -105,7 +105,7 @@ static int set_inet_cfg(char *ifname, int req, void *buf, int len)
 	ret = ioctl(sockfd, req, &ifr);
 	close(sockfd);
 	if (ret < 0) {
-		PRINT("%s ioctl error! %s ret:%d\n", __func__, ifname, ret);
+		PRINT("%s ioctl error! ret:%d\n", __func__, ret);
 		return -4;
 	}
 
@@ -328,7 +328,6 @@ int mac_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 
 	printf("SR_EV:%d-%d-%d-%d\n", SR_EV_VERIFY, SR_EV_ENABLED, SR_EV_APPLY, SR_EV_ABORT);
 
-printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	snprintf(xpath, XPATH_MAX_LEN, "%s", path);
 
 	switch (event) {

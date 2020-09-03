@@ -233,6 +233,14 @@ static char st_buf[MAX_CMD_LEN];
 static char fm_buf[MAX_CMD_LEN];
 static char sg_buf[MAX_CMD_LEN];
 
+static int qci_show_err_msg(bool fm_flag, bool gate_flag)
+{
+	//char err_msg[MSG_MAX_LEN] = {0};
+	//char xpath[XPATH_MAX_LEN] = {0,};
+
+	return 0;
+}
+
 static void *qci_monitor_thread(void *arg)
 {
 	int buf_len = sizeof(cmd_buf);
@@ -243,6 +251,7 @@ static void *qci_monitor_thread(void *arg)
 	int sg_ret = 0;
 
 	cb_streamid_clear_para();
+	qci_sg_clear_para();
 	qci_fm_clear_para();
 
 	while (true) {

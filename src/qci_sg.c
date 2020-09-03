@@ -519,10 +519,6 @@ int config_sg(sr_session_ctx_t *session)
 			time = cal_cycle_time(&cur_node->sg_ptr->cycletime);
 			sgi->admin.cycle_time = time;
 		}
-
-		if (stc_cfg_flag)
-			goto loop_tag;
-
 		/* set new stream gates configuration */
 		rc = tsn_qci_psfp_sgi_set(cur_node->sg_ptr->port,
 					  cur_node->sg_ptr->sg_handle,
@@ -542,7 +538,6 @@ int config_sg(sr_session_ctx_t *session)
 		} else {
 			cur_node->apply_st = APPLY_SET_SUC;
 		}
-loop_tag:
 		if (cur_node->next == NULL)
 			break;
 		cur_node = cur_node->next;
@@ -679,9 +674,9 @@ int qci_sg_get_para(char *buf, int len)
 			acl = gate->acl + j;
 
 			if (acl->state)
-			      snprintf(sub_buf, SUB_CMD_LEN, "sched-entry OPEN ");
+				snprintf(sub_buf, SUB_CMD_LEN, "sched-entry OPEN ");
 			else
-			      snprintf(sub_buf, SUB_CMD_LEN, "sched-entry CLOSE ");
+				snprintf(sub_buf, SUB_CMD_LEN, "sched-entry CLOSE ");
 			strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 			snprintf(sub_buf, SUB_CMD_LEN, "%d %d -1 ", acl->interval, acl->ipv);
@@ -727,7 +722,6 @@ int qci_sg_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 	stc_cfg_flag = false;
 #endif
 
-printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
 	snprintf(xpath, XPATH_MAX_LEN, "%s%s//*", BRIDGE_COMPONENT_XPATH,
 		 QCISG_XPATH);
 	switch (event) {
