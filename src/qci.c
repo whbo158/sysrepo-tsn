@@ -232,47 +232,65 @@ static char cmd_buf[MAX_CMD_LEN * 4];
 static char st_buf[MAX_CMD_LEN];
 static char fm_buf[MAX_CMD_LEN];
 static char sg_buf[MAX_CMD_LEN];
+static sr_session_ctx_t *sqci_session;
+static char sxpath[XPATH_MAX_LEN];
+static bool sqci_check_flag;
 
-static int qci_show_err_msg(bool fm_flag, bool gate_flag)
+int qci_set_session(sr_session_ctx_t *session)
 {
-	//char err_msg[MSG_MAX_LEN] = {0};
-	//char xpath[XPATH_MAX_LEN] = {0,};
-
+	sqci_session = session;
 	return 0;
 }
 
-static void *qci_monitor_thread(void *arg)
+int qci_set_xpath(char *xpath)
+{
+	memcpy(sxpath, xpath, sizeof(sxpath));
+	return 0;
+}
+
+static int qci_ret_err_msg(char *msg)
+{
+	static char err_msg[MSG_MAX_LEN] = {0};
+
+	snprintf(err_msg, MSG_MAX_LEN, "ERROR: %s", msg);
+	sr_set_error(sqci_session, err_msg, sxpath);
+	return 0;
+}
+
+int qci_check_parameter(void)
 {
 	int buf_len = sizeof(cmd_buf);
+	int rc = SR_ERR_OK;
 	char *cmd = NULL;
 	pid_t sysret = 0;
 	int st_ret = 0;
 	int fm_ret = 0;
 	int sg_ret = 0;
+	int cnt = 0;
 
-	cb_streamid_clear_para();
-	qci_sg_clear_para();
-	qci_fm_clear_para();
+	if (!sqci_check_flag) {
+		sqci_check_flag = true;
 
-	while (true) {
-		if (st_ret == 0) {
-			memset(st_buf, 0, sizeof(st_buf));
-			st_ret = cb_streamid_get_para(st_buf, sizeof(st_buf));
+		memset(st_buf, 0, sizeof(st_buf));
+		st_ret = cb_streamid_get_para(st_buf, sizeof(st_buf));
+
+		memset(sg_buf, 0, sizeof(sg_buf));
+		sg_ret = qci_sg_get_para(sg_buf, sizeof(sg_buf));
+
+		memset(fm_buf, 0, sizeof(fm_buf));
+		fm_ret = qci_fm_get_para(fm_buf, sizeof(fm_buf));
+
+		printf("st_ret %d-%d-%d\n", st_ret, fm_ret, sg_ret);
+		if (!st_ret || (!fm_ret && !sg_ret)) {
+			if (!st_ret)
+				qci_ret_err_msg("need qci stream id parameter!");
+			else if (!fm_ret)
+				qci_ret_err_msg("need qci flow meter parameter!");
+			else if (!sg_ret)
+				qci_ret_err_msg("need qci gate parameter!");
+
+			goto ret_tag;
 		}
-
-		if (sg_ret == 0) {
-			memset(sg_buf, 0, sizeof(sg_buf));
-			sg_ret = qci_sg_get_para(sg_buf, sizeof(sg_buf));
-		}
-
-		if (fm_ret == 0) {
-			memset(fm_buf, 0, sizeof(fm_buf));
-			fm_ret = qci_fm_get_para(fm_buf, sizeof(fm_buf));
-		}
-
-		//printf("st_ret %d-%d-%d\n", st_ret, fm_ret, sg_ret);
-		if (!st_ret || (!fm_ret && !sg_ret))
-			goto loop_tag;
 
 		memset(cmd_buf, 0, buf_len);
 
@@ -294,30 +312,31 @@ static void *qci_monitor_thread(void *arg)
 				printf("ok. cmd:%s\n", cmd);
 			} else {
 				printf("ret:0x%X cmd:%s\n", sysret, cmd);
+				if (cnt > 0) {
+					qci_ret_err_msg(cmd);
+					rc = SR_ERR_INVAL_ARG;
+				}
 			}
 
 			cmd = strtok(NULL, ";");
+			cnt++;
 		}
-		printf("qci thread ok!\n");
-
-		fm_ret = 0;
-		sg_ret = 0;
-		st_ret = 0;
+		printf("qci command ok!\n");
 
 		qci_fm_clear_para();
 		qci_sg_clear_para();
 		cb_streamid_clear_para();
-
-loop_tag:
-		sleep(1);
 	}
 
-	return NULL;
+ret_tag:
+	sqci_check_flag = false;
+	return rc;
 }
 
-int qci_init_thread(void)
+int qci_init_para(void)
 {
-	int ret;
+	int ret = 0;
+#if 0
 	pthread_t qci_thread;
 
 	ret = pthread_create(&qci_thread, NULL, qci_monitor_thread, NULL);
@@ -325,6 +344,10 @@ int qci_init_thread(void)
 		printf("Unable to create qci monitor thread\n");
 
 	pthread_detach(qci_thread);
+#endif
+	cb_streamid_clear_para();
+	qci_sg_clear_para();
+	qci_fm_clear_para();
 
 	return ret;
 }

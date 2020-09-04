@@ -20,7 +20,7 @@
                     <stream:identification-type>null</stream:identification-type>
                     <stream:parameters>
 	    	        <stream:null-stream-identification-params>
-	    	            <stream:dest-address>74-d0-2b-08-22-64</stream:dest-address>
+	    	            <stream:dest-address>92-F2-5E-E2-CC-C4</stream:dest-address>
 	    	            <stream:vlan-tagged>all</stream:vlan-tagged>
 	    	            <stream:vlan-id>1</stream:vlan-id>
 	    	        </stream:null-stream-identification-params>

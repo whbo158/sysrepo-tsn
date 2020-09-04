@@ -595,10 +595,12 @@ int qci_sg_config(sr_session_ctx_t *session, const char *path, bool abort)
 	if (rc != SR_ERR_OK)
 		goto out;
 
-	if (stc_cfg_flag)
-		rc = qci_sg_update_time();
-	else
+	if (stc_cfg_flag) {
+		qci_sg_update_time();
+		rc = qci_check_parameter();
+	} else {
 		rc = config_sg(session);
+	}
 out:
 	return rc;
 }
@@ -716,14 +718,16 @@ int qci_sg_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
+	snprintf(xpath, XPATH_MAX_LEN, "%s%s//*", BRIDGE_COMPONENT_XPATH,
+		 QCISG_XPATH);
 #ifdef SYSREPO_TSN_TC
 	stc_cfg_flag = true;
+	qci_set_xpath(xpath);
+	qci_set_session(session);
 #else
 	stc_cfg_flag = false;
 #endif
-
-	snprintf(xpath, XPATH_MAX_LEN, "%s%s//*", BRIDGE_COMPONENT_XPATH,
-		 QCISG_XPATH);
+printf("qci_sg_subtree_change_cb\n");
 	switch (event) {
 	case SR_EV_VERIFY:
 		rc = qci_sg_config(session, xpath, false);

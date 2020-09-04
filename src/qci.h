@@ -143,7 +143,7 @@ int qci_sg_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 		sr_notif_event_t event, void *private_ctx);
 
-int qci_init_thread(void);
+int qci_init_para(void);
 
 int cb_streamid_get_para(char *buf, int len);
 int cb_streamid_clear_para(void);
@@ -155,6 +155,10 @@ int qci_sg_get_para(char *buf, int len);
 int qci_sg_clear_para(void);
 
 char *get_interface_name(void);
+
+int qci_set_session(sr_session_ctx_t *session);
+int qci_set_xpath(char *xpath);
+int qci_check_parameter(void);
 
 
 #endif

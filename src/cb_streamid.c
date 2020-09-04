@@ -514,8 +514,7 @@ int get_streamid_per_port_per_id(sr_session_ctx_t *session, const char *path)
 		if (!cpname)
 			continue;
 
-		snprintf(sqci_stream_para.ifname, IF_NAME_MAX_LEN,
-			"%s", cpname);
+		snprintf(sqci_stream_para.ifname, IF_NAME_MAX_LEN, "%s", cpname);
 
 		if (!stream_head) {
 			stream_head = new_stream_list_node(cpname,
@@ -626,14 +625,14 @@ int parse_streamid_per_port_per_id(sr_session_ctx_t *session, bool abort)
 			 */
 			if (is_del_oper(session, xpath)) {
 				printf("WARN: %s was deleted, disable %s",
-							xpath, "this Instance.\n");
+				       xpath, "this Instance.\n");
 				cur_node->stream_ptr->enable = false;
 				para->enable = false;
 				para->set_flag = true;
 				rc = SR_ERR_OK;
 			} else {
 				printf("ERROR: %s sr_get_items: %s\n", __func__,
-							sr_strerror(rc));
+				       sr_strerror(rc));
 				del_stream_list_node(cur_node);
 			}
 			cur_node = cur_node->next;
@@ -714,6 +713,7 @@ cleanup:
 int cb_streamid_config(sr_session_ctx_t *session, const char *path, bool abort)
 {
 	int rc = SR_ERR_OK;
+
 	if (!abort) {
 		rc = get_streamid_per_port_per_id(session, path);
 		if (rc != SR_ERR_OK)
@@ -726,7 +726,9 @@ int cb_streamid_config(sr_session_ctx_t *session, const char *path, bool abort)
 	if (rc != SR_ERR_OK)
 		goto out;
 
-	if (!stc_cfg_flag)
+	if (stc_cfg_flag)
+		rc = qci_check_parameter();
+	else
 		rc = config_streamid(session);
 
 out:
@@ -872,15 +874,16 @@ int cb_streamid_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
+printf("cb_streamid_subtree_change_cb\n");
+	snprintf(xpath, XPATH_MAX_LEN, "%s/%s:*//*", BRIDGE_COMPONENT_XPATH,
+		 CB_STREAMID_MODULE_NAME);
 #ifdef SYSREPO_TSN_TC
 	stc_cfg_flag = true;
+	qci_set_xpath(xpath);
+	qci_set_session(session);
 #else
 	stc_cfg_flag = false;
 #endif
-
-printf("WHB 0821 %s event:%d path:%s\n", __func__, event, path);
-	snprintf(xpath, XPATH_MAX_LEN, "%s/%s:*//*", BRIDGE_COMPONENT_XPATH,
-		 CB_STREAMID_MODULE_NAME);
 
 	switch (event) {
 	case SR_EV_VERIFY:

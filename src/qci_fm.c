@@ -421,7 +421,9 @@ int qci_fm_config(sr_session_ctx_t *session, const char *path, bool abort)
 	if (rc != SR_ERR_OK)
 		goto out;
 
-	if (!stc_cfg_flag)
+	if (stc_cfg_flag)
+		rc = qci_check_parameter();
+	else
 		rc = config_fm(session);
 out:
 	return rc;
@@ -451,7 +453,7 @@ int qci_fm_get_para(char *buf, int len)
 	struct tc_qci_policer_para *para = &sqci_policer_para;
 	struct tc_qci_policer_entry *entry = NULL;
 	char sub_buf[SUB_CMD_LEN];
-	uint32_t eir = 0;
+	uint32_t cir = 0;
 	int i = 0;
 
 	if (!para->set_flag || !buf || !len)
@@ -465,19 +467,19 @@ int qci_fm_get_para(char *buf, int len)
 		snprintf(sub_buf, len, "action police index %d ", entry->id);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
-		if (entry->eir > MBPS) {
-			eir = entry->eir / MBPS;
-			snprintf(sub_buf, SUB_CMD_LEN, "rate %dmbit ", eir);
-		} else if (entry->eir > KBPS) {
-			eir = entry->eir / KBPS;
-			snprintf(sub_buf, SUB_CMD_LEN, "rate %dkbit ", eir);
+		if (entry->cir > MBPS) {
+			cir = entry->cir / MBPS;
+			snprintf(sub_buf, SUB_CMD_LEN, "rate %dmbit ", cir);
+		} else if (entry->cir > KBPS) {
+			cir = entry->cir / KBPS;
+			snprintf(sub_buf, SUB_CMD_LEN, "rate %dkbit ", cir);
 		} else {
-			eir = entry->eir;
-			snprintf(sub_buf, SUB_CMD_LEN, "rate %dbit ", eir);
+			cir = entry->cir;
+			snprintf(sub_buf, SUB_CMD_LEN, "rate %dbit ", cir);
 		}
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
-		snprintf(sub_buf, SUB_CMD_LEN, "burst %d ", entry->ebs);
+		snprintf(sub_buf, SUB_CMD_LEN, "burst %d ", entry->cbs);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 	}
 
@@ -496,14 +498,16 @@ int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
+printf("qci_fm_subtree_change_cb\n");
+	snprintf(xpath, XPATH_MAX_LEN, "%s%s//*", BRIDGE_COMPONENT_XPATH,
+		 QCIFM_XPATH);
 #ifdef SYSREPO_TSN_TC
 	stc_cfg_flag = true;
+	qci_set_xpath(xpath);
+	qci_set_session(session);
 #else
 	stc_cfg_flag = false;
 #endif
-
-	snprintf(xpath, XPATH_MAX_LEN, "%s%s//*", BRIDGE_COMPONENT_XPATH,
-		 QCIFM_XPATH);
 	switch (event) {
 	case SR_EV_VERIFY:
 		rc = qci_fm_config(session, xpath, false);
