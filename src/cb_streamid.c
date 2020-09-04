@@ -35,6 +35,7 @@
 struct std_cb_stream_list *stream_head;
 
 static bool stc_cfg_flag;
+static bool stc_qdisc_flag;
 static struct tc_qci_stream_para sqci_stream_para;
 
 char *get_interface_name(void)
@@ -777,6 +778,7 @@ int cb_streamid_del_tc_config(char *buf, int len)
 	system(buf);
 
 	para->set_flag = false;
+	stc_qdisc_flag = false;
 
 	return 0;
 }
@@ -796,7 +798,11 @@ int cb_streamid_get_para(char *buf, int len)
 	if (!para->enable)
 		return cb_streamid_del_tc_config(buf, len);
 
-	snprintf(buf, len, "tc qdisc add dev %s ingress >/dev/null 2>&1;", para->ifname);
+	if (!stc_qdisc_flag)
+		snprintf(buf, len, "tc qdisc add dev %s ingress;", para->ifname);
+	else
+		memset(buf, 0, len);
+	stc_qdisc_flag = true;
 
 	snprintf(sub_buf, SUB_CMD_LEN, "tc filter del dev %s ingress;", para->ifname);
 	strncat(buf, sub_buf, len - 1 - strlen(buf));

@@ -252,7 +252,8 @@ static int qci_ret_err_msg(char *msg)
 {
 	static char err_msg[MSG_MAX_LEN] = {0};
 
-	snprintf(err_msg, MSG_MAX_LEN, "ERROR: %s", msg);
+	snprintf(err_msg, MSG_MAX_LEN, "Warning: %s", msg);
+	sr_log_stderr(SR_LL_WRN);
 	sr_set_error(sqci_session, err_msg, sxpath);
 	return 0;
 }
@@ -266,7 +267,6 @@ int qci_check_parameter(void)
 	int st_ret = 0;
 	int fm_ret = 0;
 	int sg_ret = 0;
-	int cnt = 0;
 
 	if (!sqci_check_flag) {
 		sqci_check_flag = true;
@@ -312,14 +312,12 @@ int qci_check_parameter(void)
 				printf("ok. cmd:%s\n", cmd);
 			} else {
 				printf("ret:0x%X cmd:%s\n", sysret, cmd);
-				if (cnt > 0) {
-					qci_ret_err_msg(cmd);
-					rc = SR_ERR_INVAL_ARG;
-				}
+				qci_ret_err_msg(cmd);
+				rc = SR_ERR_INVAL_ARG;
+				break;
 			}
 
 			cmd = strtok(NULL, ";");
-			cnt++;
 		}
 		printf("qci command ok!\n");
 
