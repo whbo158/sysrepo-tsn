@@ -281,14 +281,12 @@ int qci_check_parameter(void)
 		fm_ret = qci_fm_get_para(fm_buf, sizeof(fm_buf));
 
 		printf("st_ret %d-%d-%d\n", st_ret, fm_ret, sg_ret);
-		if (!st_ret || (!fm_ret && !sg_ret)) {
-			if (!st_ret)
-				qci_ret_err_msg("need qci stream id parameter!");
-			else if (!fm_ret)
-				qci_ret_err_msg("need qci flow meter parameter!");
-			else if (!sg_ret)
-				qci_ret_err_msg("need qci gate parameter!");
+		if (!st_ret)
+			goto ret_tag;
 
+		if (!fm_ret && !sg_ret) {
+			qci_ret_err_msg("need qci flow meter or gate parameter!");
+			rc = SR_ERR_INVAL_ARG;
 			goto ret_tag;
 		}
 

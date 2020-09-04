@@ -798,11 +798,11 @@ int cb_streamid_get_para(char *buf, int len)
 	if (!para->enable)
 		return cb_streamid_del_tc_config(buf, len);
 
-	if (!stc_qdisc_flag)
-		snprintf(buf, len, "tc qdisc add dev %s ingress;", para->ifname);
-	else
-		memset(buf, 0, len);
-	stc_qdisc_flag = true;
+	if (!stc_qdisc_flag) {
+		snprintf(sub_buf, SUB_CMD_LEN, "tc qdisc add dev %s ingress", para->ifname);
+		system(sub_buf);
+		stc_qdisc_flag = true;
+	}
 
 	snprintf(sub_buf, SUB_CMD_LEN, "tc filter del dev %s ingress;", para->ifname);
 	strncat(buf, sub_buf, len - 1 - strlen(buf));
