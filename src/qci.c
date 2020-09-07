@@ -253,7 +253,6 @@ static int qci_ret_err_msg(char *msg)
 	static char err_msg[MSG_MAX_LEN] = {0};
 
 	snprintf(err_msg, MSG_MAX_LEN, "Warning: %s", msg);
-	sr_log_stderr(SR_LL_WRN);
 	sr_set_error(sqci_session, err_msg, sxpath);
 	return 0;
 }
@@ -331,19 +330,9 @@ ret_tag:
 
 int qci_init_para(void)
 {
-	int ret = 0;
-#if 0
-	pthread_t qci_thread;
-
-	ret = pthread_create(&qci_thread, NULL, qci_monitor_thread, NULL);
-	if (ret != 0)
-		printf("Unable to create qci monitor thread\n");
-
-	pthread_detach(qci_thread);
-#endif
 	cb_streamid_clear_para();
 	qci_sg_clear_para();
 	qci_fm_clear_para();
 
-	return ret;
+	return 0;
 }
