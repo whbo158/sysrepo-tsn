@@ -148,29 +148,17 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 	}
 
 	if (base_time > 0) {
-#ifdef SYSREPO_TSN_AARCH64
-		snprintf(stc_subcmd, MAX_CMD_LEN, "base-time %ld ", base_time);
-#else
-		snprintf(stc_subcmd, MAX_CMD_LEN, "base-time %lld ", base_time);
-#endif
+		snprintf(stc_subcmd, MAX_CMD_LEN, "base-time %" PRIu64 " ", base_time);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
 	if (cycle_time > 0) {
-#ifdef SYSREPO_TSN_AARCH64
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %ld ", cycle_time);
-#else
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %lld ", cycle_time);
-#endif
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time %" PRIu64 " ", cycle_time);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 
 	if (cycle_time_extension > 0) {
-#ifdef SYSREPO_TSN_AARCH64
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %ld ", cycle_time_extension);
-#else
-		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %lld ", cycle_time_extension);
-#endif
+		snprintf(stc_subcmd, MAX_CMD_LEN, "cycle-time-extension %" PRIu64 " ", cycle_time_extension);
 		strncat(stc_cmd, stc_subcmd, MAX_CMD_LEN - 1 - strlen(stc_cmd));
 	}
 

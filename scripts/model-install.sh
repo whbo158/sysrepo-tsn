@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# Copyright 2019 NXP
+#
+# Licensed under the Apache License, Version 2.0
+#
 
 set -eu -o pipefail
 

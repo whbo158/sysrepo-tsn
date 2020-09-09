@@ -656,19 +656,11 @@ int qci_sg_get_para(char *buf, int len)
 		snprintf(sub_buf, len, "action gate index %d ", gate->id);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
-#ifdef SYSREPO_TSN_AARCH64
-		snprintf(sub_buf, SUB_CMD_LEN, "base-time %ld ", gate->base_time);
-#else
-		snprintf(sub_buf, SUB_CMD_LEN, "base-time %lld ", gate->base_time);
-#endif
+		snprintf(sub_buf, SUB_CMD_LEN, "base-time %" PRIu64 " ", gate->base_time);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 		if (gate->cycle_time) {
-#ifdef SYSREPO_TSN_AARCH64
-			snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %ld ", gate->cycle_time);
-#else
-			snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %lld ", gate->cycle_time);
-#endif
+			snprintf(sub_buf, SUB_CMD_LEN, "cycle-time %" PRIu64 " ", gate->cycle_time);
 			strncat(buf, sub_buf, len - 1 - strlen(buf));
 		}
 
@@ -691,7 +683,7 @@ int qci_sg_get_para(char *buf, int len)
 		goto ret_tag;
 
 	ifn = get_interface_name();
-	if (strstr(host_name, "LS1028ATSN") && (strlen(ifn) >= 5))
+	if (strstr(host_name, "LS1028ATSN") && (strlen(ifn) >= 5) && (ifn[0] == 's') && (ifn[1] == 'w'))
 		trap_flag = true;
 
 	if (strstr(host_name, "LS1021ATSN"))
