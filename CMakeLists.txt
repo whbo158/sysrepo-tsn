@@ -24,9 +24,9 @@ include_directories(${NLGEN_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${NLGEN_LIBRARIES})
 
 # dependencies - libtsn
-find_package(TSN REQUIRED)
-include_directories(${TSN_INCLUDE_DIRS})
-set(LIBS ${LIBS} ${TSN_LIBRARIES})
+#find_package(TSN REQUIRED)
+#include_directories(${TSN_INCLUDE_DIRS})
+#set(LIBS ${LIBS} ${TSN_LIBRARIES})
 
 # dependencies - sysrepo
 find_package(SYSREPO REQUIRED)
