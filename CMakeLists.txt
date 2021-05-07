@@ -24,9 +24,9 @@ include_directories(${NLGEN_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${NLGEN_LIBRARIES})
 
 # dependencies - libtsn
-find_package(TSN REQUIRED)
-include_directories(${TSN_INCLUDE_DIRS})
-set(LIBS ${LIBS} ${TSN_LIBRARIES})
+#find_package(TSN REQUIRED)
+#include_directories(${TSN_INCLUDE_DIRS})
+#set(LIBS ${LIBS} ${TSN_LIBRARIES})
 
 # dependencies - sysrepo
 find_package(SYSREPO REQUIRED)
@@ -40,14 +40,14 @@ set(LIBS ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
 set(SOURCES
 		src/main.c
 		src/common.c
-		src/qbv.c
-		src/qbu.c
-		src/cb_streamid.c
-		src/qci.c
-		src/qci_sf.c
-		src/qci_sg.c
-		src/qci_fm.c
-		src/brtc_cfg.c
+		#src/qbv.c
+		#src/qbu.c
+		#src/cb_streamid.c
+		#src/qci.c
+		#src/qci_sf.c
+		#src/qci_sg.c
+		#src/qci_fm.c
+		#src/brtc_cfg.c
 		src/ip_cfg.c
 		src/mac_cfg.c
 		src/vlan_cfg.c
