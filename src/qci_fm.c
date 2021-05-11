@@ -382,7 +382,7 @@ int config_fm(sr_session_ctx_t *session)
 //					  cur_node->fm_ptr->fm_id,
 //					  cur_node->fm_ptr->enable,
 //					  &(cur_node->fm_ptr->fmconf));
-		printf("WHB QCI_FM port:%d fm_id:%d enable:%d\n", cur_node->fm_ptr->port,cur_node->fm_ptr->fm_id,cur_node->fm_ptr->enable);
+		printf("FOR YOCTO QCI_FM port:%d fm_id:%d enable:%d\n", cur_node->fm_ptr->port,cur_node->fm_ptr->fm_id,cur_node->fm_ptr->enable);
 		if (rc < 0) {
 			sprintf(err_msg,
 				"failed to set flow meter, %s!",

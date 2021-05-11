@@ -116,7 +116,7 @@ static int tsn_config_qbv_by_tc(sr_session_ctx_t *session, char *ifname,
 		return rc;
 
 	host_name = get_host_name();
-	printf("WHB QBV host_name:%s\n", host_name);
+	printf("FOR YOCTO QBV host_name:%s\n", host_name);
 	if (host_name && strstr(host_name, "IMX8MPEVK"))
 		num_tc = 5;
 
@@ -220,7 +220,7 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 	} else {
 //		rc = tsn_qos_port_qbv_set(ifname, qbvconf->qbvconf_ptr,
 //				  qbvconf->qbv_en);
-		printf("WHB QBV if:%s base_time:%ld cycle_time:%ld\n", ifname, qbvconf->qbvconf_ptr->admin.base_time, qbvconf->qbvconf_ptr->admin.cycle_time);
+		printf("FOR YOCTO QBV if:%s base_time:%ld cycle_time:%ld\n", ifname, qbvconf->qbvconf_ptr->admin.base_time, qbvconf->qbvconf_ptr->admin.cycle_time);
 	}
 
 	if (rc < 0) {
@@ -563,7 +563,7 @@ int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 
 #ifdef SYSREPO_TSN_TC
 	stc_cfg_flag = true;
-	printf("WHB enable stc_cfg_flag\n");
+	printf("FOR YOCTO enable stc_cfg_flag\n");
 #else
 	stc_cfg_flag = false;
 #endif

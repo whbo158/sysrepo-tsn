@@ -351,7 +351,7 @@ int config_sf(sr_session_ctx_t *session)
 		//			  cur_node->sf_ptr->sf_id,
 		//			  cur_node->sf_ptr->enable,
 		//			  &(cur_node->sf_ptr->sfconf));
-		printf("WHB QCI_SF port:%d sf_id:%d enable:%d\n", cur_node->sf_ptr->port,cur_node->sf_ptr->sf_id,cur_node->sf_ptr->enable);
+		printf("FOR YOCTO QCI_SF port:%d sf_id:%d enable:%d\n", cur_node->sf_ptr->port,cur_node->sf_ptr->sf_id,cur_node->sf_ptr->enable);
 		if (rc < 0) {
 			sprintf(err_msg,
 				"failed to set stream filter, %s!",
