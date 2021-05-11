@@ -21,7 +21,6 @@
 #ifndef __QBV_H_
 #define __QBV_H_
 
-#include <tsn/genl_tsn.h>
 #include "common.h"
 
 #define QBV_TC_NUM (8)

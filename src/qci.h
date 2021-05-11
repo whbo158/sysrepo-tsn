@@ -21,7 +21,6 @@
 #ifndef __QCI_H_
 #define __QCI_H_
 
-#include <tsn/genl_tsn.h>
 #include "common.h"
 
 #define QCISFSG_NM "ieee802-dot1q-stream-filters-gates"

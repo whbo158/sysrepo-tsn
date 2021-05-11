@@ -10,7 +10,7 @@
 	<bridge-type>provider-edge-bridge</bridge-type>
 	<address>d6-ad-62-c6-49-ae</address>
         <component>
-            <name>swp2</name>
+            <name>fm1-mac9</name>
 	    <type>edge-relay-component</type>
 	    <stream:streams>
                 <stream:stream-identity-table>

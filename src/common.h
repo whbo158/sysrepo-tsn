@@ -32,8 +32,8 @@
 #include <sysrepo/plugins.h>
 #include <sysrepo/trees.h>
 #include "sysrepo/xpath.h"
-#include <tsn/genl_tsn.h> /* must ensure no stdbool.h was included before */
-#include <linux/tsn.h>
+#include "tsn/genl_tsn.h" /* must ensure no stdbool.h was included before */
+//#include <linux/tsn.h>
 #include <errno.h>
 
 #include <stdio.h>
@@ -59,6 +59,10 @@
 #include <netinet/in.h>
 #include <linux/if_vlan.h>
 #include <linux/sockios.h>
+
+#include "tsn.h"
+
+#define SYSREPO_TSN_TC
 
 #define PRINT printf
 

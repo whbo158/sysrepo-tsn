@@ -507,8 +507,8 @@ int config_sg(sr_session_ctx_t *session)
 	uint64_t time;
 	struct tsn_qci_psfp_sgi_conf *sgi;
 
-	if (!stc_cfg_flag)
-		init_tsn_socket();
+//	if (!stc_cfg_flag)
+//		init_tsn_socket();
 	while (cur_node) {
 		sgi = &cur_node->sg_ptr->sgconf;
 		if (cur_node->sg_ptr->basetime_f) {
@@ -520,9 +520,10 @@ int config_sg(sr_session_ctx_t *session)
 			sgi->admin.cycle_time = time;
 		}
 		/* set new stream gates configuration */
-		rc = tsn_qci_psfp_sgi_set(cur_node->sg_ptr->port,
-					  cur_node->sg_ptr->sg_handle,
-					  cur_node->sg_ptr->enable, sgi);
+		//rc = tsn_qci_psfp_sgi_set(cur_node->sg_ptr->port,
+		//			  cur_node->sg_ptr->sg_handle,
+		//			  cur_node->sg_ptr->enable, sgi);
+		printf("FOR YOCTO QCI_SG port:%d sg_handle:%d enable:%d\n", cur_node->sg_ptr->port,cur_node->sg_ptr->sg_handle,cur_node->sg_ptr->enable);
 		if (rc < 0) {
 			sprintf(err_msg,
 				"failed to set stream gate, %s!",
@@ -544,8 +545,8 @@ int config_sg(sr_session_ctx_t *session)
 	}
 
 cleanup:
-	if (!stc_cfg_flag)
-		close_tsn_socket();
+//	if (!stc_cfg_flag)
+//		close_tsn_socket();
 
 	return rc;
 }
@@ -624,7 +625,7 @@ int qci_sg_get_para(char *buf, int len)
 	for (i = 0; i < para->entry_cnt; i++) {
 		gate = para->entry + i;
 
-		snprintf(sub_buf, len, "action gate index %d ", gate->id);
+		snprintf(sub_buf, SUB_CMD_LEN, "action gate index %d ", gate->id);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 		snprintf(sub_buf, SUB_CMD_LEN, "base-time %" PRIu64 " ", gate->base_time);

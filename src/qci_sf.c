@@ -343,14 +343,15 @@ int config_sf(sr_session_ctx_t *session)
 	struct std_qci_list *cur_node = sf_list_head;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
-	if (!stc_cfg_flag)
-		init_tsn_socket();
+//	if (!stc_cfg_flag)
+//		init_tsn_socket();
 	while (cur_node) {
 		/* set new stream filters configuration */
-		rc = tsn_qci_psfp_sfi_set(cur_node->sf_ptr->port,
-					  cur_node->sf_ptr->sf_id,
-					  cur_node->sf_ptr->enable,
-					  &(cur_node->sf_ptr->sfconf));
+		//rc = tsn_qci_psfp_sfi_set(cur_node->sf_ptr->port,
+		//			  cur_node->sf_ptr->sf_id,
+		//			  cur_node->sf_ptr->enable,
+		//			  &(cur_node->sf_ptr->sfconf));
+		printf("FOR YOCTO QCI_SF port:%d sf_id:%d enable:%d\n", cur_node->sf_ptr->port,cur_node->sf_ptr->sf_id,cur_node->sf_ptr->enable);
 		if (rc < 0) {
 			sprintf(err_msg,
 				"failed to set stream filter, %s!",
@@ -372,8 +373,8 @@ int config_sf(sr_session_ctx_t *session)
 	}
 
 cleanup:
-	if (!stc_cfg_flag)
-		close_tsn_socket();
+//	if (!stc_cfg_flag)
+//		close_tsn_socket();
 
 	return rc;
 }

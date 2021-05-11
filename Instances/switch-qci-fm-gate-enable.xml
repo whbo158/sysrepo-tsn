@@ -10,7 +10,7 @@
 	<bridge-type>provider-edge-bridge</bridge-type>
 	<address>d6-ad-62-c6-49-ae</address>
         <component>
-            <name>swp0</name>
+            <name>fm1-mac9</name>
 	    <type>edge-relay-component</type>
 	    <stream:streams>
                 <stream:stream-identity-table>
@@ -20,7 +20,7 @@
                     <stream:identification-type>null</stream:identification-type>
                     <stream:parameters>
 	    	        <stream:null-stream-identification-params>
-	    	            <stream:dest-address>92-F2-5E-E2-CC-C4</stream:dest-address>
+	    	            <stream:dest-address>92-F2-5E-E2-CC-C5</stream:dest-address>
 	    	            <stream:vlan-tagged>all</stream:vlan-tagged>
 	    	            <stream:vlan-id>1</stream:vlan-id>
 	    	        </stream:null-stream-identification-params>

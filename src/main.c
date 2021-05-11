@@ -174,7 +174,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
+#if 1
 	/* Subscribe to QBV subtree */
 	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
@@ -210,7 +210,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
+#endif
 	/* Subscribe to IP_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
 	strncat(path, IPV4_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
@@ -233,7 +233,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
+#if 1
 	/* Subscribe to QCI-Stream-Filter subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCISF_XPATH, XPATH_MAX_LEN - strlen(path));
@@ -271,7 +271,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
+#endif
 	/* Subscribe to VLAN_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, BR_VLAN_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
@@ -294,7 +294,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
+#if 1
 	/* Subscribe to BR_TC_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, BR_TC_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
@@ -306,7 +306,7 @@ int main(int argc, char **argv)
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
+#endif
 	/* Loop until ctrl-c is pressed / SIGINT is received */
 	signal(SIGINT, sigint_handler);
 	signal(SIGPIPE, SIG_IGN);

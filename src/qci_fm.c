@@ -374,14 +374,15 @@ int config_fm(sr_session_ctx_t *session)
 	struct std_qci_list *cur_node = fm_list_head;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
-	if (!stc_cfg_flag)
-		init_tsn_socket();
+//	if (!stc_cfg_flag)
+//		init_tsn_socket();
 	while (cur_node) {
 		/* set new flow meter configuration */
-		rc = tsn_qci_psfp_fmi_set(cur_node->fm_ptr->port,
-					  cur_node->fm_ptr->fm_id,
-					  cur_node->fm_ptr->enable,
-					  &(cur_node->fm_ptr->fmconf));
+//		rc = tsn_qci_psfp_fmi_set(cur_node->fm_ptr->port,
+//					  cur_node->fm_ptr->fm_id,
+//					  cur_node->fm_ptr->enable,
+//					  &(cur_node->fm_ptr->fmconf));
+		printf("FOR YOCTO QCI_FM port:%d fm_id:%d enable:%d\n", cur_node->fm_ptr->port,cur_node->fm_ptr->fm_id,cur_node->fm_ptr->enable);
 		if (rc < 0) {
 			sprintf(err_msg,
 				"failed to set flow meter, %s!",
@@ -401,8 +402,8 @@ int config_fm(sr_session_ctx_t *session)
 	}
 
 cleanup:
-	if (!stc_cfg_flag)
-		close_tsn_socket();
+//	if (!stc_cfg_flag)
+//		close_tsn_socket();
 
 	return rc;
 }
@@ -445,7 +446,7 @@ int qci_fm_get_para(char *buf, int len)
 	for (i = 0; i < para->entry_cnt; i++) {
 		entry = para->entry + i;
 
-		snprintf(sub_buf, len, "action police index %d ", entry->id);
+		snprintf(sub_buf, SUB_CMD_LEN, "action police index %d ", entry->id);
 		strncat(buf, sub_buf, len - 1 - strlen(buf));
 
 		if (entry->cir > MBPS) {
