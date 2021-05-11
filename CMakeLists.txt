@@ -40,7 +40,7 @@ set(LIBS ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
 set(SOURCES
 		src/main.c
 		src/common.c
-		#src/qbv.c
+		src/qbv.c
 		#src/qbu.c
 		#src/cb_streamid.c
 		#src/qci.c

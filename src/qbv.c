@@ -28,6 +28,7 @@
 #include "common.h"
 #include "main.h"
 #include "qbv.h"
+#include "tsn.h"
 
 static bool stc_cfg_flag;
 static char stc_cmd[MAX_CMD_LEN];
@@ -216,8 +217,8 @@ int tsn_config_qbv(sr_session_ctx_t *session, char *ifname,
 		else
 			rc = tsn_config_del_qbv_by_tc(qbvconf, ifname);
 	} else {
-		rc = tsn_qos_port_qbv_set(ifname, qbvconf->qbvconf_ptr,
-				  qbvconf->qbv_en);
+//		rc = tsn_qos_port_qbv_set(ifname, qbvconf->qbvconf_ptr,
+//				  qbvconf->qbv_en);
 	}
 
 	if (rc < 0) {
@@ -490,11 +491,11 @@ int config_qbv_per_port(sr_session_ctx_t *session, char *path, bool abort,
 			goto cleanup;
 	}
 config_qbv:
-	if (!stc_cfg_flag)
-		init_tsn_socket();
+//	if (!stc_cfg_flag)
+//		init_tsn_socket();
 	rc = tsn_config_qbv(session, ifname, &qbvconf);
-	if (!stc_cfg_flag)
-		close_tsn_socket();
+//	if (!stc_cfg_flag)
+//		close_tsn_socket();
 
 cleanup:
 	free_qbv_memory(qbvconf.qbvconf_ptr);
