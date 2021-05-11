@@ -62,6 +62,8 @@
 
 #include "tsn.h"
 
+#define SYSREPO_TSN_TC
+
 #define PRINT printf
 
 #define MAX_CMD_LEN		(512)

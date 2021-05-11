@@ -219,6 +219,7 @@ config_qbu:
 	//	init_tsn_socket();
 	//	rc = tsn_qbu_set(ifname, pt_num);
 	//	close_tsn_socket();
+		printf("WHB QBU if:%s pt_num:%d\n", ifname, pt_num);
 	}
 
 	if (rc < 0) {

@@ -687,6 +687,7 @@ int config_streamid(sr_session_ctx_t *session)
 	//				 cur_node->stream_ptr->index,
 	//				 cur_node->stream_ptr->enable,
 	//				 &(cur_node->stream_ptr->cbconf));
+		printf("WHB CB_STREAM port:%d index:%d enable:%d\n", cur_node->stream_ptr->port,cur_node->stream_ptr->index,cur_node->stream_ptr->enable);
 		if (rc < 0) {
 			sprintf(err_msg,
 				"failed to set stream-id, %s!",

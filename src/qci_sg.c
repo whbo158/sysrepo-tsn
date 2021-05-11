@@ -523,6 +523,7 @@ int config_sg(sr_session_ctx_t *session)
 		//rc = tsn_qci_psfp_sgi_set(cur_node->sg_ptr->port,
 		//			  cur_node->sg_ptr->sg_handle,
 		//			  cur_node->sg_ptr->enable, sgi);
+		printf("WHB QCI_SG port:%d sg_handle:%d enable:%d\n", cur_node->sg_ptr->port,cur_node->sg_ptr->sg_handle,cur_node->sg_ptr->enable);
 		if (rc < 0) {
 			sprintf(err_msg,
 				"failed to set stream gate, %s!",
