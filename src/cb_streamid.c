@@ -679,14 +679,14 @@ int config_streamid(sr_session_ctx_t *session)
 	struct std_cb_stream_list *cur_node = stream_head;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
-	if (!stc_cfg_flag)
-		init_tsn_socket();
+//	if (!stc_cfg_flag)
+//		init_tsn_socket();
 	while (cur_node) {
 		/* set new flow meter configuration */
-		rc = tsn_cb_streamid_set(cur_node->stream_ptr->port,
-					 cur_node->stream_ptr->index,
-					 cur_node->stream_ptr->enable,
-					 &(cur_node->stream_ptr->cbconf));
+	//	rc = tsn_cb_streamid_set(cur_node->stream_ptr->port,
+	//				 cur_node->stream_ptr->index,
+	//				 cur_node->stream_ptr->enable,
+	//				 &(cur_node->stream_ptr->cbconf));
 		if (rc < 0) {
 			sprintf(err_msg,
 				"failed to set stream-id, %s!",
@@ -707,8 +707,8 @@ int config_streamid(sr_session_ctx_t *session)
 	}
 
 cleanup:
-	if (!stc_cfg_flag)
-		close_tsn_socket();
+//	if (!stc_cfg_flag)
+//		close_tsn_socket();
 
 	return rc;
 }

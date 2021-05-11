@@ -374,14 +374,14 @@ int config_fm(sr_session_ctx_t *session)
 	struct std_qci_list *cur_node = fm_list_head;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
-	if (!stc_cfg_flag)
-		init_tsn_socket();
+//	if (!stc_cfg_flag)
+//		init_tsn_socket();
 	while (cur_node) {
 		/* set new flow meter configuration */
-		rc = tsn_qci_psfp_fmi_set(cur_node->fm_ptr->port,
-					  cur_node->fm_ptr->fm_id,
-					  cur_node->fm_ptr->enable,
-					  &(cur_node->fm_ptr->fmconf));
+//		rc = tsn_qci_psfp_fmi_set(cur_node->fm_ptr->port,
+//					  cur_node->fm_ptr->fm_id,
+//					  cur_node->fm_ptr->enable,
+//					  &(cur_node->fm_ptr->fmconf));
 		if (rc < 0) {
 			sprintf(err_msg,
 				"failed to set flow meter, %s!",
@@ -401,8 +401,8 @@ int config_fm(sr_session_ctx_t *session)
 	}
 
 cleanup:
-	if (!stc_cfg_flag)
-		close_tsn_socket();
+//	if (!stc_cfg_flag)
+//		close_tsn_socket();
 
 	return rc;
 }

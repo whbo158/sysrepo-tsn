@@ -42,7 +42,7 @@ struct std_sf {
 	char port[IF_NAME_MAX_LEN];
 	uint32_t sf_id;
 	bool enable;
-//	struct tsn_qci_psfp_sfi_conf sfconf;
+	struct tsn_qci_psfp_sfi_conf sfconf;
 };
 
 struct std_sg {
@@ -54,14 +54,14 @@ struct std_sg {
 	bool cycletime_f;
 	struct base_time_s basetime;
 	bool basetime_f;
-//	struct tsn_qci_psfp_sgi_conf sgconf;
+	struct tsn_qci_psfp_sgi_conf sgconf;
 };
 
 struct std_fm {
 	char port[IF_NAME_MAX_LEN];
 	uint32_t fm_id;
 	bool enable;
-//	struct tsn_qci_psfp_fmi fmconf;
+	struct tsn_qci_psfp_fmi fmconf;
 };
 
 struct std_qci_list {

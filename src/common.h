@@ -60,6 +60,8 @@
 #include <linux/if_vlan.h>
 #include <linux/sockios.h>
 
+#include "tsn.h"
+
 #define PRINT printf
 
 #define MAX_CMD_LEN		(512)
