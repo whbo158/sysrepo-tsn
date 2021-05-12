@@ -62,7 +62,7 @@
 
 #include "tsn.h"
 
-#define SYSREPO_TSN_TC
+//#define SYSREPO_TSN_TC
 
 #define PRINT printf
 

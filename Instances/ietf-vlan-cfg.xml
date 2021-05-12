@@ -8,8 +8,8 @@
 		    <type>edge-relay-component</type>
 			<bridge-vlan>
 				<vlan>
-					<vid>162</vid>
-					<name>swp2</name>
+					<vid>163</vid>
+					<name>fm1-mac9</name>
 				</vlan>
 			</bridge-vlan>
 		</component>
