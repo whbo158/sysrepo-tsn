@@ -135,12 +135,12 @@ struct std_qci_list *is_node_in_list(struct std_qci_list *list,
 		char *port, uint32_t id, enum qci_type type);
 void add_node2list(struct std_qci_list *list, struct std_qci_list *node);
 
-int qci_sf_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_event_t event, void *private_ctx);
-int qci_sg_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_event_t event, void *private_ctx);
-int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_event_t event, void *private_ctx);
+int qci_sf_subtree_change_cb(sr_session_ctx_t *session, const char *module_name, const char *path,
+			sr_event_t event, uint32_t request_id, void *private_ctx);
+int qci_sg_subtree_change_cb(sr_session_ctx_t *session, const char *module_name, const char *path,
+			sr_event_t event, uint32_t request_id, void *private_ctx);
+int qci_fm_subtree_change_cb(sr_session_ctx_t *session, const char *module_name, const char *path,
+			sr_event_t event, uint32_t request_id, void *private_ctx);
 
 int qci_init_para(void);
 

@@ -449,7 +449,7 @@ int config_qbv_per_port(sr_session_ctx_t *session, char *path, bool abort,
 
 	init_qbv_memory(&qbvconf);
 
-	rc = sr_get_items(session, path, 0, &values, &count);
+	rc = sr_get_items(session, path, 0, 0, &values, &count);
 	if (rc == SR_ERR_NOT_FOUND) {
 		/*
 		 * If can't find any item, we should check whether this
@@ -555,17 +555,17 @@ cleanup:
 	return rc;
 }
 
-int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_event_t event, void *private_ctx)
+int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *module_name, const char *path,
+			sr_event_t event, uint32_t request_id, void *private_ctx)
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
 #ifdef SYSREPO_TSN_TC
 	stc_cfg_flag = true;
-,	printf("FOR YOCTO enable stc_cfg_flag\n");
+	printf("FOR YOCTO enable stc_cfg_flag\n");
 #else
-,	stc_cfg_flag = false;
+	stc_cfg_flag = false;
 #endif
 
 	/* Only process called by gate-parameters is enough */

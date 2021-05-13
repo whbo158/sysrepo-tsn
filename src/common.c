@@ -149,7 +149,7 @@ void print_config_iter(sr_session_ctx_t *session, const char *path)
 	if (!path || !session)
 		return;
 
-	rc = sr_get_items(session, path, 0, &values, &count);
+	rc = sr_get_items(session, path, 0, 0, &values, &count);
 	if (rc != SR_ERR_OK) {
 		printf("Error by sr_get_items: %s", sr_strerror(rc));
 		return;
