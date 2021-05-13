@@ -24,9 +24,9 @@ include_directories(${NLGEN_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${NLGEN_LIBRARIES})
 
 # dependencies - libtsn
-#find_package(TSN REQUIRED)
-#include_directories(${TSN_INCLUDE_DIRS})
-#set(LIBS ${LIBS} ${TSN_LIBRARIES})
+find_package(TSN REQUIRED)
+include_directories(${TSN_INCLUDE_DIRS})
+set(LIBS ${LIBS} ${TSN_LIBRARIES})
 
 # dependencies - sysrepo
 find_package(SYSREPO REQUIRED)
@@ -56,14 +56,14 @@ set(SOURCES
 find_package(PkgConfig)
 
 # get sysrepo plugins directory
-if (NOT SR_PLUGINS_DIR)
+if (NOT SRPD_PLUGINS_PATH)
     if (PKG_CONFIG_FOUND)
-        execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} "--variable=SR_PLUGINS_DIR" "libsysrepo" OUTPUT_VARIABLE SR_PLUGINS_DIR)
-        string(STRIP ${SR_PLUGINS_DIR} SR_PLUGINS_DIR)
+        execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} "--variable=SRPD_PLUGINS_PATH" "libsysrepo" OUTPUT_VARIABLE SRPD_PLUGINS_PATH)
+        string(STRIP ${SRPD_PLUGINS_PATH} SRPD_PLUGINS_PATH)
     endif()
 endif()
-if (NOT SR_PLUGINS_DIR)
-    message(FATAL_ERROR "Cannot get sysrepo plugins directory due to missing pkg-config, set SR_PLUGINS_DIR manually.")
+if (NOT SRPD_PLUGINS_PATH)
+    message(FATAL_ERROR "Cannot get sysrepo plugins directory due to missing pkg-config, set SRPD_PLUGINS_PATH manually.")
 endif()
 
 # find programs

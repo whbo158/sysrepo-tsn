@@ -449,7 +449,7 @@ int config_qbv_per_port(sr_session_ctx_t *session, char *path, bool abort,
 
 	init_qbv_memory(&qbvconf);
 
-	rc = sr_get_items(session, path, &values, &count);
+	rc = sr_get_items(session, path, 0, &values, &count);
 	if (rc == SR_ERR_NOT_FOUND) {
 		/*
 		 * If can't find any item, we should check whether this
@@ -556,16 +556,16 @@ cleanup:
 }
 
 int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *path,
-		sr_notif_event_t event, void *private_ctx)
+		sr_event_t event, void *private_ctx)
 {
 	int rc = SR_ERR_OK;
 	char xpath[XPATH_MAX_LEN] = {0,};
 
 #ifdef SYSREPO_TSN_TC
 	stc_cfg_flag = true;
-	printf("FOR YOCTO enable stc_cfg_flag\n");
+,	printf("FOR YOCTO enable stc_cfg_flag\n");
 #else
-	stc_cfg_flag = false;
+,	stc_cfg_flag = false;
 #endif
 
 	/* Only process called by gate-parameters is enough */
@@ -575,7 +575,7 @@ int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 	snprintf(xpath, XPATH_MAX_LEN, "%s/%s:*//*", IF_XPATH,
 		 QBV_MODULE_NAME);
 	switch (event) {
-	case SR_EV_VERIFY:
+	case SR_EV_CHANGE:
 		if (rc)
 			goto out;
 		rc = qbv_config(session, xpath, false);
@@ -583,7 +583,7 @@ int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 	case SR_EV_ENABLED:
 		rc = qbv_config(session, xpath, false);
 		break;
-	case SR_EV_APPLY:
+	case SR_EV_DONE:
 		break;
 	case SR_EV_ABORT:
 		rc = qbv_config(session, xpath, true);
@@ -594,4 +594,3 @@ int qbv_subtree_change_cb(sr_session_ctx_t *session, const char *path,
 out:
 	return rc;
 }
-

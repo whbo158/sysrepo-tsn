@@ -43,12 +43,6 @@
 
 static uint8_t exit_application;
 
-static int module_change_cb(sr_session_ctx_t *session, const char *module_name,
-		sr_notif_event_t event, void *private_ctx)
-{
-	return SR_ERR_OK;
-}
-
 static void sigint_handler(int signum)
 {
 	exit_application = 1;
@@ -149,38 +143,27 @@ int main(int argc, char **argv)
 #endif
 
 	/* Connect to sysrepo */
-	rc = sr_connect("netconf-tsn", SR_CONN_DEFAULT, &connection);
+	rc = sr_connect(SR_CONN_DEFAULT, &connection);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_connect: %s\n", sr_strerror(rc));
 		goto cleanup;
 	}
 
 	/* Start session */
-	rc = sr_session_start(connection, SR_DS_STARTUP, SR_SESS_DEFAULT,
-			      &session);
+	rc = sr_session_start(connection, SR_DS_STARTUP, &session);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_session_start: %s\n",
 			sr_strerror(rc));
 		goto cleanup;
 	}
-
-	/* Subscribe to ietf-interfaces module */
-	opts = SR_SUBSCR_APPLY_ONLY | SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE;
-	rc = sr_module_change_subscribe(session, "ietf-interfaces",
-					module_change_cb, NULL, 0, opts,
-					&if_subscription);
-	if (rc != SR_ERR_OK) {
-		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
-			sr_strerror(rc));
-		goto cleanup;
-	}
 #if 1
 	/* Subscribe to QBV subtree */
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
 	strncat(path, QBV_GATE_PARA_XPATH, XPATH_MAX_LEN - strlen(path));
-	rc = sr_subtree_change_subscribe(session, path, qbv_subtree_change_cb,
-					 NULL, 0, opts, &if_subscription);
+	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
+					qbv_subtree_change_cb, NULL, 0,
+					opts, &if_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -190,9 +173,10 @@ int main(int argc, char **argv)
 	/* Subscribe to QBV subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
 	strncat(path, QBV_MAX_SDU_XPATH, XPATH_MAX_LEN - strlen(path));
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path, qbv_subtree_change_cb,
-					 NULL, 0, opts, &if_subscription);
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
+					qbv_subtree_change_cb, NULL, 0,
+					opts, &if_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -202,9 +186,10 @@ int main(int argc, char **argv)
 	/* Subscribe to QBU subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
 	strncat(path, QBU_XPATH, XPATH_MAX_LEN - strlen(path));
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path, qbu_subtree_change_cb,
-					 NULL, 0, opts, &if_subscription);
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
+					qbu_subtree_change_cb, NULL, 0,
+					opts, &if_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
 			sr_strerror(rc));
@@ -214,55 +199,46 @@ int main(int argc, char **argv)
 	/* Subscribe to IP_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", IF_XPATH);
 	strncat(path, IPV4_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path, ip_subtree_change_cb,
-					 NULL, 0, opts, &if_subscription);
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ietf-interfaces", path,
+					ip_subtree_change_cb, NULL, 0,
+					opts, &if_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error subscribe ip_subtree_change_cb: %s\n",
 			sr_strerror(rc));
 		goto cleanup;
 	}
 
-	/* Subscribe to ieee802-dot1q-bridge module */
-	opts = SR_SUBSCR_APPLY_ONLY | SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE;
-	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge",
-					module_change_cb, NULL, 0, opts,
-					&bridge_subscription);
-	if (rc != SR_ERR_OK) {
-		fprintf(stderr, "Error by sr_module_change_subscribe: %s\n",
-			sr_strerror(rc));
-		goto cleanup;
-	}
 #if 1
 	/* Subscribe to QCI-Stream-Filter subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCISF_XPATH, XPATH_MAX_LEN - strlen(path));
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path,
-					 qci_sf_subtree_change_cb,
-					 NULL, 0, opts, &bridge_subscription);
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					qci_sf_subtree_change_cb,
+					NULL, 0, opts, &bridge_subscription);
 
 	/* Subscribe to QCI-Stream-Gate subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCISG_XPATH, XPATH_MAX_LEN - strlen(path));
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path,
-					 qci_sg_subtree_change_cb,
-					 NULL, 0, opts, &bridge_subscription);
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					qci_sg_subtree_change_cb,
+					NULL, 0, opts, &bridge_subscription);
 
 	/* Subscribe to QCI-Flow-Meter subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, QCIFM_XPATH, XPATH_MAX_LEN - strlen(path));
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path,
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					 qci_fm_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
 
 	/* Subscribe to CB-StreamID subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, CB_STREAMID_XPATH, XPATH_MAX_LEN - strlen(path));
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path,
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
 					 cb_streamid_subtree_change_cb,
 					 NULL, 0, opts, &bridge_subscription);
 
@@ -275,9 +251,10 @@ int main(int argc, char **argv)
 	/* Subscribe to VLAN_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, BR_VLAN_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path, vlan_subtree_change_cb,
-					NULL, 0, opts, &bridge_subscription);
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					 vlan_subtree_change_cb,
+					 NULL, 0, opts, &bridge_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error subscribe vlan_subtree_change_cb: %s\n",
 			sr_strerror(rc));
@@ -286,9 +263,10 @@ int main(int argc, char **argv)
 
 	/* Subscribe to MAC_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_ADDR_XPATH);
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path, mac_subtree_change_cb,
-					NULL, 0, opts, &bridge_subscription);
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					 mac_subtree_change_cb,
+					 NULL, 0, opts, &bridge_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error subscribe mac_subtree_change_cb: %s\n",
 			sr_strerror(rc));
@@ -298,9 +276,10 @@ int main(int argc, char **argv)
 	/* Subscribe to BR_TC_CFG subtree */
 	snprintf(path, XPATH_MAX_LEN, "%s", BRIDGE_COMPONENT_XPATH);
 	strncat(path, BR_TC_XPATH, XPATH_MAX_LEN - 1 - strlen(path));
-	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_EV_ENABLED;
-	rc = sr_subtree_change_subscribe(session, path, brtc_subtree_change_cb,
-					NULL, 0, opts, &bridge_subscription);
+	opts = SR_SUBSCR_DEFAULT | SR_SUBSCR_CTX_REUSE | SR_SUBSCR_ENABLED;
+	rc = sr_module_change_subscribe(session, "ieee802-dot1q-bridge", path,
+					 brtc_subtree_change_cb,
+					 NULL, 0, opts, &bridge_subscription);
 	if (rc != SR_ERR_OK) {
 		fprintf(stderr, "Error subscribe brtc_subtree_change_cb: %s\n",
 			sr_strerror(rc));
@@ -316,9 +295,9 @@ int main(int argc, char **argv)
 cleanup:
 	destroy_tsn_mutex();
 	if (if_subscription)
-		sr_unsubscribe(session, if_subscription);
+		sr_unsubscribe(if_subscription);
 	if (bridge_subscription)
-		sr_unsubscribe(session, bridge_subscription);
+		sr_unsubscribe(bridge_subscription);
 	if (session)
 		sr_session_stop(session);
 	if (connection)
